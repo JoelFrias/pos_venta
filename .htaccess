@@ -1,0 +1,11 @@
+Options -Indexes
+RewriteEngine On
+
+# Condición: No es un directorio
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Condición: No es un archivo
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Regla: Redirigir todo lo que no exista a index.php
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
