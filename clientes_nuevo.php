@@ -179,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="form-group">
                         <label for="telefono">Teléfono:</label>
-                        <input type="text" id="telefono" name="telefono" autocomplete="off" required>
+                        <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" required maxlength="12" required>
                     </div>
                 </div>
                 
@@ -267,5 +267,27 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
 
     </div>
     <script src="Assets/js/menu.js"></script>
+                
+<!-- NUMERO TELEFONICO-->
+<script>
+const telefonoInput = document.getElementById('telefono');
+  telefonoInput.addEventListener('input', function () {
+      let value = this.value.replace(/[^0-9]/g, '');  // Eliminar cualquier carácter que no sea número
+
+      // Agregar el primer guion después de los tres primeros números
+      if (value.length > 3 && value.charAt(3) !== '-') {
+          value = value.slice(0, 3) + '-' + value.slice(3);
+      }
+
+      // Agregar el segundo guion después de los seis primeros números (3+3)
+      if (value.length > 6 && value.charAt(6) !== '-') {
+          value = value.slice(0, 7) + '-' + value.slice(7);
+      }
+
+      // Asignar el valor al campo de entrada
+      this.value = value;
+  });
+</script>
+<!--  -->
 </body>
 </html>
