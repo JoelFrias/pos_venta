@@ -238,7 +238,7 @@ if (isset($_SESSION['status']) && $_SESSION['status'] === 'success') {
         <script>
             Swal.fire({
                 title: '¡Éxito!',
-                text: 'El registro ha sido registrado exitosamente.',
+                text: 'El cliente ha sido registrado exitosamente.',
                 icon: 'success',
                 confirmButtonText: 'Aceptar'
             }).then(function() {
