@@ -165,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="tipo_identificacion">Tipo de Identificación:</label>
                         <select id="tipo_identificacion" name="tipo_identificacion" required>
-                            <option value="">Seleccionar</option>
+                            <option value="" disabled selected>Seleccionar</option> <!-- Opción vacía evita que pueda selecionar eso-->
                             <option value="cedula">Cédula</option>
                             <option value="rnc">RNC</option>
                             <option value="pasaporte">Pasaporte</option>
