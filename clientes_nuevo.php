@@ -149,17 +149,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="nombre">Nombre:</label>
-                        <input type="text" id="nombre" name="nombre" autocomplete="off" required>
+                        <input type="text" id="nombre" name="nombre" autocomplete="off" placeholder="Ingrese el Nombre" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="apellido">Apellido:</label>
-                        <input type="text" id="apellido" name="apellido" autocomplete="off" required>
+                        <input type="text" id="apellido" name="apellido" autocomplete="off" placeholder="ingrese el apellido" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="empresa">Empresa:</label>
-                        <input type="text" id="empresa" name="empresa" autocomplete="off" required>
+                        <input type="text" id="empresa" name="empresa" autocomplete="off" placeholder="ingrese nombre de la empresa" required>
                     </div>
                     
                     <div class="form-group">
@@ -174,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="form-group">
                         <label for="identificacion">Número de Identificación:</label>
-                        <input type="text" id="identificacion" name="identificacion" autocomplete="off" required>
+                        <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="ingrese la indentificacion" required>
                     </div>
                     
                     <div class="form-group">
@@ -185,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 <div class="form-group full-width">
                     <label for="notas">Notas:</label>
-                    <textarea id="notas" name="notas" required>
+                    <textarea id="notas" name="notas" placeholder="Ojo notas repecto al cliente" required>
                     </textarea>
                 </div>
             </fieldset>
@@ -195,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="limite_credito">Límite de Crédito:</label>
-                        <input type="number" id="limite_credito" name="limite_credito" step="0.01" autocomplete="off" required>
+                        <input type="number" id="limite_credito" name="limite_credito" step="0.01" autocomplete="off" placeholder="ingrese un limite de credito" required>
                     </div>
             </fieldset>
 
@@ -204,28 +204,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="no">Número:</label>
-                        <input type="text" id="no" name="no" autocomplete="off" required>
+                        <input type="text" id="no" name="no" autocomplete="off" placeholder=" Ingrese solo el numero de calle" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="calle">Calle:</label>
-                        <input type="text" id="calle" name="calle" autocomplete="off" required>
+                        <input type="text" id="calle" name="calle" autocomplete="off" placeholder="ingrese el nombre de la calle" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="sector">Sector:</label>
-                        <input type="text" id="sector" name="sector" autocomplete="off" required>
+                        <input type="text" id="sector" name="sector" autocomplete="off" placeholder="ingrese el sector" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="ciudad">Ciudad:</label>
-                        <input type="text" id="ciudad" name="ciudad" autocomplete="off" required>
+                        <input type="text" id="ciudad" name="ciudad" autocomplete="off" placeholder="ingrese la cuidad" required>
                     </div>
                 </div>
                 
                 <div class="form-group full-width">
                     <label for="referencia">Referencia:</label>
-                    <textarea id="referencia" name="referencia"required></textarea>
+                    <textarea id="referencia" name="referencia" placeholder="JOhel no se que poner xs" required></textarea>
                 </div>
             </fieldset>
 
