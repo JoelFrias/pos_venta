@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'Backend/conexion.php';
+require 'php/conexion.php';
 
 // Inicializar variables
 $nombre = $apellido = $empresa = $tipo_identificacion = $identificacion = $telefono = $notas = "";
@@ -83,8 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS </title>
-    <link rel="stylesheet" href="Assets/css/menu.css">
-    <link rel="stylesheet" href="Assets/css/mant_cliente.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/mant_cliente.css">
     <!-- imports para el diseno de los iconos-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -115,12 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <ul class="menu">
                 <ul class="menu">
-                <li onclick="navigateTo('index.php')"><i class="fas fa-cogs"></i> Administracion</li>
+                    <li onclick="navigateTo('index.php')"><i class="fas fa-cogs"></i> Administracion</li>
                     <li onclick="navigateTo('cliente.php')"><i class="fas fa-cash-register"></i>Cajas</li>
                     <li onclick="navigateTo('clientes_nuevo.php')"><i class="fas fa-users"></i> Clientes</li>
                     <li onclick="navigateTo('actualizar_cliente.php')"><i class="fas fa-users"></i> Medidas</li>
                     <li onclick="navigateTo('actualizar_prestamo.php')"><i class="fas fa-cogs"></i> Categorías</li>
-                    <li onclick="navigateTo('buscar_pagos.php')"><i class="fas fa-box"></i> Productos</li>
+                    <li onclick="navigateTo('productos_nuevo.php')"><i class="fas fa-box"></i> Productos</li>
                     <li onclick="navigateTo('buscar_.php')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
                     <li onclick="navigateTo('buscar_prestamos.php')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
                 </ul>
@@ -149,23 +149,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="nombre">Nombre:</label>
-                        <input type="text" id="nombre" name="nombre" autocomplete="off" required>
+                        <input type="text" id="nombre" name="nombre" autocomplete="off" placeholder="Ingrese el nombre" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="apellido">Apellido:</label>
-                        <input type="text" id="apellido" name="apellido" autocomplete="off" required>
+                        <input type="text" id="apellido" name="apellido" autocomplete="off" placeholder="Ingrese el apellido" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="empresa">Empresa:</label>
-                        <input type="text" id="empresa" name="empresa" autocomplete="off" required>
+                        <input type="text" id="empresa" name="empresa" autocomplete="off" placeholder="Ingrese nombre de empresa" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="tipo_identificacion">Tipo de Identificación:</label>
                         <select id="tipo_identificacion" name="tipo_identificacion" required>
-                            <option value="">Seleccionar</option>
+                        <option value="" disabled selected>Seleccionar</option>
                             <option value="cedula">Cédula</option>
                             <option value="rnc">RNC</option>
                             <option value="pasaporte">Pasaporte</option>
@@ -174,18 +174,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="form-group">
                         <label for="identificacion">Número de Identificación:</label>
-                        <input type="text" id="identificacion" name="identificacion" autocomplete="off" required>
+                        <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="Ingrese la indentificación" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="telefono">Teléfono:</label>
-                        <input type="text" id="telefono" name="telefono" autocomplete="off" required>
+                        <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" required maxlength="12" required>
                     </div>
                 </div>
                 
                 <div class="form-group full-width">
                     <label for="notas">Notas:</label>
-                    <textarea id="notas" name="notas" required>
+                    <textarea id="notas" name="notas" placeholder="" required>
                     </textarea>
                 </div>
             </fieldset>
@@ -195,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="limite_credito">Límite de Crédito:</label>
-                        <input type="number" id="limite_credito" name="limite_credito" step="0.01" autocomplete="off" required>
+                        <input type="number" id="limite_credito" name="limite_credito" step="0.01" autocomplete="off" placeholder="Ingrese el límite de crédito" required>
                     </div>
             </fieldset>
 
@@ -204,28 +204,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="no">Número:</label>
-                        <input type="text" id="no" name="no" autocomplete="off" required>
+                        <input type="text" id="no" name="no" autocomplete="off" placeholder=" Ingrese el número de residencia o establecimiento" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="calle">Calle:</label>
-                        <input type="text" id="calle" name="calle" autocomplete="off" required>
+                        <input type="text" id="calle" name="calle" autocomplete="off" placeholder="Ingrese el nombre de la calle" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="sector">Sector:</label>
-                        <input type="text" id="sector" name="sector" autocomplete="off" required>
+                        <input type="text" id="sector" name="sector" autocomplete="off" placeholder="Ingrese el sector" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="ciudad">Ciudad:</label>
-                        <input type="text" id="ciudad" name="ciudad" autocomplete="off" required>
+                        <input type="text" id="ciudad" name="ciudad" autocomplete="off" placeholder="Ingrese la cuidad" required>
                     </div>
                 </div>
                 
                 <div class="form-group full-width">
                     <label for="referencia">Referencia:</label>
-                    <textarea id="referencia" name="referencia"required></textarea>
+                    <textarea id="referencia" name="referencia" placeholder="Ingrese referencias de dirección" required></textarea>
                 </div>
             </fieldset>
 
@@ -267,5 +267,27 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
 
     </div>
     <script src="Assets/js/menu.js"></script>
+                
+<!-- NUMERO TELEFONICO-->
+<script>
+const telefonoInput = document.getElementById('telefono');
+  telefonoInput.addEventListener('input', function () {
+      let value = this.value.replace(/[^0-9]/g, '');  // Eliminar cualquier carácter que no sea número
+
+      // Agregar el primer guion después de los tres primeros números
+      if (value.length > 3 && value.charAt(3) !== '-') {
+          value = value.slice(0, 3) + '-' + value.slice(3);
+      }
+
+      // Agregar el segundo guion después de los seis primeros números (3+3)
+      if (value.length > 6 && value.charAt(6) !== '-') {
+          value = value.slice(0, 7) + '-' + value.slice(7);
+      }
+
+      // Asignar el valor al campo de entrada
+      this.value = value;
+  });
+</script>
+<!--  -->
 </body>
 </html>

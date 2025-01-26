@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS </title>
-    <link rel="stylesheet" href="Assets/css/menu.css">
-    <link rel="stylesheet" href="Assets/css/mant_cliente.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/mant_cliente.css">
     <!-- imports para el diseno de los iconos-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -36,12 +36,12 @@
 
             <ul class="menu">
                 <ul class="menu">
-                <li onclick="navigateTo('index.php')"><i class="fas fa-cogs"></i> Administracion</li>
+                    <li onclick="navigateTo('index.php')"><i class="fas fa-cogs"></i> Administracion</li>
                     <li onclick="navigateTo('cliente.php')"><i class="fas fa-cash-register"></i>Cajas</li>
                     <li onclick="navigateTo('clientes_nuevo.php')"><i class="fas fa-users"></i> Clientes</li>
                     <li onclick="navigateTo('actualizar_cliente.php')"><i class="fas fa-users"></i> Medidas</li>
                     <li onclick="navigateTo('actualizar_prestamo.php')"><i class="fas fa-cogs"></i> Categorías</li>
-                    <li onclick="navigateTo('buscar_pagos.php')"><i class="fas fa-box"></i> Productos</li>
+                    <li onclick="navigateTo('productos_nuevo.php')"><i class="fas fa-box"></i> Productos</li>
                     <li onclick="navigateTo('buscar_.php')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
                     <li onclick="navigateTo('buscar_prestamos.php')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
                 </ul>
