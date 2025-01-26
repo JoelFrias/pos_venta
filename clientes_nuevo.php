@@ -17,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $telefono = isset($_POST['telefono']) ? htmlspecialchars(trim($_POST['telefono'])) : "";
     $notas = isset($_POST['notas']) ? htmlspecialchars(trim($_POST['notas'])) : "";
     $limite_credito = isset($_POST['limite_credito']) ? floatval($_POST['limite_credito']) : 0.0;
-    $balance = isset($_POST['balance']) ? floatval($_POST['balance']) : 0.0;
     $no = isset($_POST['no']) ? htmlspecialchars(trim($_POST['no'])) : "";
     $calle = isset($_POST['calle']) ? htmlspecialchars(trim($_POST['calle'])) : "";
     $sector = isset($_POST['sector']) ? htmlspecialchars(trim($_POST['sector'])) : "";
