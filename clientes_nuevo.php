@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipo_identificacion = isset($_POST['tipo_identificacion']) ? htmlspecialchars(trim($_POST['tipo_identificacion'])) : "";
     $identificacion = isset($_POST['identificacion']) ? htmlspecialchars(trim($_POST['identificacion'])) : "";
     $telefono = isset($_POST['telefono']) ? htmlspecialchars(trim($_POST['telefono'])) : "";
-    $notas = isset($_POST['notas']) ? htmlspecialchars(trim($_POST['notas'])) : "Ninguna";
+    $notas = isset($_POST['notas']) ? htmlspecialchars(trim($_POST['notas'])) : "";
     $limite_credito = isset($_POST['limite_credito']) ? floatval($_POST['limite_credito']) : 0.0;
     $no = isset($_POST['no']) ? htmlspecialchars(trim($_POST['no'])) : "";
     $calle = isset($_POST['calle']) ? htmlspecialchars(trim($_POST['calle'])) : "";

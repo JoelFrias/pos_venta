@@ -123,27 +123,8 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
             <i class="fas fa-bars"></i>
         </button>
         <!-------------------------->
-        <!-- Sidebar -->
-        <nav class="sidebar" id="sidebar">
-            <div class="logo" style="cursor: pointer;" id="dassd">
-                <h2>Pos Venta</h2>
-                <button id="toggleMenu" class="toggle-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-            
-            <ul class="menu">
-                <ul class="menu">
-                    <li onclick="navigateTo('')"><i class="fas fa-home"></i>Inicio</li>
-                    <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i> Clientes</li>
-                    <li onclick="navigateTo('productos_nuevo.php')"><i class="fas fa-box"></i> Productos</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-cash-register"></i>Cajas</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-users"></i> Medidas</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Categorías</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
-                </ul>
-            </nav>
+        <!-- Requerimiento de Menu -->
+        <?php require 'menu.html' ?>
 <!--------------------------->
             <script>
                 function navigateTo(page) {
@@ -168,7 +149,6 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
             <input type="text" id="apellido" name="apellido" value="<?php echo $cliente['apellido']; ?>" required>
             <label for="empresa">Empresa:</label>
             <input type="text" id="empresa" name="empresa" value="<?php echo $cliente['empresa']; ?>">
-            <label for="tipo_identificacion">Tipo Identificación:</label>
             <label for="tipo_identificacion">Tipo Identificación:</label>
             <select id="tipo_identificacion" name="tipo_identificacion" required>
                 <option value="cedula" <?php echo $cliente['tipo_identificacion'] === 'cedula' ? 'selected' : ''; ?>>Cédula</option>
