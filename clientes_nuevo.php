@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipo_identificacion = isset($_POST['tipo_identificacion']) ? htmlspecialchars(trim($_POST['tipo_identificacion'])) : "";
     $identificacion = isset($_POST['identificacion']) ? htmlspecialchars(trim($_POST['identificacion'])) : "";
     $telefono = isset($_POST['telefono']) ? htmlspecialchars(trim($_POST['telefono'])) : "";
-    $notas = isset($_POST['notas']) ? htmlspecialchars(trim($_POST['notas'])) : "";
+    $notas = isset($_POST['notas']) ? htmlspecialchars(trim($_POST['notas'])) : "Ninguna";
     $limite_credito = isset($_POST['limite_credito']) ? floatval($_POST['limite_credito']) : 0.0;
     $no = isset($_POST['no']) ? htmlspecialchars(trim($_POST['no'])) : "";
     $calle = isset($_POST['calle']) ? htmlspecialchars(trim($_POST['calle'])) : "";
@@ -35,8 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->begin_transaction();
 
         // Insertar en la tabla 'clientes'
-        $stmt_cliente = $conn->prepare("INSERT INTO clientes (nombre, apellido, empresa, tipo_identificacion, identificacion, telefono, notas, fechaRegistro) 
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmt_cliente = $conn->prepare("INSERT INTO clientes (nombre, apellido, empresa, tipo_identificacion, identificacion, telefono, notas, fechaRegistro, activo) 
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(),TRUE)");
         $stmt_cliente->bind_param("sssssss", $nombre, $apellido, $empresa, $tipo_identificacion, $identificacion, $telefono, $notas);
         $stmt_cliente->execute();
 
@@ -115,14 +115,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <ul class="menu">
                 <ul class="menu">
-                    <li onclick="navigateTo('index.php')"><i class="fas fa-cogs"></i> Administracion</li>
-                    <li onclick="navigateTo('cliente.php')"><i class="fas fa-cash-register"></i>Cajas</li>
-                    <li onclick="navigateTo('clientes_nuevo.php')"><i class="fas fa-users"></i> Clientes</li>
-                    <li onclick="navigateTo('actualizar_cliente.php')"><i class="fas fa-users"></i> Medidas</li>
-                    <li onclick="navigateTo('actualizar_prestamo.php')"><i class="fas fa-cogs"></i> Categorías</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Administracion</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-cash-register"></i>Cajas</li>
+                    <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i> Clientes</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-users"></i> Medidas</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Categorías</li>
                     <li onclick="navigateTo('productos_nuevo.php')"><i class="fas fa-box"></i> Productos</li>
-                    <li onclick="navigateTo('buscar_.php')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
-                    <li onclick="navigateTo('buscar_prestamos.php')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
                 </ul>
             </nav>
 <!--------------------------->

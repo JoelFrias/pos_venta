@@ -84,14 +84,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <ul class="menu">
                 <ul class="menu">
-                <li onclick="navigateTo('index.php')"><i class="fas fa-cogs"></i> Administracion</li>
-                    <li onclick="navigateTo('cliente.php')"><i class="fas fa-cash-register"></i>Cajas</li>
-                    <li onclick="navigateTo('clientes_nuevo.php')"><i class="fas fa-users"></i> Clientes</li>
-                    <li onclick="navigateTo('actualizar_cliente.php')"><i class="fas fa-users"></i> Medidas</li>
-                    <li onclick="navigateTo('actualizar_prestamo.php')"><i class="fas fa-cogs"></i> Categorías</li>
-                    <li onclick="navigateTo('productos_nuevo.php')"><i class="fas fa-box"></i> Productos</li>
-                    <li onclick="navigateTo('buscar_.php')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
-                    <li onclick="navigateTo('buscar_prestamos.php')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Administracion</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-cash-register"></i>Cajas</li>
+                    <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i> Clientes</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-users"></i> Medidas</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Categorías</li>
+                    <li onclick="navigateTo('productos_nuevo.php')"><i class="fas fa-box"></i q> Productos</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
                 </ul>
             </nav>
 <!--------------------------->
