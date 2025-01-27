@@ -97,34 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <i class="fas fa-bars"></i>
         </button>
         <!-------------------------->
-        <!-- Sidebar -->
-        <nav class="sidebar" id="sidebar">
-            <div class="logo" style="cursor: pointer;" id="dassd">
-                <h2>Pos Venta</h2>
-                <button id="toggleMenu" class="toggle-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-            
-            <!-- Redirige al index cuando se preciona el logo -->
-            <script>
-                document.getElementById('dassd').addEventListener('click', function () {
-                    window.location.href = 'index.php';
-                });
-            </script>
-
-            <ul class="menu">
-                <ul class="menu">
-                    <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Administracion</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-cash-register"></i>Cajas</li>
-                    <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i> Clientes</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-users"></i> Medidas</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Categorías</li>
-                    <li onclick="navigateTo('productos_nuevo.php')"><i class="fas fa-box"></i> Productos</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
-                </ul>
-            </nav>
+        <!-- Requerimiento de Menu -->
+        <?php require 'menu.html' ?>
 <!--------------------------->
             <script>
                 function navigateTo(page) {
@@ -232,62 +206,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn-submit">Registrar Cliente</button>
         </form>
     </div>
-<?php 
-if (isset($_SESSION['status']) && $_SESSION['status'] === 'success') {
-    echo "
-        <script>
-            Swal.fire({
-                title: '¡Éxito!',
-                text: 'El cliente ha sido registrado exitosamente.',
-                icon: 'success',
-                confirmButtonText: 'Aceptar'
-            }).then(function() {
-                window.location.href = 'clientes_nuevo.php'; 
-            });
-        </script>
-    ";
-    unset($_SESSION['status']); // Limpiar el estado después de mostrar el mensaje
-}
-if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
-    foreach ($_SESSION['errors'] as $error) {
+    <?php 
+    if (isset($_SESSION['status']) && $_SESSION['status'] === 'success') {
         echo "
             <script>
                 Swal.fire({
-                    title: '¡Error!',
-                    text: '$error',
-                    icon: 'error',
+                    title: '¡Éxito!',
+                    text: 'El cliente ha sido registrado exitosamente.',
+                    icon: 'success',
                     confirmButtonText: 'Aceptar'
+                }).then(function() {
+                    window.location.href = 'clientes_nuevo.php'; 
                 });
             </script>
         ";
+        unset($_SESSION['status']); // Limpiar el estado después de mostrar el mensaje
     }
-    unset($_SESSION['errors']); // Limpiar los errores después de mostrarlos
-}
-?>
+    if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
+        foreach ($_SESSION['errors'] as $error) {
+            echo "
+                <script>
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: '$error',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                </script>
+            ";
+        }
+        unset($_SESSION['errors']); // Limpiar los errores después de mostrarlos
+    }
+    ?>
 
     </div>
-    <script src="Assets/js/menu.js"></script>
+    <script src="js/menu.js"></script>
                 
-<!-- NUMERO TELEFONICO-->
-<script>
-const telefonoInput = document.getElementById('telefono');
-  telefonoInput.addEventListener('input', function () {
-      let value = this.value.replace(/[^0-9]/g, '');  // Eliminar cualquier carácter que no sea número
+    <!-- NUMERO TELEFONICO-->
+    <script>
+    const telefonoInput = document.getElementById('telefono');
+    telefonoInput.addEventListener('input', function () {
+        let value = this.value.replace(/[^0-9]/g, '');  // Eliminar cualquier carácter que no sea número
 
-      // Agregar el primer guion después de los tres primeros números
-      if (value.length > 3 && value.charAt(3) !== '-') {
-          value = value.slice(0, 3) + '-' + value.slice(3);
-      }
+        // Agregar el primer guion después de los tres primeros números
+        if (value.length > 3 && value.charAt(3) !== '-') {
+            value = value.slice(0, 3) + '-' + value.slice(3);
+        }
 
-      // Agregar el segundo guion después de los seis primeros números (3+3)
-      if (value.length > 6 && value.charAt(6) !== '-') {
-          value = value.slice(0, 7) + '-' + value.slice(7);
-      }
+        // Agregar el segundo guion después de los seis primeros números (3+3)
+        if (value.length > 6 && value.charAt(6) !== '-') {
+            value = value.slice(0, 7) + '-' + value.slice(7);
+        }
 
-      // Asignar el valor al campo de entrada
-      this.value = value;
-  });
-</script>
+        // Asignar el valor al campo de entrada
+        this.value = value;
+    });
+    </script>
 <!--  -->
+
 </body>
 </html>

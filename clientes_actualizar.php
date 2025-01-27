@@ -132,21 +132,14 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
                 </button>
             </div>
             
-            <!-- Redirige al index cuando se preciona el logo -->
-            <script>
-                document.getElementById('dassd').addEventListener('click', function () {
-                    window.location.href = 'index.php';
-                });
-            </script>
-
             <ul class="menu">
                 <ul class="menu">
-                    <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Administracion</li>
-                    <li onclick="navigateTo('')"><i class="fas fa-cash-register"></i>Cajas</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-home"></i>Inicio</li>
                     <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i> Clientes</li>
+                    <li onclick="navigateTo('productos_nuevo.php')"><i class="fas fa-box"></i> Productos</li>
+                    <li onclick="navigateTo('')"><i class="fas fa-cash-register"></i>Cajas</li>
                     <li onclick="navigateTo('')"><i class="fas fa-users"></i> Medidas</li>
                     <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Categorías</li>
-                    <li onclick="navigateTo('productos_nuevo.php')"><i class="fas fa-box"></i> Productos</li>
                     <li onclick="navigateTo('')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
                     <li onclick="navigateTo('')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
                 </ul>
@@ -210,5 +203,6 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
             <button type="submit">Actualizar</button>
         </form>
     </div>
+    <script src="js/menu.js"></script>
 </body>
 </html>
