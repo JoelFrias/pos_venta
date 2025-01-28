@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             
                             <?php
 
-                            $sql = "SELECT descripcion FROM productos_tipo ORDER BY descripcion ASC";
+                            $sql = "SELECT id,descripcion FROM productos_tipo ORDER BY descripcion ASC";
                             $resultado = $conn->query($sql);
 
                             if ($resultado->num_rows > 0) {
