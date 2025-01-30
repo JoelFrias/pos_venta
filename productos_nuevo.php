@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="nombre">Descripción:</label>
-                        <input type="text" id="descripcion" name="descripcion" autocomplete="off" required>
+                        <input type="text" id="descripcion" name="descripcion" autocomplete="off" placeholder="Ingrese la descripción del producto" required>
                     </div>
 
                     <div class="form-group">
@@ -120,27 +120,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="form-group">
                         <label for="apellido">Precio de Compra:</label>
-                        <input type="number" id="precioCompra" name="precioCompra" step="0.01" autocomplete="off" required>
+                        <input type="number" id="precioCompra" name="precioCompra" step="0.01" autocomplete="off" placeholder="Ingrese el precio de compra" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="empresa">Precio de Venta 1:</label>
-                        <input type="number" id="precio1" name="precio1" step="0.01" autocomplete="off" required>
+                        <input type="number" id="precio1" name="precio1" step="0.01" autocomplete="off" placeholder="Ingrese el precio de venta #1" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="identificacion">Precio de Venta 2:</label>
-                        <input type="number" id="precio2" name="precio2" step="0.01" autocomplete="off" required>
+                        <input type="number" id="precio2" name="precio2" step="0.01" autocomplete="off" placeholder="Ingrese el precio de venta #2" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="telefono">Cantidad Existente:</label>
-                        <input type="number" id="cantidad" name="cantidad" step="0.01" autocomplete="off" required>
+                        <input type="number" id="cantidad" name="cantidad" step="0.01" autocomplete="off" placeholder="Ingrese la cantidad existente" required>
                     </div>
 
                     <div class="form-group">
                         <label for="telefono">Reorden:</label>
-                        <input type="number" id="reorden" name="reorden" step="0.01" autocomplete="off" required>
+                        <input type="number" id="reorden" name="reorden" step="0.01" autocomplete="off" placeholder="Ingrese el reorden del producto" required>
                     </div>
                 </div>
             </fieldset>

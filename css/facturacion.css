@@ -44,6 +44,13 @@ input[type="text"], input[type="number"] {
   border-radius: 4px;
 }
 
+input:disabled {
+  color: black !important;
+  background-color: #f0f0f0;
+  -webkit-text-fill-color: black;
+  opacity: 1;
+}
+
 button {
   padding: 10px 15px;
   margin-top: 10px;

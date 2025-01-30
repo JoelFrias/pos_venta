@@ -70,11 +70,11 @@
         <legend>Datos del Cliente</legend>
         <button id="buscar-cliente">Buscar Cliente</button>
         <label for="id-cliente">ID Cliente:</label>
-        <input type="text" id="id-cliente" value="Seleccionar Cliente" disabled>
+        <input type="text" id="id-cliente" value="Seleccionar Cliente" style = "color: black; opacity: 1; background-color:rgb(202, 202, 202);" disabled>
         <label for="nombre-cliente">Nombre del Cliente:</label>
-        <input type="text" id="nombre-cliente" value="Seleccionar Cliente" disabled>
+        <input type="text" id="nombre-cliente" value="Seleccionar Cliente" style = "color: black; opacity: 1; background-color:rgb(202, 202, 202);" disabled>
         <label for="empresa">Empresa:</label>
-        <input type="text" id="empresa" value="Seleccionar Cliente" disabled>
+        <input type="text" id="empresa" value="Seleccionar Cliente" style = "color: black; opacity: 1; background-color:rgb(202, 202, 202);" disabled>
       </fieldset>
     </section>
 
@@ -83,7 +83,7 @@
         <div class="modal-content">
             <span class="close-btn-cliente">&times;</span>
             <h2>Buscar Cliente</h2>
-            <input type="text" id="search-input-cliente" placeholder="Buscar por nombre o empresa">
+            <input type="text" id="search-input-cliente" placeholder="Buscar por nombre o empresa" autocomplete="off">
 
             <table id="table-buscar-cliente">
                 <thead>
@@ -91,35 +91,18 @@
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Empresa</th>
-                        <th>Seleccionar</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody>
-                  <?php
-                    include 'php/conexion.php';
-                    $sql = "SELECT id,CONCAT(nombre,' ',apellido) AS nombreCompleto, empresa FROM clientes ORDER BY nombre ASC limit 5";
-                    $result = $conn->query($sql);
-                    if ($result->num_rows > 0) {
-                      while($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td>" . $row["id"] . "</td>";
-                        echo "<td>" . $row["nombreCompleto"] . "</td>";
-                        echo "<td>" . $row["empresa"] . "</td>";
-                        echo "<td><button>Seleccionar</button></td>";
-                        echo "</tr>";
-                      }
-                    } else {
-                      echo "<tr><td colspan='4'>No se encontraron registros</td></tr>";
-                    }
-                    $conn->close();
-                  ?>
+                <tbody id="table-body-cliente">
+                    <!-- Clientes añadidios dinámicamente -->
                 </tbody>
             </table>
         </div>
     </div>
 
+    <!-- Script para abrir y cerrar el modal de selección de cliente -->
     <script>
-      // Modal Cliente
       const modalCliente = document.getElementById("modal-seleccionar-cliente");
       const openModalButtonCliente = document.getElementById("buscar-cliente");
       const closeModalButtonCliente = document.querySelector(".close-btn-cliente");
@@ -139,20 +122,76 @@
       });
     </script>
 
+
+    <!-- Script para llenar tabla y buscar clientes en tiempo real -->
+    <script>
+
+      getDataClientes();
+
+      document.getElementById("search-input-cliente").addEventListener("keyup", getDataClientes)
+
+      function getDataClientes(){
+        let input = document.getElementById('search-input-cliente').value
+        let content = document.getElementById('table-body-cliente')
+        let url = 'php/facturacion_buscadorClientes.php'
+        let formData = new FormData()
+        formData.append('campo', input)
+
+        fetch(url, {
+          method: 'POST',
+          body: formData
+        }).then(response => response.json())
+          .then(data => {
+            content.innerHTML = data
+          }).catch(error => console.error(error))
+
+      }
+
+    </script>
+
+    <!-- Script para seleccionar cliente -->
+    <script>
+      function selectCliente(id) {
+        if (id == null) {
+          alert("Error al seleccionar cliente");
+          return;
+        }
+
+        fetch("php/facturacion_seleccionarCliente.php?id=" + id)
+          .then(response => response.json())
+          .then(data => {
+            if (data.error) {
+              alert(data.error);
+            } else {
+              document.getElementById("id-cliente").value = data.id;
+              document.getElementById("nombre-cliente").value = data.nombre;
+              document.getElementById("empresa").value = data.empresa;
+            }
+          })
+          .catch(error => console.error("Error en fetch:", error));
+
+        modalCliente.style.display = "none";
+
+      }
+    </script>
+
+
     <section class="article-search">
       <fieldset>
         <legend>Buscador de Productos</legend>
         <button id="buscar-producto">Buscar Producto</button>
         <label for="id-producto">ID Producto:</label>
-        <input type="text" id="id-producto" value="Seleccionar Producto" disabled>
+        <input type="text" id="id-producto" value="Seleccionar Producto" style = "color: black; opacity: 1; background-color:rgb(202, 202, 202);" disabled>
         <label for="descripcion-producto">Descripción Producto:</label>
-        <input type="text" id="descripcion-producto" value="Seleccionar Producto" disabled>
+        <input type="text" id="descripcion-producto" value="Seleccionar Producto" style = "color: black; opacity: 1; background-color:rgb(202, 202, 202);" disabled>
+        <label for="cantidad-producto">Cantidad:</label>
+        <input type="number" step="1" id="cantidad-producto" placeholder="Ingrese la cantidad">
         <label for="precio-1">Precio 1:</label>
-        <input type="text" id="precio-1" value="Seleccionar Producto" disabled>
-        <input type="button" id="seleccion-precio-1" value="Seleccionar">
+        <input type="text" id="precio-1" value="Seleccionar Producto" style = "color: black; opacity: 1; background-color:rgb(202, 202, 202);" disabled>
+        <input type="button" id="seleccion-precio-1" onclick="buscarProducto(1)" value="Seleccionar">
         <label for="precio-2">Precio 2:</label>
-        <input type="text" id="precio-2" value="Seleccionar Producto" disabled>
-        <input type="button" id="seleccion-precio-2" value="Seleccionar">
+        <input type="text" id="precio-2" value="Seleccionar Producto" style = "color: black; opacity: 1; background-color:rgb(202, 202, 202);" disabled>
+        <input type="button" id="seleccion-precio-2" onclick="buscarProducto(2)"value="Seleccionar">
       </fieldset>
     </section>
 
@@ -161,7 +200,7 @@
         <div class="modal-content">
             <span class="close-btn-producto">&times;</span>
             <h2>Buscar Producto</h2>
-            <input type="text" id="search-input-producto" placeholder="Buscar Producto">
+            <input type="text" id="search-input-productos" placeholder="Buscar Producto" autocomplete="off">
 
             <table id="table-buscar-producto">
                 <thead>
@@ -169,35 +208,18 @@
                         <th>ID</th>
                         <th>Descripción</th>
                         <th>Existencia</th>
-                        <th>Seleccionar</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody>
-                  <?php
-                    include 'php/conexion.php';
-                    $sql = "SELECT id,descripcion,existencia FROM productos ORDER BY descripcion ASC limit 5";
-                    $result = $conn->query($sql);
-                    if ($result->num_rows > 0) {
-                      while($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td>" . $row["id"] . "</td>";
-                        echo "<td>" . $row["descripcion"] . "</td>";
-                        echo "<td>" . $row["existencia"] . "</td>";
-                        echo "<td><button>Seleccionar</button></td>";
-                        echo "</tr>";
-                      }
-                    } else {
-                      echo "<tr><td colspan='4'>No se encontraron registros</td></tr>";
-                    }
-                    $conn->close();
-                  ?>
+                <tbody id="table-body-productos">
+                  <!-- Productos añadidos dinámicamente -->
                 </tbody>
             </table>
         </div>
     </div>
 
+    <!-- Script para abrir y cerrar el modal de selección de producto -->
     <script>
-      // Modal Producto
       const modalProducto = document.getElementById("modal-seleccionar-producto");
       const openModalButtonProducto = document.getElementById("buscar-producto");
       const closeModalButtonProducto = document.querySelector(".close-btn-producto");
@@ -215,17 +237,61 @@
           modalProducto.style.display = "none";
         }
       });
+    </script>
 
-      // Selección de producto
-      document.querySelectorAll('#table-buscar-producto button').forEach(button => {
-        button.addEventListener('click', function() {
-          let row = this.closest('tr');
-          document.getElementById('id-producto').value = row.cells[0].textContent;
-          document.getElementById('descripcion-producto').value = row.cells[1].textContent;
-          document.getElementById('precio-1').value = row.cells[2].textContent;
-          modalProducto.style.display = 'none';
-        });
-      });
+    <!-- Script para llenar tabla y buscar productos en tiempo real -->
+    <script>
+
+      getDataProductos()
+
+      document.getElementById('search-input-productos').addEventListener('keyup', getDataProductos)
+
+      function getDataProductos() {
+
+        let inputP = document.getElementById('search-input-productos').value
+        let contetP = document.getElementById('table-body-productos')
+        let urlP = 'php/facturacion_buscadorProductos.php'
+
+        let formDataP = new FormData()
+        formDataP.append('campoProducto', inputP)
+
+        fetch(urlP, {
+          method: 'POST',
+          body: formDataP
+        }).then(response => response.json())
+          .then(data => {
+            contetP.innerHTML = data
+          }).catch(error => console.error(error))
+        
+      }
+
+    </script>
+
+    <!-- Script para seleccionar Producto -->
+    <script>
+      function selectProducto(id) {
+        if (id == null) {
+          alert("Error al seleccionar producto");
+          return;
+        }
+
+        fetch("php/facturacion_seleccionarProducto.php?id=" + id)
+          .then(response => response.json())
+          .then(data => {
+            if (data.error) {
+              alert(data.error);
+            } else {
+              document.getElementById("id-producto").value = data.id;
+              document.getElementById("descripcion-producto").value = data.descripcion;
+              document.getElementById("precio-1").value = data.precioVenta1;
+              document.getElementById("precio-2").value = data.precioVenta2;
+            }
+          })
+          .catch(error => console.error("Error en fetch:", error));
+
+        modalProducto.style.display = "none";
+
+      }
     </script>
 
     <section class="invoice">
@@ -235,41 +301,170 @@
           <thead>
             <tr>
               <th>ID ART</th>
-              <th>DESCRIPCIÓN</th>
-              <th>CANTIDAD</th>
-              <th>PRECIO</th>
-              <th>IMPORTE</th>
-              <th>ITBIS</th>
-              <th>SUBTOTAL</th>
+              <th>Descripción</th>
+              <th>Cantidad</th>
+              <th>Precio</th>
+              <th>Importe</th>
+              <th>Eliminar</th>
             </tr>
           </thead>
           <tbody id="invoice-articles">
             <!-- Artículos añadidos dinámicamente -->
           </tbody>
         </table>
+        <p id="mensaje-vacio" style="display: block; color: #f44336;">No hay artículos agregados.</p>
       </fieldset>
     </section>
 
     <section class="totals">
       <div>
-        <label>Subtotal:</label>
-        <span id="subtotal">RD$ 0.00</span>
-      </div>
-      <div>
-        <label>ITBIS:</label>
-        <span id="itbis">RD$ 0.00</span>
-      </div>
-      <div>
-        <label>Total:</label>
-        <span id="total">RD$ 0.00</span>
+        <p>Total: $<span id="total">0.00</span></p>
       </div>
     </section>
 
     <footer>
-      <button id="limpiar-factura">Limpiar Factura</button>
+      <a href="facturacion.php"><button id="limpiar-factura">Limpiar Factura</button></a>
       <button id="procesar-factura">Procesar Factura</button>
       <button id="volver">Volver</button>
     </footer>
   </div>
+
+  <!-- Script para añadir producto a factura -->
+  <script>
+        // Función para buscar el producto
+        function buscarProducto(precio) {
+
+            // Validar precio seleccionado
+            if (precio == 1 || precio == 2) {
+
+                let precioSeleccionado = (precio == 1) ? "precioVenta1" : "precioVenta2";
+                let idProducto = document.getElementById("id-producto").value;
+                let cantidad = document.getElementById("cantidad-producto").value;
+
+                // Validar producto
+                if (idProducto === "" || idProducto === "Seleccionar Producto") {
+                    alert("Seleccione un producto");
+                    return;
+                }
+
+                // Validar cantidad
+                if (cantidad === "" || cantidad <= 0) {
+                    alert("Ingrese una cantidad válida");
+                    return;
+                }
+
+                // Se realiza la solicitud a PHP para agregar el producto
+                fetch("php/facturacion_agregarProducto.php?id=" + idProducto + "&precioSeleccionado=" + precioSeleccionado + "&cantidad=" + cantidad)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            // Función para agregar el producto a la tabla
+                            agregarATabla(data);
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+            } else {
+                alert("Error al seleccionar precio");
+            }
+        }
+
+        // Función para agregar el producto a la tabla
+        function agregarATabla(producto) {
+          // Seleccionar el cuerpo de la tabla
+          const tableBody = document.querySelector("#invoice-articles");
+
+          if (!tableBody) {
+              console.error("No se encontró el tbody");
+              return;
+          }
+
+          // Crear una nueva fila para el producto
+          const row = document.createElement("tr");
+
+          // Crear celdas para cada dato del producto
+          const cellId = document.createElement("td");
+          cellId.textContent = producto.id;
+
+          const cellDescripcion = document.createElement("td");
+          cellDescripcion.textContent = producto.descripcion;
+
+          const cellCantidad = document.createElement("td");
+          cellCantidad.textContent = producto.cantidad.toFixed(2);
+
+          const cellPrecio = document.createElement("td");
+          cellPrecio.textContent = producto.precio.toFixed(2);
+
+          const cellImporte = document.createElement("td");
+          cellImporte.textContent = producto.importe.toFixed(2);
+
+          // Crear celda para el botón de eliminar
+          const cellEliminar = document.createElement("td");
+          const botonEliminar = document.createElement("button");
+          botonEliminar.textContent = "Eliminar";
+          botonEliminar.classList.add("btn-eliminar");
+          botonEliminar.onclick = function() {
+              row.remove();
+              calcularTotal();
+              verificarTablaVacia();
+          };
+
+          // Añadir el botón a la celda
+          cellEliminar.appendChild(botonEliminar);
+
+          // Añadir las celdas a la fila
+          row.appendChild(cellId);
+          row.appendChild(cellDescripcion);
+          row.appendChild(cellCantidad);
+          row.appendChild(cellPrecio);
+          row.appendChild(cellImporte);
+          row.appendChild(cellEliminar);
+
+          // Añadir la fila a la tabla
+          tableBody.appendChild(row);
+
+          calcularTotal();
+          verificarTablaVacia();
+      }
+
+      function calcularTotal() {
+        const tableBody = document.querySelector("#invoice-articles");
+        const rows = tableBody.querySelectorAll("tr");
+
+        let total = 0;
+
+        rows.forEach(row => {
+            const importeCell = row.querySelector("td:nth-child(5)"); // Columna de "Importe"
+            if (importeCell) {
+                const importe = parseFloat(importeCell.textContent);
+                if (!isNaN(importe)) {
+                    total += importe;
+                }
+            }
+        });
+
+        // Mostrar el total
+        const totalElement = document.querySelector("#total");
+        if (totalElement) {
+            totalElement.textContent = total.toFixed(2); // Mostrar el total con dos decimales
+        }
+    }
+
+    function verificarTablaVacia() {
+      const tableBody = document.querySelector("#invoice-articles");
+      const rows = tableBody.querySelectorAll("tr");
+
+      // Si no hay filas (excluyendo el encabezado), mostrar el mensaje
+      const mensaje = document.querySelector("#mensaje-vacio");
+      if (rows.length === 0) {
+          mensaje.style.display = "block"; // Mostrar el mensaje
+      } else {
+          mensaje.style.display = "none"; // Ocultar el mensaje
+      }
+    }
+
+    </script>
+
 </body>
 </html>
