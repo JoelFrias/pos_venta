@@ -362,6 +362,8 @@
                         } else {
                             // Función para agregar el producto a la tabla
                             agregarATabla(data);
+                            // Limpiar los datos de los productos
+                            limpiarDatosProductos();
                         }
                     })
                     .catch(error => console.error("Error:", error));
@@ -462,6 +464,14 @@
       } else {
           mensaje.style.display = "none"; // Ocultar el mensaje
       }
+    }
+
+    function limpiarDatosProductos() {
+      document.getElementById("id-producto").value = "Seleccionar Producto";
+      document.getElementById("descripcion-producto").value = "Seleccionar Producto";
+      document.getElementById("cantidad-producto").value = "";
+      document.getElementById("precio-1").value = "Seleccionar Producto";
+      document.getElementById("precio-2").value = "Seleccionar Producto";
     }
 
     </script>
