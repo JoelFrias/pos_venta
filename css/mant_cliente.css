@@ -12,6 +12,7 @@
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
   }
   
   .form-container {
@@ -19,6 +20,7 @@
     max-width: 1600px;
     margin: 0 auto;
     padding: 1rem;
+    margin-top: 10px;
   }
   
   .form-title {
@@ -86,7 +88,7 @@
     color: var(--text);
     margin-bottom: 0.25rem;
   }
-  
+  /* Estilos para los inputs */
   input[type="text"],
   input[type="number"],
   select,
@@ -95,7 +97,7 @@
     padding: 0.5rem;
     border: 1px solid var(--border);
     border-radius: 4px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     background: var(--input-bg);
     box-sizing: border-box;
   }
@@ -107,7 +109,7 @@
     border-color: var(--primary);
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
   }
-  
+  /* revisarrrrrrrrrrrrrrrrrr no me acuerdoooooooooooooooooooooo */
   select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%232c3e50' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
@@ -130,6 +132,7 @@
     font-size: 0.875rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    float: right; /* Mover el botón a la derecha */
   }
   
   .btn-submit:hover {
@@ -146,7 +149,7 @@
       grid-template-columns: 1fr;
     }
     .form-title {
-        margin-top: 40px;
+      margin-top: 30px; /* agrega un top */
     }
     input[type="text"],
     input[type="number"],

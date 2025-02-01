@@ -121,7 +121,7 @@
     resize: vertical;
   }
   
-  .btn-submit {
+  .btn-submit1 {
     background: var(--primary);
     color: white;
     border: none;
@@ -130,9 +130,11 @@
     font-size: 0.875rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    float: right; /* Mover el botón a la derecha */
+
   }
   
-  .btn-submit:hover {
+  .btn-submit1:hover {
     background: #2980b9;
   }
   

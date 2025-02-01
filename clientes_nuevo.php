@@ -1,8 +1,10 @@
 <?php
+// Iniciar la sesión para manejar mensajes de estado y errores
 session_start();
+// Incluir el archivo de conexión a la base de datos
 require 'php/conexion.php';
 
-// Inicializar variables
+// Inicializar variables para almacenar los datos del formulario
 $nombre = $apellido = $empresa = $tipo_identificacion = $identificacion = $telefono = $notas = "";
 $limite_credito = $balance = $no = $calle = $sector = $ciudad = $referencia = "";
 
@@ -23,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ciudad = isset($_POST['ciudad']) ? htmlspecialchars(trim($_POST['ciudad'])) : "";
     $referencia = isset($_POST['referencia']) ? htmlspecialchars(trim($_POST['referencia'])) : "";
 
-    // Validar campos obligatorios se puede poner mas pero me dio pereza y lo puse por html
+    // Validar campos obligatorios (se pueden agregar más validaciones si es necesario)
     if (empty($nombre) || empty($apellido) || empty($identificacion)) {
         echo "Los campos Nombre, Apellido e Identificación son obligatorios.";
         exit;
@@ -31,12 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Manejo de errores con consultas preparadas
     try {
-        // Iniciar 
+        // Iniciar una transacción para asegurar la integridad de los datos
         $conn->begin_transaction();
 
         // Insertar en la tabla 'clientes'
         $stmt_cliente = $conn->prepare("INSERT INTO clientes (nombre, apellido, empresa, tipo_identificacion, identificacion, telefono, notas, fechaRegistro, activo) 
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(),TRUE)");
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)");
         $stmt_cliente->bind_param("sssssss", $nombre, $apellido, $empresa, $tipo_identificacion, $identificacion, $telefono, $notas);
         $stmt_cliente->execute();
 
@@ -44,224 +46,224 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cliente_id = $conn->insert_id;
 
         // Insertar en la tabla 'clientes_cuenta'
-        $stmt_cuenta = $conn->prepare("INSERT INTO clientes_cuenta (id, limite_credito, balance) 
+        $stmt_cuenta = $conn->prepare("INSERT INTO clientes_cuenta (idCliente, limite_credito, balance) 
                                        VALUES (?, ?, ?)");
         $stmt_cuenta->bind_param("idd", $cliente_id, $limite_credito, $limite_credito);
         $stmt_cuenta->execute();
 
         // Insertar en la tabla 'clientes_direcciones'
-        $stmt_direccion = $conn->prepare("INSERT INTO clientes_direcciones (id, no, calle, sector, ciudad, referencia) 
+        $stmt_direccion = $conn->prepare("INSERT INTO clientes_direcciones (idCliente, no, calle, sector, ciudad, referencia) 
                                          VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt_direccion->bind_param("isssss", $cliente_id ,$no, $calle, $sector, $ciudad, $referencia);
+        $stmt_direccion->bind_param("isssss", $cliente_id, $no, $calle, $sector, $ciudad, $referencia);
         $stmt_direccion->execute();
 
-         // Confirmar la transacción
-         $conn->commit();
+        // Confirmar la transacción
+        $conn->commit();
 
-         // Almacenar mensaje de éxito en sesión y redirigir
-         $_SESSION['status'] = 'success';
-         header("Location: clientes_nuevo.php");
-         exit;
- 
-     } catch (Exception $e) {
-         // En caso de error, revertir la transacción
-         $conn->rollback();
-         $_SESSION['errors'][] = "Error al registrar cliente: " . $e->getMessage();
-         header("Location: clientes_nuevo.php");
-         exit;
-     } finally {
-         // Cerrar las declaraciones preparadas
-         if (isset($stmt_cliente)) $stmt_cliente->close();
-         if (isset($stmt_cuenta)) $stmt_cuenta->close();
-         if (isset($stmt_direccion)) $stmt_direccion->close();
-     }
- }
+        // Almacenar mensaje de éxito en sesión y redirigir
+        $_SESSION['status'] = 'success';
+        header("Location: clientes_nuevo.php");
+        exit;
+
+    } catch (Exception $e) {
+        // En caso de error, revertir la transacción
+        $conn->rollback();
+        $_SESSION['errors'][] = "Error al registrar cliente: " . $e->getMessage();
+        header("Location: clientes_nuevo.php");
+        exit;
+    } finally {
+        // Cerrar las declaraciones preparadas
+        if (isset($stmt_cliente)) $stmt_cliente->close();
+        if (isset($stmt_cuenta)) $stmt_cuenta->close();
+        if (isset($stmt_direccion)) $stmt_direccion->close();
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS </title>
+    <title>POS</title>
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/mant_cliente.css">
-    <!-- imports para el diseno de los iconos-->
+    <link rel="stylesheet" href="css/modo_oscuro.css">
+    <!-- Importar estilos para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    
     <div class="container">
-        <!-- Mobile Menu Toggle - DEBE ESTAR FUERA DEL SIDEBAR boton unico para el dispositvo moviles-->
+        <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
         <button id="mobileToggle" class="toggle-btn">
             <i class="fas fa-bars"></i>
         </button>
-        <!-------------------------->
-        <!-- Requerimiento de Menu -->
+
+        <!-- Incluir el menú -->
         <?php require 'menu.html' ?>
-<!--------------------------->
-            <script>
-                function navigateTo(page) {
-                    window.location.href = page; // Cambia la URL en la misma pestaña
-                }
-            
-                function toggleNav() {
-                    const sidebar = document.getElementById('sidebar');
-                    sidebar.classList.toggle('active'); // Añade o quita la clase active para mostrar/ocultar el menú
-                }
-            </script>
-<!--------------------------->
-        <!-- Overlay for mobile, no eliminar esto hace que aparezca las opciones sin recargar la pagina  -->
-        <div class="overlay" id="overlay">
-        </div>
+
+        <!-- Script para navegar entre páginas y mostrar/ocultar el menú -->
+        <script>
+            function navigateTo(page) {
+                window.location.href = page; // Cambia la URL en la misma pestaña
+            }
+
+            function toggleNav() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('active'); // Añade o quita la clase active para mostrar/ocultar el menú
+            }
+        </script>
+
+        <!-- Overlay para dispositivos móviles -->
+        <div class="overlay" id="overlay"></div>
+
+        <!-- Contenedor del formulario -->
         <div class="form-container">
-        <h1 class="form-title">Registro de Cliente</h1>
-        
-        <form class="registration-form" action="" method="POST">
-            <fieldset>
-                <legend>Datos del Cliente</legend>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="nombre">Nombre:</label>
-                        <input type="text" id="nombre" name="nombre" autocomplete="off" placeholder="Ingrese el nombre" required>
+            <h1 class="form-title">Registro de Cliente</h1>
+            <form class="registration-form" action="" method="POST">
+                <!-- Sección de Datos del Cliente -->
+                <fieldset>
+                    <legend>Datos del Cliente</legend>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nombre">Nombre:</label>
+                            <input type="text" id="nombre" name="nombre" autocomplete="off" placeholder="Ingrese el Nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apellido">Apellido:</label>
+                            <input type="text" id="apellido" name="apellido" autocomplete="off" placeholder="Ingrese el apellido" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empresa">Empresa:</label>
+                            <input type="text" id="empresa" name="empresa" autocomplete="off" placeholder="Ingrese nombre de la empresa" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo_identificacion">Tipo de Identificación:</label>
+                            <select id="tipo_identificacion" name="tipo_identificacion" required>
+                                <option value="" disabled selected>Seleccionar</option>
+                                <option value="cedula">Cédula</option>
+                                <option value="rnc">RNC</option>
+                                <option value="pasaporte">Pasaporte</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="identificacion">Número de Identificación:</label>
+                            <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="Ingrese la identificación" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefono">Teléfono:</label>
+                            <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" required maxlength="12">
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="apellido">Apellido:</label>
-                        <input type="text" id="apellido" name="apellido" autocomplete="off" placeholder="Ingrese el apellido" required>
+                    <div class="form-group full-width">
+                        <label for="notas">Notas:</label>
+                        <textarea id="notas" name="notas" placeholder="Ojo notas respecto al cliente" required></textarea>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="empresa">Empresa:</label>
-                        <input type="text" id="empresa" name="empresa" autocomplete="off" placeholder="Ingrese la empresa" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="tipo_identificacion">Tipo de Identificación:</label>
-                        <select id="tipo_identificacion" name="tipo_identificacion" required>
-                            <option value="" disabled selected>Seleccionar</option> <!-- Opción vacía evita que pueda selecionar eso-->
-                            <option value="cedula">Cédula</option>
-                            <option value="rnc">RNC</option>
-                            <option value="pasaporte">Pasaporte</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="identificacion">Número de Identificación:</label>
-                        <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="Ingrese la identificación" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" required maxlength="12" required>
-                    </div>
-                </div>
-                
-                <div class="form-group full-width">
-                    <label for="notas">Notas:</label>
-                    <textarea id="notas" name="notas" placeholder="Notas del Cliente" required></textarea>
-                </div>
-            </fieldset>
+                </fieldset>
 
-            <fieldset>
-                <legend>Datos de la Cuenta</legend>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="limite_credito">Límite de Crédito:</label>
-                        <input type="number" id="limite_credito" name="limite_credito" step="0.01" autocomplete="off" placeholder="Ingrese el límite de crédito" required>
+                <!-- Sección de Datos de la Cuenta -->
+                <fieldset>
+                    <legend>Datos de la Cuenta</legend>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="limite_credito">Límite de Crédito:</label>
+                            <input type="number" id="limite_credito" name="limite_credito" step="0.01" autocomplete="off" placeholder="Ingrese un límite de crédito" required>
+                        </div>
                     </div>
-            </fieldset>
+                </fieldset>
 
-            <fieldset>
-                <legend>Dirección</legend>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="no">Número:</label>
-                        <input type="text" id="no" name="no" autocomplete="off" placeholder="Ingrese el número de calle" required>
+                <!-- Sección de Dirección -->
+                <fieldset>
+                    <legend>Dirección</legend>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="no">Número:</label>
+                            <input type="text" id="no" name="no" autocomplete="off" placeholder="Ingrese solo el número de calle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="calle">Calle:</label>
+                            <input type="text" id="calle" name="calle" autocomplete="off" placeholder="Ingrese el nombre de la calle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sector">Sector:</label>
+                            <input type="text" id="sector" name="sector" autocomplete="off" placeholder="Ingrese el sector" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ciudad">Ciudad:</label>
+                            <input type="text" id="ciudad" name="ciudad" autocomplete="off" placeholder="Ingrese la ciudad" required>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="calle">Calle:</label>
-                        <input type="text" id="calle" name="calle" autocomplete="off" placeholder="Ingrese el nombre de la calle" required>
+                    <div class="form-group full-width">
+                        <label for="referencia">Referencia:</label>
+                        <textarea id="referencia" name="referencia" placeholder="JOhel no se que poner xs" required></textarea>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="sector">Sector:</label>
-                        <input type="text" id="sector" name="sector" autocomplete="off" placeholder="Ingrese el sector" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ciudad">Ciudad:</label>
-                        <input type="text" id="ciudad" name="ciudad" autocomplete="off" placeholder="Ingrese la ciudad" required>
-                    </div>
-                </div>
-                
-                <div class="form-group full-width">
-                    <label for="referencia">Referencia:</label>
-                    <textarea id="referencia" name="referencia" placeholder="Indique puntos de referencias cercanos. (Ej: Al lado de famarcia)" required></textarea>
-                </div>
-            </fieldset>
+                </fieldset>
 
-            <button type="submit" class="btn-submit">Registrar Cliente</button>
-        </form>
-    </div>
-    <?php 
-    if (isset($_SESSION['status']) && $_SESSION['status'] === 'success') {
-        echo "
-            <script>
-                Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'El cliente ha sido registrado exitosamente.',
-                    icon: 'success',
-                    confirmButtonText: 'Aceptar'
-                }).then(function() {
-                    window.location.href = 'clientes_nuevo.php'; 
-                });
-            </script>
-        ";
-        unset($_SESSION['status']); // Limpiar el estado después de mostrar el mensaje
-    }
-    if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
-        foreach ($_SESSION['errors'] as $error) {
+                <!-- Botón para enviar el formulario -->
+                <button type="submit" class="btn-submit">Registrar Cliente</button>
+            </form>
+        </div>
+
+        <!-- Mostrar mensajes de éxito o error -->
+        <?php
+        if (isset($_SESSION['status']) && $_SESSION['status'] === 'success') {
             echo "
                 <script>
                     Swal.fire({
-                        title: '¡Error!',
-                        text: '$error',
-                        icon: 'error',
+                        title: '¡Éxito!',
+                        text: 'El cliente ha sido registrado exitosamente.',
+                        icon: 'success',
                         confirmButtonText: 'Aceptar'
+                    }).then(function() {
+                        window.location.href = 'clientes_nuevo.php'; 
                     });
                 </script>
             ";
+            unset($_SESSION['status']); // Limpiar el estado después de mostrar el mensaje
         }
-        unset($_SESSION['errors']); // Limpiar los errores después de mostrarlos
-    }
-    ?>
-
+        if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
+            foreach ($_SESSION['errors'] as $error) {
+                echo "
+                    <script>
+                        Swal.fire({
+                            title: '¡Error!',
+                            text: '$error',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    </script>
+                ";
+            }
+            unset($_SESSION['errors']); // Limpiar los errores después de mostrarlos
+        }
+        ?>
     </div>
-    <script src="js/menu.js"></script>
-                
-    <!-- NUMERO TELEFONICO-->
+
+    <!-- Script para formatear el número de teléfono -->
     <script>
-    const telefonoInput = document.getElementById('telefono');
-    telefonoInput.addEventListener('input', function () {
-        let value = this.value.replace(/[^0-9]/g, '');  // Eliminar cualquier carácter que no sea número
+        const telefonoInput = document.getElementById('telefono');
+        telefonoInput.addEventListener('input', function () {
+            let value = this.value.replace(/[^0-9]/g, '');  // Eliminar cualquier carácter que no sea número
 
-        // Agregar el primer guion después de los tres primeros números
-        if (value.length > 3 && value.charAt(3) !== '-') {
-            value = value.slice(0, 3) + '-' + value.slice(3);
-        }
+            // Agregar el primer guion después de los tres primeros números
+            if (value.length > 3 && value.charAt(3) !== '-') {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+            }
 
-        // Agregar el segundo guion después de los seis primeros números (3+3)
-        if (value.length > 6 && value.charAt(6) !== '-') {
-            value = value.slice(0, 7) + '-' + value.slice(7);
-        }
+            // Agregar el segundo guion después de los seis primeros números (3+3)
+            if (value.length > 6 && value.charAt(6) !== '-') {
+                value = value.slice(0, 7) + '-' + value.slice(7);
+            }
 
-        // Asignar el valor al campo de entrada
-        this.value = value;
-    });
+            // Asignar el valor al campo de entrada
+            this.value = value;
+        });
     </script>
-<!--  -->
 
+    <!-- Scripts adicionales -->
+    <script src="js/menu.js"></script>
+    <script src="js/modo_oscuro.js"></script>
+    <script src="js/oscuro_recargar.js"></script>
 </body>
 </html>

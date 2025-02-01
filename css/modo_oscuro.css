@@ -1,0 +1,418 @@
+/* ----------------------------------------------------------*/
+/* Tdiseno de modo oscuro registro de cliente solo del icono */
+.switch {
+    font-size: 15px;
+    position: relative;
+    display: inline-block;
+    width: 4em;
+    height: 2em;
+    position: absolute; /* Para moverlo libremente */
+    right: 30px; /* Moverlo a la derecha */
+  
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* The slider */
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(73, 75, 75);
+    transition: 0.4s;
+    border-radius: 30px;
+  }
+  /*  rgb(73, 75, 75); */
+  /* Responsive */
+  @media (max-width: 767px) {
+    .slider {
+      top: 10px; /* Ajustar la posición superior para pantallas pequeñas */
+      left: 10px; /* Ajustar la posición izquierda para pantallas pequeñas */
+      right: -10px; /* Ajustar la posición derecha para pantallas pequeñas */
+      bottom: -10px; /* Ajustar la posición inferior para pantallas pequeñas */
+    }
+  }
+  
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 1.4em;
+    width: 1.4em;
+    border-radius: 20px;
+    left: 0.3em;
+    bottom: 0.3em;
+    background-color: #2196f3;
+    box-shadow: inset 8px -4px 0 0 yellow;
+    transition: 0.4s;
+  }
+  
+  .switch input:checked + .slider {
+    background-color: #2196f3;
+  }
+  
+  .switch input:checked + .slider:before {
+    transform: translateX(1.5em);
+    background-color: white;
+    box-shadow: none;
+  }
+  /*modo oscur solo del icono*/
+  /*---------*/
+  /* de  registrar nuevo cliente */
+  /* Modo Oscuro */
+  :root {
+    --primary: #3498db;
+    --text: #2c3e50;
+    --border: #e1e8ed;
+    --background: #f8f9fa;
+    --input-bg: #ffffff;
+    --dark-primary: #2980b9;
+    --dark-text: #ecf0f1;
+    --dark-border: #4b4b4b;
+    --dark-background: #1c1c1c;
+    --dark-input-bg: #2b2b2b;
+    --dark-table-bg: #2c2c2c;
+    --dark-table-header-bg: #3c3c3c;
+    --dark-table-row-hover: #444;
+    --dark-card-background: #2c2c2c;
+    --dark-border-radius: 8px;
+}
+
+  .dark-mode {
+    --primary: #2980b9;
+    --text: #ecf0f1;
+    --border: #4b4b4b;
+    --background: #1c1c1c;
+    --input-bg: #2b2b2b;
+    --dark_text: #ecf0f1;  }
+  
+  /* Aplicar los colores */
+  body {
+    background: var(--background);
+    color: var(--text);
+    transition: all 0.3s ease-in-out;
+  }
+  
+  input, select, textarea {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+  }
+  
+  /* Botón en modo oscuro */
+  .dark-mode .btn-submit {
+    background: var(--primary);
+    color: #fff;
+  }
+  
+  .dark-mode .btn-submit:hover {
+    background: #21618c;
+  }
+  /*-----------------------------------------------*/
+  /*  */
+
+/* Modo Oscuro para la tabla en clientes.php */
+body.dark-mode .main-content {
+  background: var(--dark-background);
+  color: var(--dark-text);
+}
+
+body.dark-mode .client-table {
+  background: var(--border);
+  color: var(--dark-text);
+  border: 1px solid var(--dark-border);
+}
+
+body.dark-mode .client-table th {
+  background: var(--dark-table-header-bg);
+  color: var(--dark-text);
+}
+
+body.dark-mode .client-table td {
+  border-top: 1px solid var(--dark-border);
+}
+
+body.dark-mode .client-table tr:hover {
+  background: var(--dark-table-row-hover);
+}
+
+/* Estilos para registros móviles en modo oscuro */
+body.dark-mode .mobile-record {
+  background: var(--dark-table-bg);
+  color: var(--dark-text);
+  border: 1px solid var(--dark-border);
+}
+
+body.dark-mode .mobile-record-header {
+  background: var(--dark-table-header-bg);
+  color: var(--dark-text);
+}
+
+body.dark-mode .mobile-field {
+  border-bottom: 1px solid var(--dark-border);
+}
+
+body.dark-mode .mobile-actions .btn-update {
+  background: var(--dark-primary);
+  color: #fff;
+}
+
+body.dark-mode .mobile-actions .btn-update:hover {
+  background: #21618c;
+}
+
+/* Modo Oscuro para tablas responsivas */
+:root {
+    --dark-primary: #2980b9;
+    --dark-text: #ecf0f1;
+    --dark-border: #4b4b4b;
+    --dark-background: #1c1c1c;
+    --dark-input-bg: #2b2b2b;
+    /* tabla */
+    --dark-table-bg: #2c2c2c;
+    --dark-table-header-bg: #3c3c3c;
+    --dark-table-row-hover: #444;
+    --dark-card-background: #2c2c2c;
+    --dark-border-radius: 8px;
+    /* menu */
+    --dark-sidebar-background: #2c3e50;
+    --dark-sidebar-text: #ecf0f1;
+    --dark-sidebar-hover: #34495e;
+    --dark-main-background: #1c1c1c;
+    --dark-overlay-background: rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode {
+    background: var(--dark-background);
+    color: var(--dark-text);
+    transition: all 0.3s ease-in-out;
+}
+
+
+/* Modo oscuro para el título dentro de title-container */
+.dark-mode .title-container h1 {
+  color: #2980b9; /* Color del título */
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Estilos para tablas en modo oscuro */
+body.dark-mode .table-container {
+    background-color: var(--dark-card-background); /* Fondo de la tabla */
+    border-radius: var(--dark-border-radius); /* Bordes redondeados */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .client-table {
+    background: var(--dark-table-bg); /* Fondo de la tabla */
+    color: var(--dark-text); /* Color del texto */
+    border: 1px solid var(--dark-border); /* Borde de la tabla */
+}
+
+body.dark-mode .client-table th {
+    background: var(--dark-table-header-bg);
+    color: var(--dark-text);
+}
+
+body.dark-mode .client-table td {
+    border-bottom: 1px solid var(--dark-border);
+}
+
+body.dark-mode .client-table tr:hover {
+    background: var(--dark-table-row-hover);
+}
+
+/* Estilos para registros móviles en modo oscuro */
+body.dark-mode .mobile-table {
+    background-color: var(--dark-card-background);
+}
+
+body.dark-mode .mobile-record {
+    background: var(--dark-table-bg);
+    color: var(--dark-text);
+    border: 1px solid var(--dark-border);
+}
+
+body.dark-mode .mobile-record-header {
+    background: var(--dark-table-header-bg);
+    color: var(--dark-text);
+}
+
+body.dark-mode .mobile-field {
+    border-bottom: 1px solid var(--dark-border);
+}
+
+body.dark-mode .mobile-actions .btn-update {
+    background: var(--dark-primary);
+    color: #fff;
+}
+
+body.dark-mode .mobile-actions .btn-update:hover {
+    background: #21618c;
+}
+/*  */
+/*======================================================*/
+/* Modo Oscuro para el menú */
+/* Modo oscuro para la barra lateral */
+.dark-mode .sidebar {
+  background-color: #121212;
+  color: #ffffff;
+  border-right: 1px solid #444;
+}
+
+.dark-mode .sidebar .logo h2 {
+  color: #ffffff;
+}
+
+/* ocuridad del logo */
+.dark-mode .logo {
+  background-color: #121212;
+}
+
+.dark-mode .sidebar .toggle-btn {
+  /* background-color: #333; */
+  border: none;
+  color: #fff;
+}
+
+/* .dark-mode .sidebar .toggle-btn:hover {
+  background-color: #444;
+} */
+
+/* Estilos para el menú */
+.dark-mode .sidebar .menu li {
+  padding: 10px 20px;
+  cursor: pointer;
+  color: #b0b0b0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.dark-mode .sidebar .menu li:hover {
+  background-color: #333;
+}
+
+.dark-mode .sidebar .menu li i {
+  margin-right: 10px;
+  color: #b0b0b0;
+}
+
+/* Cambio de color cuando se pasa el ratón por encima */
+.dark-mode .sidebar .menu li:hover i {
+  color: #fff;
+}
+
+/* Estilos activos */
+/* .dark-mode .sidebar .menu li.active {
+  background-color: #6200EE;
+  color: white;
+} */
+
+.dark-mode .sidebar .menu li.active i {
+  color: white;
+}
+
+/* Estilos para el icono del menú */
+.dark-mode .sidebar .toggle-btn i {
+  color: #b0b0b0;
+}
+
+/* Modo oscuro en el menú lateral al abrirlo */
+.dark-mode .sidebar .menu li.active {
+  background-color: #4CAF50;
+}
+
+.dark-mode .sidebar .menu li i.active {
+  color: white;
+}
+
+/*-----------------------------------------*/ 
+/* Modo oscuro para la tabla en vista móvil */
+.dark-mode {
+  background-color: #121212; 
+  color: #ffffff;
+}
+
+.dark-mode .mobile-record-content {
+  background-color: #444;   /*diseno de  cuadro*/ 
+  border-top: 1px solid #333;
+}
+
+.dark-mode .mobile-grid {
+  background-color: #444;   /*diseno de el fondo del cuadro*/ 
+  border-color: #444;
+}
+
+.dark-mode .mobile-field { 
+  background-color: #ffffff;    /*diseno de los cuadritos*/ 
+  border-bottom: 1px solid #333;
+}
+
+
+.dark-mode .mobile-table {
+  background-color: #121212;
+}
+
+.dark-mode .mobile-record {
+  background-color: #1e1e1e;
+  /* border-color: #ce0909; */
+}
+
+.dark-mode .mobile-record-header {
+  border-bottom-color: #3292bf;  /*diseno del borde*/ 
+}
+
+.dark-mode .mobile-header-info h3 {
+  color: #ffffff;
+}
+
+.dark-mode .mobile-subtitle {
+  color: #bbbbbb;
+}
+
+.dark-mode .status-active {
+  background-color: #4caf50;
+  color: white;
+}
+
+.dark-mode .status-inactive {
+  background-color: #f44336;
+  color: white;
+}
+
+.dark-mode .mobile-label {
+  color: #0d0d0d;
+}
+
+.dark-mode .mobile-value {
+  color: #333;     /*diseno de tezto de los cuadritos*/ 
+}
+/* boton actualizacion */
+/* .dark-mode .btn-update {
+  background-color: #333;
+  color: #ffffff;
+  border-color: #555;
+} */
+
+/* .dark-mode .btn-update:hover {
+  background-color: #444; 
+} */
+
+/* .dark-mode .btn-update .icon {
+  stroke: white;
+} */

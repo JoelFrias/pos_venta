@@ -14,7 +14,7 @@ $sqlProducto = "SELECT
                     (id LIKE ? OR descripcion LIKE ?)
                     AND activo = TRUE 
                 ORDER BY
-                    descripcion ASC
+                    id ASC
                 LIMIT 4";
 
 $stmt = $conn->prepare($sqlProducto);
