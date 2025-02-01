@@ -3,47 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS </title>
+    <title>POS</title>
+    
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/mant_cliente.css">
     <link rel="stylesheet" href="css/modo_oscuro.css">
-    <!-- imports para el diseno de los iconos-->
+    
+    <!-- Importación de iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Librería para alertas -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-
-
     <div class="container">
-        <!-- Mobile Menu Toggle - DEBE ESTAR FUERA DEL SIDEBAR boton unico para el dispositvo moviles-->
+        <!-- Botón para alternar menú en dispositivos móviles -->
         <button id="mobileToggle" class="toggle-btn">
             <i class="fas fa-bars"></i>
         </button>
         
+        <!-- Switch para modo oscuro -->
         <label class="switch">
-        <input id="toggleDarkMode" type="checkbox" />
-        <span class="slider"></span>
+            <input id="toggleDarkMode" type="checkbox" />
+            <span class="slider"></span>
         </label>
-        <!-------------------------->
-        <!-- Requerimiento de Menu -->
+        
+        <!-- Inclusión del menú de navegación -->
         <?php require 'menu.html' ?>
-<!--------------------------->
-            <script>
-                function navigateTo(page) {
-                    window.location.href = page; // Cambia la URL en la misma pestaña
-                }
+        
+        <!-- Script para navegación interna -->
+        <script>
+            /**
+             * Redirige a la página especificada dentro de la misma pestaña.
+             * @param {string} page - URL de la página a la que se desea navegar.
+             */
+            function navigateTo(page) {
+                window.location.href = page;
+            }
             
-                function toggleNav() {
-                    const sidebar = document.getElementById('sidebar');
-                    sidebar.classList.toggle('active'); // Añade o quita la clase active para mostrar/ocultar el menú
-                }
-            </script>
-<!--------------------------->
-        <!-- Overlay for mobile, no eliminar esto hace que aparezca las opciones sin recargar la pagina  -->
-        <div class="overlay" id="overlay">
-        </div>
-
-       
+            /**
+             * Alterna la visibilidad del menú lateral.
+             */
+            function toggleNav() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('active');
+            }
+        </script>
+        
+        <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
+        <div class="overlay" id="overlay"></div>
+    </div>
+    
+    <!-- Scripts JS -->
     <script src="js/menu.js"></script>
     <script src="js/modo_oscuro.js"></script>
     <script src="js/oscuro_recargar.js"></script>

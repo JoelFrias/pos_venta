@@ -4,33 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="css/modo_oscuro.css">
 </head>
 <body>
+    <!-- Barra lateral de navegación -->
+    <nav class="sidebar" id="sidebar">
+        <div class="logo" style="cursor: pointer;" id="dassd">
+            <h2>Pos Venta</h2>
+            
+            <!-- Botón para alternar el menú -->
+            <button id="toggleMenu" class="toggle-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Menú de navegación -->
+        <ul class="menu">
+            <li onclick="navigateTo('index.php')"><i class="fas fa-home"></i> Inicio</li>
+            <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i> Clientes</li>
+            <li onclick="navigateTo('productos.php')"><i class="fas fa-box"></i> Productos</li>
+            <li onclick="navigateTo('facturacion.php')"><i class="fas fa-cash-register"></i> Facturación</li>
+            <li onclick="navigateTo('')"><i class="fas fa-users"></i> Medidas</li>
+            <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Categorías</li>
+            <li onclick="navigateTo('')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
+            <li onclick="navigateTo('')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
+        </ul>
+    </nav>
     
-<nav class="sidebar" id="sidebar">
-    <div class="logo" style="cursor: pointer;" id="dassd">
-        <h2>Pos Venta</h2>
-        <button id="toggleMenu" class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
-    </div>
-       
-    <ul class="menu">
-        <li onclick="navigateTo('index.php')"><i class="fas fa-home"></i>Inicio</li>
-        <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i> Clientes</li>
-        <li onclick="navigateTo('productos.php')"><i class="fas fa-box"></i> Productos</li>
-        <li onclick="navigateTo('facturacion.php')"><i class="fas fa-cash-register"></i>Facturación</li>
-        <li onclick="navigateTo('')"><i class="fas fa-users"></i> Medidas</li>
-        <li onclick="navigateTo('')"><i class="fas fa-cogs"></i> Categorías</li>
-        <li onclick="navigateTo('')"><i class="fas fa-sign-in-alt"></i> Entradas</li>
-        <li onclick="navigateTo('')"><i class="fas fa-sign-out-alt"></i> Salidas</li>
-    </ul>
-</nav>
-   
-<script src="js/modo_oscuro.js"></script>
-<script src="js/oscuro_recargar.js"></script>
-
+    <!-- Scripts JS -->
+    <script src="js/modo_oscuro.js"></script>
+    <script src="js/oscuro_recargar.js"></script>
 </body>
 </html>
-
