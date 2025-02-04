@@ -9,13 +9,13 @@ $sql = "SELECT
         FROM 
             clientes 
         WHERE 
-            (id LIKE ? OR nombre LIKE ? OR apellido LIKE ? OR empresa LIKE ?)
+            (id LIKE ? OR CONCAT(nombre,' ',apellido) LIKE ? OR nombre LIKE ? OR apellido LIKE ? OR empresa LIKE ?)
             AND activo = TRUE 
         ORDER BY id ASC
-        LIMIT 4";
+        LIMIT 5";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param('ssss', $campo, $campo, $campo, $campo);
+$stmt->bind_param('sssss', $campo, $campo, $campo, $campo, $campo);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -27,7 +27,7 @@ if ($result->num_rows > 0) {
         $html .= "<td>" . $row["id"] . "</td>";
         $html .= "<td>" . $row["nombreCompleto"] . "</td>";
         $html .= "<td>" . $row["empresa"] . "</td>";
-        $html .= "<td><button onclick='selectCliente(" . $row["id"] . ")'>Seleccionar</button></td>";
+        $html .= "<td><button onclick='selectCliente(" . $row["id"] . ")' class='btn-seleccionar' >Seleccionar</button></td>";
         $html .= "</tr>";
     }
 } else {

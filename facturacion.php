@@ -1,639 +1,317 @@
 <?php
-// Incluir el archivo de conexión a la base de datos
-require 'php/conexion.php';
-?>
+include 'php/conexion.php';
 
+$sql = "SELECT id, descripcion, existencia, precioVenta1, precioVenta2 FROM productos LIMIT 30";
+$result = $conn->query($sql);
+
+if (!$result) {
+    die("Error en la consulta: " . $conn->error); // Muestra el error de la consulta
+}
+
+if ($result->num_rows > 0) {
+    // echo "Número de filas: " . $result->num_rows; // Muestra el número de filas obtenidas
+} else {
+    echo "0 resultados";
+}
+?>
+<!--NO BORRAR ESTO:> PORQUE ESTO ES COMO MUESTRA LOS PRODUCTOS EN SU RESPECTIVAS POSISCIONES -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Facturación</title>
-  <link rel="stylesheet" href="css/facturacion.css">
-  <style>
-    /* Estilos del modal */
-    .modal {
-      display: none; /* Ocultar por defecto */
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    /* Contenido del modal */
-    .modal-content {
-      background-color: #fff;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 8px;
-      width: 80%;
-      max-width: 500px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      animation: slide-down 0.3s ease-out;
-    }
-
-    /* Animación del modal */
-    @keyframes slide-down {
-      from {
-        transform: translateY(-50px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    /* Botón para cerrar el modal */
-    .close-btn-producto, .close-btn-cliente, .close-btn-factura {
-      color: #aaa;
-      float: right;
-      font-size: 24px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .close-btn:hover, .close-btn-producto, .close-btn-factura, .close-btn-cliente:hover {
-      color: #000;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturacion</title>
+    <link rel="stylesheet" href="css/facturacion.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Facturación</h1>
-    </header>
+    
+<button class="toggle-menu" id="toggleMenu">☰</button>
 
-    <!-- Sección de Datos del Cliente -->
-    <section class="client-info">
-      <fieldset>
-        <legend>Datos del Cliente</legend>
-        <button id="buscar-cliente">Buscar Cliente</button>
-        <label for="id-cliente">ID Cliente:</label>
-        <input type="text" id="id-cliente" value="Seleccionar Cliente" style="color: black; opacity: 1; background-color: rgb(202, 202, 202);" disabled>
-        <label for="nombre-cliente">Nombre del Cliente:</label>
-        <input type="text" id="nombre-cliente" value="Seleccionar Cliente" style="color: black; opacity: 1; background-color: rgb(202, 202, 202);" disabled>
-        <label for="empresa">Empresa:</label>
-        <input type="text" id="empresa" value="Seleccionar Cliente" style="color: black; opacity: 1; background-color: rgb(202, 202, 202);" disabled>
-      </fieldset>
-    </section>
-
-    <!-- Modal Selección Cliente -->
-    <div id="modal-seleccionar-cliente" class="modal">
-      <div class="modal-content">
+    <div class="container">
+        <h2 class="title">Seleccione los Productos</h2>
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar productos...">
+            <button id="searchButton" class="search-button">Buscar</button>
+        </div>
+       <div class="products-grid" id="productsGrid">
+            <?php
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    echo '<div class="product-card">';
+                    echo '    <div class="product-info">';
+                    echo '        <div>';
+                    echo '            <div class="product-name">' . $row["descripcion"] . '</div>';
+                    echo '            <div class="product-quantity">Existencia: ' . $row["existencia"] . '</div>';
+                    echo '        </div>';
+                    echo '        <div class="product-total"></div>';
+                    echo '    </div>';
+                    echo '    <div class="product-inputs">';
+                    echo '        <input type="number" class="product-input" id="input1-' . $row["id"] . '" value="' . $row["precioVenta2"] . '">';
+                    echo '        <input type="number" class="product-input" id="input2-' . $row["id"] . '" value="' . $row["precioVenta1"] . '">';
+                    echo '        <button class="product-button" id="button1-' . $row["id"] . '" onclick="handleButton2(' . $row["id"] . ', ' . $row["precioVenta2"] . ')">Precio 2</button>';
+                    echo '        <button class="product-button" id="button2-' . $row["id"] . '" onclick="handleButton1(' . $row["id"] . ', ' . $row["precioVenta1"] . ')">Precio 1</button>';
+                    echo '    </div>';
+                    echo '    <input type="number" class="quantity-input" id="quantity-' . $row["id"] . '" placeholder="Cantidad a llevar" min="1">';
+                    echo '    <button class="quantity-button" onclick="addToCart(' . $row["id"] . ', \'' . addslashes($row["descripcion"]) . '\', ' . $row["precioVenta1"] . ')">Agregar Producto</button>';
+                    echo '</div>';
+                }
+            } else {
+                echo "No hay productos disponibles.";
+            }
+            ?>
+        </div>
+    </div>
+<!-- ---------------0aca codigo 100%----------------->
+<!-- Modal para mostrar la información del cliente -->
+<!-- Modal Selección Cliente -->
+<div id="modal-seleccionar-cliente" class="modal">
+    <div class="modal-content">
         <span class="close-btn-cliente">&times;</span>
-        <h2>Buscar Cliente</h2>
+        <h2 class="titulo-centrado" >Buscar Cliente</h2>
         <input type="text" id="search-input-cliente" placeholder="Buscar por id, nombre o empresa" autocomplete="off">
         <table id="table-buscar-cliente">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Empresa</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="table-body-cliente">
-            <!-- Clientes añadidos dinámicamente -->
-          </tbody>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Empresa</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="table-body-cliente">
+                <!-- Clientes añadidos dinámicamente -->
+            </tbody>
         </table>
-      </div>
     </div>
+</div>
 
-    <!-- Script para abrir y cerrar el modal de selección de cliente -->
-    <script>
-      const modalCliente = document.getElementById("modal-seleccionar-cliente");
-      const openModalButtonCliente = document.getElementById("buscar-cliente");
-      const closeModalButtonCliente = document.querySelector(".close-btn-cliente");
+<!-- Campos del cliente en el menú desplegable -->
+<div class="order-menu" id="orderMenu">
+    <div class="menu-header">
+        <h2 class="menu-title">Menu<span>Facturacion</span></h2>
+    </div>
+    <div class="menu-content">
+        <input type="text" class="menu-input" id="id-cliente" placeholder="ID del cliente">
+        <input type="text" class="menu-input" id="nombre-cliente" placeholder="Nombre del cliente">
+        <input type="text" class="menu-input" id="empresa" placeholder="Empresa">
+        <button class="menu-button" id="buscar-cliente">Buscar Cliente</button>
 
-      openModalButtonCliente.addEventListener("click", () => {
-        modalCliente.style.display = "block";
-      });
+          <!-- Lista de productos agregados -->
+          <div class="order-list" id="orderList">
+            <!-- Los productos se agregarán aquí dinámicamente -->
+        </div>
 
-      closeModalButtonCliente.addEventListener("click", () => {
+        <!-- Total de la compra -->
+        <div class="order-total">
+            <span>Total:</span>
+            <span id="totalAmount">RD$ 0.00</span>
+        </div>
+    </div>
+    <!-- Nuevos botones en fila -->
+    <div class="menu-footer">
+        <button class="footer-button" id="btn-volver">Volver Atrás</button>
+        <button class="footer-button" id="btn-limpiar">Limpiar</button>
+        <button class="footer-button primary" id="btn-generar">Generar Factura</button>
+    </div>
+</div>
+
+<!-------------------------------------------------------------------------->
+<!-----------------------------cliente-------------------------------------->
+
+<script>
+// Script para abrir y cerrar el modal de selección de cliente
+const modalCliente = document.getElementById("modal-seleccionar-cliente");
+const openModalButtonCliente = document.getElementById("buscar-cliente");
+const closeModalButtonCliente = document.querySelector(".close-btn-cliente");
+
+openModalButtonCliente.addEventListener("click", () => {
+    modalCliente.style.display = "block";
+    getDataClientes(); // Cargar datos al abrir el modal
+});
+
+closeModalButtonCliente.addEventListener("click", () => {
+    modalCliente.style.display = "none";
+});
+
+window.addEventListener("click", (event) => {
+    if (event.target === modalCliente) {
         modalCliente.style.display = "none";
-      });
+    }
+});
 
-      window.addEventListener("click", (event) => {
-        if (event.target === modalCliente) {
-          modalCliente.style.display = "none";
-        }
-      });
-    </script>
+getDataClientes();
 
-    <!-- Script para llenar tabla y buscar clientes en tiempo real -->
-    <script>
-      getDataClientes();
+// Script para llenar tabla y buscar clientes en tiempo real
+document.getElementById("search-input-cliente").addEventListener("keyup", getDataClientes);
 
-      document.getElementById("search-input-cliente").addEventListener("keyup", getDataClientes);
+function getDataClientes() {
+    const input = document.getElementById('search-input-cliente').value;
+    const content = document.getElementById('table-body-cliente');
+    const url = 'php/facturacion_buscadorClientes.php';
+    const formData = new FormData();
+    formData.append('campo', input);
 
-      function getDataClientes() {
-        let input = document.getElementById('search-input-cliente').value;
-        let content = document.getElementById('table-body-cliente');
-        let url = 'php/facturacion_buscadorClientes.php';
-        let formData = new FormData();
-        formData.append('campo', input);
-
-        fetch(url, {
-          method: 'POST',
-          body: formData
-        }).then(response => response.json())
-          .then(data => {
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
             content.innerHTML = data;
-          }).catch(error => console.error(error));
-      }
-    </script>
+        })
+        .catch(error => console.error("Error al buscar clientes:", error));
+}
 
-    <!-- Script para seleccionar cliente -->
-    <script>
-      function selectCliente(id) {
-        if (id == null) {
-          alert("Error al seleccionar cliente");
-          return;
-        }
-
-        fetch("php/facturacion_seleccionarCliente.php?id=" + id)
-          .then(response => response.json())
-          .then(data => {
-            if (data.error) {
-              alert(data.error);
-            } else {
-              document.getElementById("id-cliente").value = data.id;
-              document.getElementById("nombre-cliente").value = data.nombre;
-              document.getElementById("empresa").value = data.empresa;
-            }
-          })
-          .catch(error => console.error("Error en fetch:", error));
-
-        modalCliente.style.display = "none";
-      }
-    </script>
-
-    <!-- Sección de Búsqueda de Productos -->
-    <section class="article-search">
-      <fieldset>
-        <legend>Buscador de Productos</legend>
-        <button id="buscar-producto">Buscar Producto</button>
-        <label for="id-producto">ID Producto:</label>
-        <input type="text" id="id-producto" value="Seleccionar Producto" style="color: black; opacity: 1; background-color: rgb(202, 202, 202);" disabled>
-        <label for="descripcion-producto">Descripción Producto:</label>
-        <input type="text" id="descripcion-producto" value="Seleccionar Producto" style="color: black; opacity: 1; background-color: rgb(202, 202, 202);" disabled>
-        <label for="cantidad-producto">Cantidad:</label>
-        <input type="number" step="1" id="cantidad-producto" placeholder="Ingrese la cantidad">
-        <label for="precio-1">Precio 1:</label>
-        <input type="text" id="precio-1" value="Seleccionar Producto" style="color: black; opacity: 1; background-color: rgb(202, 202, 202);" disabled>
-        <input type="button" id="seleccion-precio-1" onclick="buscarProducto(1)" value="Seleccionar">
-        <label for="precio-2">Precio 2:</label>
-        <input type="text" id="precio-2" value="Seleccionar Producto" style="color: black; opacity: 1; background-color: rgb(202, 202, 202);" disabled>
-        <input type="button" id="seleccion-precio-2" onclick="buscarProducto(2)" value="Seleccionar">
-      </fieldset>
-    </section>
-
-    <!-- Modal Selección Producto -->
-    <div id="modal-seleccionar-producto" class="modal">
-      <div class="modal-content">
-        <span class="close-btn-producto">&times;</span>
-        <h2>Buscar Producto</h2>
-        <input type="text" id="search-input-productos" placeholder="Buscar producto por id o descripción" autocomplete="off">
-        <table id="table-buscar-producto">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Descripción</th>
-              <th>Existencia</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="table-body-productos">
-            <!-- Productos añadidos dinámicamente -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Script para abrir y cerrar el modal de selección de producto -->
-    <script>
-      const modalProducto = document.getElementById("modal-seleccionar-producto");
-      const openModalButtonProducto = document.getElementById("buscar-producto");
-      const closeModalButtonProducto = document.querySelector(".close-btn-producto");
-
-      openModalButtonProducto.addEventListener("click", () => {
-        modalProducto.style.display = "block";
-      });
-
-      closeModalButtonProducto.addEventListener("click", () => {
-        modalProducto.style.display = "none";
-      });
-
-      window.addEventListener("click", (event) => {
-        if (event.target === modalProducto) {
-          modalProducto.style.display = "none";
-        }
-      });
-    </script>
-
-    <!-- Script para llenar tabla y buscar productos en tiempo real -->
-    <script>
-      getDataProductos();
-
-      document.getElementById('search-input-productos').addEventListener('keyup', getDataProductos);
-
-      function getDataProductos() {
-        let inputP = document.getElementById('search-input-productos').value;
-        let contentP = document.getElementById('table-body-productos');
-        let urlP = 'php/facturacion_buscadorProductos.php';
-        let formDataP = new FormData();
-        formDataP.append('campoProducto', inputP);
-
-        fetch(urlP, {
-          method: 'POST',
-          body: formDataP
-        }).then(response => response.json())
-          .then(data => {
-            contentP.innerHTML = data;
-          }).catch(error => console.error(error));
-      }
-    </script>
-
-    <!-- Script para seleccionar Producto -->
-    <script>
-      function selectProducto(id) {
-        if (id == null) {
-          alert("Error al seleccionar producto");
-          return;
-        }
-
-        fetch("php/facturacion_seleccionarProducto.php?id=" + id)
-          .then(response => response.json())
-          .then(data => {
-            if (data.error) {
-              alert(data.error);
-            } else {
-              document.getElementById("id-producto").value = data.id;
-              document.getElementById("descripcion-producto").value = data.descripcion;
-              document.getElementById("precio-1").value = data.precioVenta1;
-              document.getElementById("precio-2").value = data.precioVenta2;
-            }
-          })
-          .catch(error => console.error("Error en fetch:", error));
-
-        modalProducto.style.display = "none";
-      }
-    </script>
-
-    <!-- Sección de Artículos en Factura -->
-    <section class="invoice">
-      <fieldset>
-        <legend>Artículos en Factura</legend>
-        <table>
-          <thead>
-            <tr>
-              <th>ID ART</th>
-              <th>Descripción</th>
-              <th>Cantidad</th>
-              <th>Precio</th>
-              <th>Importe</th>
-              <th>Eliminar</th>
-            </tr>
-          </thead>
-          <tbody id="invoice-articles">
-            <!-- Artículos añadidos dinámicamente -->
-          </tbody>
-        </table>
-        <p id="mensaje-vacio" style="display: block; color: #f44336;">No hay productos agregados.</p>
-      </fieldset>
-    </section>
-
-    <!-- Sección de Totales -->
-    <section class="totals">
-      <div>
-        <p>Total: $<span id="total">0.00</span></p>
-      </div>
-    </section>
-
-    <!-- Pie de página -->
-    <footer>
-      <a href="facturacion.php"><button id="limpiar-factura">Limpiar Factura</button></a>
-      <button id="procesar-factura" onclick="modalProcesarFactura()">Procesar Factura</button>
-      <a href="./"><button id="volver">Volver</button></a>
-    </footer>
-
-    <!-- Modal Procesar Factura -->
-    <div id="modal-procesar-factura" class="modal">
-      <div class="modal-content">
-        <span class="close-btn-factura">&times;</span>
-        <h2>Procesar Factura</h2>
-        <p>Total a pagar: $<span id="total-a-pagar"></span></p>
-        <label for="tipo-factura">Tipo de factura:</label>
-        <select id="tipo-factura">
-          <option value="contado">Contado</option>
-          <option value="credito">Crédito</option>
-        </select>
-        <label for="forma-pago">Forma de Pago:</label>
-        <select id="forma-pago">
-          <option value="efectivo">Efectivo</option>
-          <option value="tarjeta">Tarjeta</option>
-          <option value="transferencia">Transferencia</option>
-        </select>
-        <div id="div-numero-tarjeta" style="display: none;">
-          <label for="numero-tarjeta">Número de Tarjeta:</label>
-          <input type="text" name="numero-tarjeta" id="numero-tarjeta" placeholder="Ingrese los últimos 4 dígitos de la tarjeta" maxlength="4">
-        </div>
-        <div id="div-numero-autorizacion" style="display: none;">
-          <label for="numero-autorizacion">Número de autorización:</label>
-          <input type="text" name="numero-autorizacion" id="numero-autorizacion" placeholder="Ingrese los 4 últimos dígitos de autorización" maxlength="4">
-        </div>
-        <div id="div-banco" style="display: none;">
-          <label for="banco">Seleccione el banco:</label>
-          <select name="banco" id="banco">
-            <option value="0" disabled selected>Seleccionar banco</option>
-            <?php
-            $sql = "SELECT * FROM bancos ORDER BY id ASC";
-            $resultado = $conn->query($sql);
-            if ($resultado->num_rows > 0) {
-              while ($fila = $resultado->fetch_assoc()) {
-                echo "<option value='" . $fila['id'] . "'>" . $fila['nombreBanco'] . "</option>";
-              }
-            } else {
-              echo "<option value='' disabled>No hay opciones</option>";
-            }
-            ?>
-          </select>
-        </div>
-        <div id="div-destino" style="display: none;">
-          <label for="destino-cuenta">Seleccione el destino:</label>
-          <select name="banco" id="banco">
-            <option value="0" disabled selected>Seleccionar destino</option>
-            <?php
-            $sql = "SELECT * FROM destinoCuentas ORDER BY id ASC";
-            $resultado = $conn->query($sql);
-            if ($resultado->num_rows > 0) {
-              while ($fila = $resultado->fetch_assoc()) {
-                echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
-              }
-            } else {
-              echo "<option value='' disabled>No hay opciones</option>";
-            }
-            ?>
-          </select>
-        </div>
-        <label for="monto-pagado">Monto Pagado:</label>
-        <input type="number" name="monto-pagado" id="monto-pagado" placeholder="Ingrese la cantidad pagada" step="0.01" min="0" required>
-        <div id="div-devuelta">
-          <label for="devuelta">Devuelta:<span id="devuelta">0.00</span></label>
-        </div>
-        <div id="botones-facturas">
-          <button id="guardar-factura">Guardar Factura</button>
-          <button id="guardar-imprimir-factura">Guardar e Imprimir Factura</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Script para mostrar u ocultar campos de información de pagos -->
-    <script>
-      const metodo = document.getElementById("forma-pago");
-      const tarjeta = document.getElementById("div-numero-tarjeta");
-      const autorizacion = document.getElementById("div-numero-autorizacion");
-      const banco = document.getElementById("div-banco");
-      const destino = document.getElementById("div-destino");
-      
-      metodo.addEventListener("change", () => {
-        if (metodo.value === "tarjeta") {
-          tarjeta.style.display = "block";
-          autorizacion.style.display = "block";
-          banco.style.display = "block";
-          destino.style.display = "block";
-
-          tarjeta.value = "";
-          autorizacion.value = "";
-          banco.value = "0";
-          destino.value = "0";
-          document.getElementById("monto-pagado").value = "";
-
-        } else if (metodo.value === "transferencia") {
-          tarjeta.style.display = "none";
-          autorizacion.style.display = "block";
-          banco.style.display = "block";
-          destino.style.display = "block";
-
-          tarjeta.value = "";
-          autorizacion.value = "";
-          banco.value = "0";
-          destino.value = "0";
-          document.getElementById("monto-pagado").value = "";
-
-        } else {
-          tarjeta.style.display = "none";
-          autorizacion.style.display = "none";
-          banco.style.display = "none";
-          destino.style.display = "none";
-
-          tarjeta.value = "";
-          autorizacion.value = "";
-          banco.value = "0";
-          destino.value = "0";
-          document.getElementById("monto-pagado").value = "";
-
-        }
-      });
-
-
-    </script>
-
-    <!-- Script para abrir y cerrar el modal de procesar factura -->
-    <script>
-
-      function modalProcesarFactura() {
-
-        let inCliente = document.getElementById("id-cliente").value;
-
-        if (inCliente === "Seleccionar Cliente"){
-          alert("Ningún cliente seleccionado");
-          return;
-        }
-
-        const tabla = document.getElementById("invoice-articles");
-        let numeroFilas = tabla.rows.length;
-
-        if (numeroFilas === 0){
-          alert("No hay productos en la factura");
-          return;
-        }
-
-        const modalf = document.getElementById("modal-procesar-factura");
-        const closeModalButtonf = document.querySelector(".close-btn-factura");
-
-        modalf.style.display = "block";
-
-        closeModalButtonf.addEventListener("click", () => {
-          modalf.style.display = "none";
-        });
-
-        window.addEventListener("click", (event) => {
-          if (event.target === modalf) {
-            modalf.style.display = "none";
-          }
-        });
-      }
-    </script>
-
-
-  </div>
-
-  <!-- Script para añadir producto a factura, eliminar proctos en factura y calcular el total -->
-  <script>
-    // Función para buscar el producto
-    function buscarProducto(precio) {
-
-      // Validar precio seleccionado
-      if (precio == 1 || precio == 2) {
-
-        let precioSeleccionado = (precio == 1) ? "precioVenta1" : "precioVenta2";
-        let idProducto = document.getElementById("id-producto").value;
-        let cantidad = document.getElementById("cantidad-producto").value;
-
-        // Validar producto
-        if (idProducto === "" || idProducto === "Seleccionar Producto") {
-          alert("Seleccione un producto");
-          return;
-        }
-
-        // Validar cantidad
-        if (cantidad === "" || cantidad <= 0) {
-          alert("Ingrese una cantidad válida");
-          return;
-        }
-
-        // Se realiza la solicitud a PHP para agregar el producto
-        fetch("php/facturacion_agregarProducto.php?id=" + idProducto + "&precioSeleccionado=" + precioSeleccionado + "&cantidad=" + cantidad)
-          .then(response => response.json())
-          .then(data => {
-            if (data.error) {
-              alert(data.error);
-            } else {
-              // Función para agregar el producto a la tabla
-              agregarATabla(data);
-                // Limpiar los datos de los productos
-                limpiarDatosProductos();
-            }
-          })
-        .catch(error => console.error("Error:", error));
-
-      } else {
-        alert("Error al seleccionar precio");
-      }
-    }
-
-    // Función para agregar el producto a la tabla
-    function agregarATabla(producto) {
-      // Seleccionar el cuerpo de la tabla
-      const tableBody = document.querySelector("#invoice-articles");
-
-      if (!tableBody) {
-        console.error("No se encontró el tbody");
+// Script para seleccionar cliente
+function selectCliente(id) {
+    if (!id) {
+        alert("Error al seleccionar cliente");
         return;
-      }
-
-      // Crear una nueva fila para el producto
-      const row = document.createElement("tr");
-
-      // Crear celdas para cada dato del producto
-      const cellId = document.createElement("td");
-      cellId.textContent = producto.id;
-
-      const cellDescripcion = document.createElement("td");
-      cellDescripcion.textContent = producto.descripcion;
-
-      const cellCantidad = document.createElement("td");
-      cellCantidad.textContent = producto.cantidad.toFixed(2);
-
-      const cellPrecio = document.createElement("td");
-      cellPrecio.textContent = producto.precio.toFixed(2);
-
-      const cellImporte = document.createElement("td");
-      cellImporte.textContent = producto.importe.toFixed(2);
-
-      // Crear celda para el botón de eliminar
-      const cellEliminar = document.createElement("td");
-      const botonEliminar = document.createElement("button");
-      botonEliminar.textContent = "Eliminar";
-      botonEliminar.classList.add("btn-eliminar");
-      botonEliminar.onclick = function() {
-        row.remove();
-        calcularTotal();
-        verificarTablaVacia();
-      };
-
-      // Añadir el botón a la celda
-      cellEliminar.appendChild(botonEliminar);
-
-      // Añadir las celdas a la fila
-      row.appendChild(cellId);
-      row.appendChild(cellDescripcion);
-      row.appendChild(cellCantidad);
-      row.appendChild(cellPrecio);
-      row.appendChild(cellImporte);
-      row.appendChild(cellEliminar);
-
-      // Añadir la fila a la tabla
-      tableBody.appendChild(row);
-
-      calcularTotal();
-      verificarTablaVacia();
     }
 
-    function calcularTotal() {
-
-      const tableBody = document.querySelector("#invoice-articles");
-      const rows = tableBody.querySelectorAll("tr");
-
-      let total = 0;
-
-      rows.forEach(row => {
-        const importeCell = row.querySelector("td:nth-child(5)");
-        if (importeCell) {
-          const importe = parseFloat(importeCell.textContent);
-            if (!isNaN(importe)) {
-              total += importe;
+    fetch("php/facturacion_seleccionarCliente.php?id=" + id)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById("id-cliente").value = data.id;
+                document.getElementById("nombre-cliente").value = data.nombre;
+                document.getElementById("empresa").value = data.empresa;
             }
-        }
-      });
+        })
+        .catch(error => console.error("Error en fetch:", error));
 
-      // Mostrar el total
-      const totalElement = document.querySelector("#total");
-      const totalProcesarFactura = document.querySelector("#total-a-pagar");
-      if (totalElement) {
-        totalElement.textContent = total.toFixed(2);
-        totalProcesarFactura.textContent = total.toFixed(2);
-      }
+    modalCliente.style.display = "none"; // Cerrar el modal después de seleccionar
+}
+</script>   
+<!-------------------------------------------------------------------------------->
+
+<!-----codigo de pasas los productos------>
+<!-------CODIGO DE PRODUCTO--------->
+
+<script>
+// Variable global para almacenar el precio seleccionado
+let selectedPrices = {};
+
+// Variable global para almacenar el total de la compra
+let total = 0;
+
+function handleButton1(productId, price1) {
+    selectedPrices[productId] = price1; // Almacenar precio1
+    document.getElementById(`button2-${productId}`).classList.add("selected");
+    document.getElementById(`button1-${productId}`).classList.remove("selected");
+}
+
+function handleButton2(productId, price2) {
+    selectedPrices[productId] = price2; // Almacenar precio2
+    document.getElementById(`button1-${productId}`).classList.add("selected");
+    document.getElementById(`button2-${productId}`).classList.remove("selected");
+}
+
+// Función para agregar productos al carrito
+function addToCart(productId, productName) {
+    const quantityInput = document.getElementById(`quantity-${productId}`);
+    const quantity = quantityInput.value;
+
+    if (quantity <= 0) {
+        alert("La cantidad debe ser mayor que 0.");
+        return;
     }
 
-    function verificarTablaVacia() {
-      const tableBody = document.querySelector("#invoice-articles");
-      const rows = tableBody.querySelectorAll("tr");
-
-      // Si no hay filas (excluyendo el encabezado), mostrar el mensaje
-      const mensaje = document.querySelector("#mensaje-vacio");
-      if (rows.length === 0) {
-        mensaje.style.display = "block"; // Mostrar el mensaje
-      } else {
-        mensaje.style.display = "none"; // Ocultar el mensaje
-      }
+    // Obtener el precio seleccionado
+    const selectedPrice = selectedPrices[productId];
+    if (!selectedPrice) {
+        alert("Por favor, selecciona un precio antes de agregar al carrito.");
+        return;
     }
 
-    function limpiarDatosProductos() {
-      document.getElementById("id-producto").value = "Seleccionar Producto";
-      document.getElementById("descripcion-producto").value = "Seleccionar Producto";
-      document.getElementById("cantidad-producto").value = "";
-      document.getElementById("precio-1").value = "Seleccionar Producto";
-      document.getElementById("precio-2").value = "Seleccionar Producto";
-    }
+    // Calcular el subtotal del producto
+    const subtotal = selectedPrice * quantity;
 
-  </script>
+    // Crear el elemento del producto en el carrito
+    const orderList = document.getElementById('orderList');
+    const orderItem = document.createElement('div');
+    orderItem.classList.add('order-item');
 
+    orderItem.innerHTML = `
+        <div class="item-info">
+            <span class="item-name">${productName}</span>
+            <span class="item-base-price">RD$${selectedPrice.toFixed(2)}</span>
+        </div>
+        <div class="item-total">
+            <span class="item-quantity">x${quantity}</span>
+            <span class="item-total-price">RD$${subtotal.toFixed(2)}</span>
+        </div>
+        <button class="delete-item" onclick="removeFromCart(this, ${subtotal})">&times;</button>
+    `;
+
+    // Agregar el producto al carrito
+    orderList.appendChild(orderItem);
+
+    // Actualizar el total
+    total += subtotal;
+    updateTotal();
+
+    // Limpiar el campo de cantidad
+    quantityInput.value = '';
+}
+
+// Función para eliminar un producto del carrito
+function removeFromCart(button, subtotal) {
+    // Restar el subtotal del producto eliminado
+    total -= subtotal;
+    updateTotal();
+
+    // Eliminar el elemento del DOM
+    button.parentElement.remove();
+}
+
+// Función para actualizar el total en el modal
+function updateTotal() {
+    document.getElementById('totalAmount').textContent = `RD$ ${total.toFixed(2)}`;
+}
+// Función para eliminar un producto del carrito
+function removeFromCart(button, subtotal) {
+    // Restar el subtotal del producto eliminado
+    total -= subtotal;
+    updateTotal();
+
+    // Eliminar el elemento del DOM
+    button.parentElement.remove();
+}
+
+// Función para uso de , ., donde esta minimunfraction y maximumfraction
+function updateTotal() {
+    document.getElementById('totalAmount').textContent = `RD$ ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+</script>
+
+<!--------------------------------------------------------------------->
+<!--------------PARA ABRIR EL MENU DESPEJABLE DE FACTURA--------------->
+<!--------------------------------------------------------------------->
+<script>
+       // Toggle del menú
+    const toggleButton = document.getElementById('toggleMenu');
+    const orderMenu = document.getElementById('orderMenu');
+
+    toggleButton.addEventListener('click', () => {
+        orderMenu.classList.toggle('active');
+    });
+
+    /*
+
+    // Event listeners
+    document.getElementById('searchButton').addEventListener('click', searchProducts);
+    document.getElementById('minPriceButton').addEventListener('click', filterByMinPrice);
+    document.getElementById('maxPriceButton').addEventListener('click', filterByMaxPrice);
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => renderProducts(products));
+
+    */
+    
+</script>
+  
 </body>
 </html>

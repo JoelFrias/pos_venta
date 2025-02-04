@@ -1,3 +1,15 @@
+<?php
+    // Iniciar sesión
+    session_start();
+
+    // Verificar si el usuario ha iniciado sesión
+    if (!isset($_SESSION['username'])) {
+        // Redirigir a la página de inicio de sesión con un mensaje de error
+        header('Location: login.php?session_expired=session_expired');
+        exit(); // Detener la ejecución del script
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
