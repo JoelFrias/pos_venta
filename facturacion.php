@@ -1,5 +1,16 @@
 <?php
-include 'php/conexion.php';
+
+// Iniciar sesión
+session_start();
+
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['username'])) {
+    // Redirigir a la página de inicio de sesión con un mensaje de error
+    header('Location: login.php?session_expired=session_expired');
+    exit(); // Detener la ejecución del script
+}
+
+require 'php/conexion.php';
 
 $sql = "SELECT id, descripcion, existencia, precioVenta1, precioVenta2 FROM productos LIMIT 30";
 $result = $conn->query($sql);

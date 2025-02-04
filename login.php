@@ -3,6 +3,13 @@ require 'php/conexion.php'; // Asegúrate de que $conn esté definido en este ar
 
 session_start();
 
+// Verificar si el usuario ya inicio sesion, redirigir a la página de inicio
+if (isset($_SESSION['username'])) {
+    // Redirigir a la página de inicio
+    header('Location: ./');
+    exit(); // Detener la ejecución del script
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $user = trim($_POST['username']);
