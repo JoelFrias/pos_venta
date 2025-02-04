@@ -66,6 +66,8 @@
         <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
         <div class="overlay" id="overlay"></div>
     </div>
+
+    <p>Sesion iniciada como: <?php echo $_SESSION['username']?></p>
     
     <!-- Scripts JS -->
     <script src="js/menu.js"></script>

@@ -262,7 +262,7 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                 <?php endwhile; ?>
             </div>
             <!-- referencia al html donde esta el modal -->
-            <?php include 'html/actualizar_modal_producto.php'; ?>
+            <?php include 'producto_actualizar.php'; ?>
 
             <!-- manejo de mensajes  -->
             <?php
