@@ -15,7 +15,14 @@
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+/* .main-content {
+    margin-left: var(--sidebar-width); 
+    transition: margin-left 0.3s ease;
+}
 
+.sidebar.collapsed + .main-content {
+    margin-left: var(--sidebar-collapsed-width); 
+} */
 .container {
     display: flex;
     min-height: 100vh;

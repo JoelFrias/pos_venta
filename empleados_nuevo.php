@@ -1,14 +1,33 @@
 <?php
 
+/* Verificacion de sesion */
+
+// Iniciar sesión
 session_start();
 
-// Verificar si el usuario ya inicio sesion, redirigir a la página de inicio
-if (!isset($_SESSION['username'])) {
+// Configurar el tiempo de caducidad de la sesión
+$inactivity_limit = 900; // 15 minutos en segundos
 
-    // Redirigir a la página de inicio de sesión con un mensaje de error
-    header('Location: login.php?session_expired=session_expired');
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['username'])) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header('Location: login.php'); // Redirigir al login
     exit(); // Detener la ejecución del script
 }
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Actualizar el tiempo de la última actividad
+$_SESSION['last_activity'] = time();
+
+/* Fin de verificacion de sesion */
 
 if ($_SESSION['idPuesto'] > 2) {
     
@@ -59,65 +78,119 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Confirmar transacción
         $conn->commit();
-        echo "Registro exitoso.";
+        $_SESSION['success_message'] = 'Registro exitoso.'; // Almacenar mensaje de éxito
     } catch (Exception $e) {
         // Revertir transacción en caso de error
         $conn->rollback();
-        echo "Error en el registro: " . $e->getMessage();
+        $_SESSION['error_message'] = 'Error en el registro: ' . $e->getMessage(); // Almacenar mensaje de error
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-    <title>Registro de Empleado</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoRegistro de Empleado</title>
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/registro_empleados.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <h2>Registro de Empleado</h2>
-    <form action="" method="post">
-        <label>Nombre:</label>
-        <input type="text" name="nombre" autocomplete="off" required><br>
-        
-        <label>Apellido:</label>
-        <input type="text" name="apellido" autocomplete="off" required><br>
-        
-        <label>Tipo de Identificación:</label>
-        <select name="tipo_identificacion" required>
-            <option value="Cedula">Cédula</option>
-            <option value="Pasaporte">Pasaporte</option>
-        </select><br>
-        
-        <label>Identificación:</label>
-        <input type="text" name="identificacion" autocomplete="off" required><br>
-        
-        <label>Teléfono:</label>
-        <input type="text" name="telefono" autocomplete="off" required><br>
-        
-        <label>Puesto:</label>
-        <select name="idPuesto" required>
-            <?php
-            // Obtener el id y la descripción de los tipos de producto
-            $sql = "SELECT id, descripcion FROM empleados_puestos WHERE id <> 1 ORDER BY descripcion ASC";
-            $resultado = $conn->query($sql);
+<!----------------------------------------->
+  <!-- Contenedor principal -->
+  <div class="container">
+        <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
+        <button id="mobileToggle" class="toggle-btn">
+            <i class="fas fa-bars"></i>
+        </button>
 
-            if ($resultado->num_rows > 0) {
-                while ($fila = $resultado->fetch_assoc()) {
-                    echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
-                }
-            } else {
-                echo "<option value='' disabled>No hay opciones</option>";
-            }
-            ?>
-        </select><br>
-        
-        <label>Usuario:</label>
-        <input type="text" name="username" autocomplete="off" required><br>
-        
-        <label>Contraseña:</label>
-        <input type="password" name="password" autocomplete="off" required><br>
-        
-        <input type="submit" value="Registrar">
-    </form>
+        <!-- Incluir el menú -->
+        <?php require 'menu.html' ?>
+        <script src="js/sidebar_menu.js"></script>
+
+        <!-- Overlay para dispositivos móviles -->
+        <div class="overlay" id="overlay"></div>
+<!------------------------------------------------------------>
+    <div class="form-container">
+        <h2 class="form-title">Registro de Empleado</h2>
+        <form class="registration-form" action="" method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="apellido">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="tipo_identificacion">Tipo de Identificación:</label>
+                    <select id="tipo_identificacion" name="tipo_identificacion" required>
+                        <option value="Cedula">Cédula</option>
+                        <option value="Pasaporte">Pasaporte</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="identificacion">Identificación:</label>
+                    <input type="text" id="identificacion" name="identificacion" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="text" id="telefono" name="telefono" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="idPuesto">Puesto:</label>
+                    <select id="idPuesto" name="idPuesto" required>
+                        <?php
+                        // Obtener el id y la descripción de los tipos de producto
+                        $sql = "SELECT id, descripcion FROM empleados_puestos WHERE id <> 1 ORDER BY descripcion ASC";
+                        $resultado = $conn->query($sql);
+
+                        if ($resultado->num_rows > 0) {
+                            while ($fila = $resultado->fetch_assoc()) {
+                                echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
+                            }
+                        } else {
+                            echo "<option value='' disabled>No hay opciones</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="username">Usuario:</label>
+                    <input type="text" id="username" name="username" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" autocomplete="off" minlength="4" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Registrar</button>
+        </form>
+    </div>
+    <!--script de manejo de mensajes-->
+<script>
+        // Verificar si hay un mensaje de éxito y mostrarlo con SweetAlert2
+        <?php if (isset($_SESSION['success_message'])): ?>
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: '<?php echo $_SESSION['success_message']; ?>',
+            });
+            <?php unset($_SESSION['success_message']); ?> // Limpiar el mensaje de la sesión
+        <?php endif; ?>
+
+        // Verificar si hay un mensaje de error y mostrarlo con SweetAlert2
+        <?php if (isset($_SESSION['error_message'])): ?>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '<?php echo $_SESSION['error_message']; ?>',
+            });
+            <?php unset($_SESSION['error_message']); ?> // Limpiar el mensaje de la sesión
+        <?php endif; ?>
+    </script>
 </body>
 </html>

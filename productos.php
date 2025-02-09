@@ -1,12 +1,33 @@
 <?php
+
+/* Verificacion de sesion */
+
+// Iniciar sesión
 session_start();
+
+// Configurar el tiempo de caducidad de la sesión
+$inactivity_limit = 900; // 15 minutos en segundos
 
 // Verificar si el usuario ha iniciado sesión
 if (!isset($_SESSION['username'])) {
-    // Redirigir a la página de inicio de sesión con un mensaje de error
-    header('Location: login.php?session_expired=session_expired');
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header('Location: login.php'); // Redirigir al login
     exit(); // Detener la ejecución del script
 }
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Actualizar el tiempo de la última actividad
+$_SESSION['last_activity'] = time();
+
+/* Fin de verificacion de sesion */
 
 require 'php/conexion.php';
 
@@ -300,19 +321,30 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
             }
             ?>
 
+            <?php require 'productos_actualizar.php'; ?>
+
             <!-- Scripts -->
             <script>
                 function mostrarModal(button) {
                     if (!button) return;  // Evita ejecutar si no hay un botón específico
 
                     // Obtener datos del producto desde los atributos data-*
-                    document.getElementById("idProducto").value = button.getAttribute("data-id");
-                    document.getElementById("descripcion").value = button.getAttribute("data-descripcion");
-                    document.getElementById("precioCompra").value = button.getAttribute("data-preciocompra");
-                    document.getElementById("precioVenta1").value = button.getAttribute("data-precioventa1");
-                    document.getElementById("precioVenta2").value = button.getAttribute("data-precioventa2");
-                    document.getElementById("reorden").value = button.getAttribute("data-reorden");
-                    document.getElementById("activo").value = button.getAttribute("data-activo");
+                    const idProducto = button.getAttribute("data-id");
+                    const descripcion = button.getAttribute("data-descripcion");
+                    const precioCompra = button.getAttribute("data-preciocompra");
+                    const precioVenta1 = button.getAttribute("data-precioventa1");
+                    const precioVenta2 = button.getAttribute("data-precioventa2");
+                    const reorden = button.getAttribute("data-reorden");
+                    const activo = button.getAttribute("data-activo");
+
+                    // Asignar valores a los campos del formulario
+                    if (idProducto) document.getElementById("idProducto").value = idProducto;
+                    if (descripcion) document.getElementById("descripcion").value = descripcion;
+                    if (precioCompra) document.getElementById("precioCompra").value = precioCompra;
+                    if (precioVenta1) document.getElementById("precioVenta1").value = precioVenta1;
+                    if (precioVenta2) document.getElementById("precioVenta2").value = precioVenta2;
+                    if (reorden) document.getElementById("reorden").value = reorden;
+                    if (activo) document.getElementById("activo").value = activo;
 
                     // Establecer el valor seleccionado del tipo de producto
                     const tipoActual = button.getAttribute("data-tipo");  // Obtener el idTipo

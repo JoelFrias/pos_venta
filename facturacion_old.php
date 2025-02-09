@@ -2,6 +2,8 @@
 // Incluir el archivo de conexión a la base de datos
 require 'php/conexion.php';
 
+header('location: ./');
+
 ?>
 
 <!DOCTYPE html>

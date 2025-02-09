@@ -1,14 +1,33 @@
 <?php
 
+/* Verificacion de sesion */
+
 // Iniciar sesión
 session_start();
 
+// Configurar el tiempo de caducidad de la sesión
+$inactivity_limit = 900; // 15 minutos en segundos
+
 // Verificar si el usuario ha iniciado sesión
 if (!isset($_SESSION['username'])) {
-    // Redirigir a la página de inicio de sesión con un mensaje de error
-    header('Location: login.php?session_expired=session_expired');
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header('Location: login.php'); // Redirigir al login
     exit(); // Detener la ejecución del script
 }
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Actualizar el tiempo de la última actividad
+$_SESSION['last_activity'] = time();
+
+/* Fin de verificacion de sesion */
 
 require 'php/conexion.php';
 
@@ -33,13 +52,34 @@ if ($result->num_rows > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facturacion</title>
     <link rel="stylesheet" href="css/facturacion.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <!-- <link rel="stylesheet" href="css/menu.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    
-<button class="toggle-menu" id="toggleMenu">☰</button>
 
-    <div class="container">
-        <h2 class="title">Seleccione los Productos</h2>
+<!-- Contenedor principal -->
+<div class="container">
+        <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
+        <button id="mobileToggle" class="toggle-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Incluir el menú -->
+        <?php require 'menu.html' ?>
+        <script src="js/sidebar_menu.js"></script>
+        
+
+        <!-- Overlay para dispositivos móviles -->
+        <div class="overlay" id="overlay"></div>
+
+    <!-- Contenedor principal -->
+    
+<button class="toggle-menu" id="toggleMenuFacturacion">☰</button>
+
+    <div class="facturacion-container">
+        <h2>Facturación</h2><br>
+        <h3>Seleccione los productos</h3><br>
         <div class="search-container">
             <input type="text" id="searchInput" class="search-input" placeholder="Buscar productos...">
             <button id="searchButton" class="search-button">Buscar</button>
@@ -57,8 +97,8 @@ if ($result->num_rows > 0) {
                     echo '        <div class="product-total"></div>';
                     echo '    </div>';
                     echo '    <div class="product-inputs">';
-                    echo '        <input type="number" class="product-input" id="input1-' . $row["id"] . '" value="' . $row["precioVenta2"] . '">';
-                    echo '        <input type="number" class="product-input" id="input2-' . $row["id"] . '" value="' . $row["precioVenta1"] . '">';
+                    echo '        <input type="number" class="product-input" id="input1-' . $row["id"] . '" value="' . $row["precioVenta2"] . '" readonly>';
+                    echo '        <input type="number" class="product-input" id="input2-' . $row["id"] . '" value="' . $row["precioVenta1"] . '" readonly>';
                     echo '        <button class="product-button" id="button1-' . $row["id"] . '" onclick="handleButton2(' . $row["id"] . ', ' . $row["precioVenta2"] . ')">Precio 2</button>';
                     echo '        <button class="product-button" id="button2-' . $row["id"] . '" onclick="handleButton1(' . $row["id"] . ', ' . $row["precioVenta1"] . ')">Precio 1</button>';
                     echo '    </div>';
@@ -102,9 +142,9 @@ if ($result->num_rows > 0) {
         <h2 class="menu-title">Menu<span>Facturacion</span></h2>
     </div>
     <div class="menu-content">
-        <input type="text" class="menu-input" id="id-cliente" placeholder="ID del cliente">
-        <input type="text" class="menu-input" id="nombre-cliente" placeholder="Nombre del cliente">
-        <input type="text" class="menu-input" id="empresa" placeholder="Empresa">
+        <input type="text" class="menu-input" id="id-cliente" placeholder="ID del cliente" readonly>
+        <input type="text" class="menu-input" id="nombre-cliente" placeholder="Nombre del cliente" readonly>
+        <input type="text" class="menu-input" id="empresa" placeholder="Empresa" readonly>
         <button class="menu-button" id="buscar-cliente">Buscar Cliente</button>
 
           <!-- Lista de productos agregados -->
@@ -126,10 +166,153 @@ if ($result->num_rows > 0) {
     </div>
 </div>
 
+<!-- Modal para procesar la factura -->
+<div id="modal-procesar-factura" class="modal">
+    <div class="modal-content">
+    <span class="close-btn-factura">&times;</span>
+    <h2>Procesar Factura</h2>
+    <label for="tipo-factura">Tipo de factura:</label>
+    <select id="tipo-factura">
+        <option value="contado">Contado</option>
+        <option value="credito">Crédito</option>
+    </select>
+    <label for="forma-pago">Forma de Pago:</label>
+    <select id="forma-pago">
+        <option value="efectivo">Efectivo</option>
+        <option value="tarjeta">Tarjeta</option>
+        <option value="transferencia">Transferencia</option>
+    </select>
+    <div id="div-numero-tarjeta" style="display: none;">
+        <label for="numero-tarjeta">Número de Tarjeta:</label>
+        <input type="text" name="numero-tarjeta" id="numero-tarjeta" placeholder="Ingrese los últimos 4 dígitos de la tarjeta" maxlength="4">
+    </div>
+    <div id="div-numero-autorizacion" style="display: none;">
+        <label for="numero-autorizacion">Número de autorización:</label>
+        <input type="text" name="numero-autorizacion" id="numero-autorizacion" placeholder="Ingrese los 4 últimos dígitos de autorización" maxlength="4">
+    </div>
+    <div id="div-banco" style="display: none;">
+        <label for="banco">Seleccione el banco:</label>
+        <select name="banco" id="banco">
+        <option value="0" disabled selected>Seleccionar banco</option>
+        <?php
+        $sql = "SELECT * FROM bancos ORDER BY id ASC";
+        $resultado = $conn->query($sql);
+        if ($resultado->num_rows > 0) {
+            while ($fila = $resultado->fetch_assoc()) {
+            echo "<option value='" . $fila['id'] . "'>" . $fila['nombreBanco'] . "</option>";
+            }
+        } else {
+            echo "<option value='' disabled>No hay opciones</option>";
+        }
+        ?>
+        </select>
+    </div>
+    <div id="div-destino" style="display: none;">
+        <label for="destino-cuenta">Seleccione el destino:</label>
+        <select name="banco" id="banco">
+        <option value="0" disabled selected>Seleccionar destino</option>
+        <?php
+        $sql = "SELECT * FROM destinoCuentas ORDER BY id ASC";
+        $resultado = $conn->query($sql);
+        if ($resultado->num_rows > 0) {
+            while ($fila = $resultado->fetch_assoc()) {
+            echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
+            }
+        } else {
+            echo "<option value='' disabled>No hay opciones</option>";
+        }
+        ?>
+        </select>
+    </div>
+    <label for="monto-pagado">Monto Pagado:</label>
+    <input type="number" name="monto-pagado" id="monto-pagado" placeholder="Ingrese la cantidad pagada" step="0.01" min="0" required>
+    <div id="div-devuelta">
+        <label for="devuelta">Devuelta:<span id="devuelta">0.00</span></label>
+    </div>
+    <div id="botones-facturas">
+        <button id="guardar-factura" class="footer-button">Guardar Factura</button>
+        <button id="guardar-imprimir-factura" class="footer-button">Guardar e Imprimir Factura</button>
+    </div>
+    </div>
+</div>
+
+<script>
+
+    // Script para abrir y cerrar el modal de prcesar factura
+    const modalfactura = document.getElementById("modal-procesar-factura");
+    const openModalButtonfactura = document.getElementById("btn-generar");
+    const closeModalButtonfactura = document.querySelector(".close-btn-factura");
+
+    openModalButtonfactura.addEventListener("click", () => {
+        modalfactura.style.display = "block";
+        getDataClientes(); // Cargar datos al abrir el modal
+    });
+
+    closeModalButtonfactura.addEventListener("click", () => {
+        modalfactura.style.display = "none";
+    });
+
+    window.addEventListener("click", (event) => {
+        if (event.target === modalfactura) {
+            modalfactura.style.display = "none";
+        }
+    });
+
+    // Script para mostrar u ocultar campos de información de pagos
+    const metodo = document.getElementById("forma-pago");
+    const tarjeta = document.getElementById("div-numero-tarjeta");
+    const autorizacion = document.getElementById("div-numero-autorizacion");
+    const banco = document.getElementById("div-banco");
+    const destino = document.getElementById("div-destino");
+    
+    metodo.addEventListener("change", () => {
+    if (metodo.value === "tarjeta") {
+        tarjeta.style.display = "block";
+        autorizacion.style.display = "block";
+        banco.style.display = "block";
+        destino.style.display = "block";
+
+        tarjeta.value = "";
+        autorizacion.value = "";
+        banco.value = "0";
+        destino.value = "0";
+        document.getElementById("monto-pagado").value = "";
+
+    } else if (metodo.value === "transferencia") {
+        tarjeta.style.display = "none";
+        autorizacion.style.display = "block";
+        banco.style.display = "block";
+        destino.style.display = "block";
+
+        tarjeta.value = "";
+        autorizacion.value = "";
+        banco.value = "0";
+        destino.value = "0";
+        document.getElementById("monto-pagado").value = "";
+
+    } else {
+        tarjeta.style.display = "none";
+        autorizacion.style.display = "none";
+        banco.style.display = "none";
+        destino.style.display = "none";
+
+        tarjeta.value = "";
+        autorizacion.value = "";
+        banco.value = "0";
+        destino.value = "0";
+        document.getElementById("monto-pagado").value = "";
+
+    }
+    });
+
+
+</script>
+
 <!-------------------------------------------------------------------------->
 <!-----------------------------cliente-------------------------------------->
 
 <script>
+
 // Script para abrir y cerrar el modal de selección de cliente
 const modalCliente = document.getElementById("modal-seleccionar-cliente");
 const openModalButtonCliente = document.getElementById("buscar-cliente");
@@ -303,26 +486,17 @@ function updateTotal() {
 <!--------------------------------------------------------------------->
 <script>
        // Toggle del menú
-    const toggleButton = document.getElementById('toggleMenu');
+    const toggleButton = document.getElementById('toggleMenuFacturacion');
     const orderMenu = document.getElementById('orderMenu');
 
     toggleButton.addEventListener('click', () => {
         orderMenu.classList.toggle('active');
     });
-
-    /*
-
-    // Event listeners
-    document.getElementById('searchButton').addEventListener('click', searchProducts);
-    document.getElementById('minPriceButton').addEventListener('click', filterByMinPrice);
-    document.getElementById('maxPriceButton').addEventListener('click', filterByMaxPrice);
-
-    // Inicializar
-    document.addEventListener('DOMContentLoaded', () => renderProducts(products));
-
-    */
-    
 </script>
-  
+
+ <!-- Scripts adicionales -->
+    <script src="js/menu.js"></script>
+    <script src="js/modo_oscuro.js"></script>
+    <script src="js/oscuro_recargar.js"></script>
 </body>
 </html>

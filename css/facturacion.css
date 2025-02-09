@@ -9,14 +9,15 @@
 
 body {
   background-color: #F9FAFB;
-  padding: 20px;
-  position: relative;
-  overflow-x: hidden;
 }
 
-.container {
+.facturacion-container {
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+  position: relative;
+  overflow-x: hidden;
+  margin-top: 40px;
 }
 
 .title {
@@ -25,7 +26,42 @@ body {
   margin-bottom: 20px;
   color: #1F2937;
 }
+/* nueva clase */
+.facturacion-container {
+  flex: 1;
+  padding: 20px;
+  background-color: #f9fafb;
+  transition: margin-left 0.3s ease;
+  overflow: auto;
+}
+/*--------------------------------------------*/
+/* Asegurar que la facturación se ajuste cuando el menú está expandido */
+.sidebar + .facturacion-container {
+  margin-left: var(--sidebar-width);
+}
 
+.sidebar.collapsed + .facturacion-container {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Para dispositivos móviles, la facturación ocupará toda la pantalla */
+@media (max-width: 768px) {
+  .sidebar {
+      position: fixed;
+      left: -100%;
+      transition: left 0.3s ease;
+  }
+
+  .sidebar.active {
+      left: 0;
+  }
+
+  .facturacion-container {
+      margin-left: 0;
+      width: 100%;
+  }
+}
+/*--------------------------------------------------------------------*/
 .search-container {
   display: flex;
   gap: 10px;
@@ -199,6 +235,7 @@ body {
 .menu-title {
   font-size: 24px;
   font-weight: normal;
+  margin-top: 10px;
 }
 
 .menu-title span {
@@ -496,6 +533,7 @@ display: none;
 align-items: center;
 justify-content: center;
 overflow-y: auto;
+
 }
 
 .modal-content {
@@ -509,7 +547,7 @@ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 /* Centrado mejorado para todas las pantallas */
 margin: 2rem auto;
 /* Animacion en la que va a parecer el modal */
-animation: modalFadeIn 0.3s ease-out;
+animation: modalFadeIn 0.5s ease-out;
 }
 /*------------------------------------------*/
 /* texto centralizado, hay que chequiarlo */

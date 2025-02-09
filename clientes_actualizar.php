@@ -1,13 +1,33 @@
 <?php
-// Iniciar la sesión para manejar mensajes de estado y errores
+
+/* Verificacion de sesion */
+
+// Iniciar sesión
 session_start();
+
+// Configurar el tiempo de caducidad de la sesión
+$inactivity_limit = 900; // 15 minutos en segundos
 
 // Verificar si el usuario ha iniciado sesión
 if (!isset($_SESSION['username'])) {
-    // Redirigir a la página de inicio de sesión con un mensaje de error
-    header('Location: login.php?session_expired=session_expired');
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header('Location: login.php'); // Redirigir al login
     exit(); // Detener la ejecución del script
 }
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Actualizar el tiempo de la última actividad
+$_SESSION['last_activity'] = time();
+
+/* Fin de verificacion de sesion */
 
 // Incluir el archivo de conexión a la base de datos
 require 'php/conexion.php';
@@ -60,17 +80,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* FORMULA PARA CALCULAR EL NUEVO BALANCE */
 
-            // Obtener el balance total de las facturas del cliente
-            $query_balance_facturas = "SELECT SUM(f.balance) AS total_balance FROM facturas AS f WHERE idCliente = ?";
-            $stmt_balance = $conn->prepare($query_balance_facturas);
-            $stmt_balance->bind_param("i", $cliente_id);
-            $stmt_balance->execute();
-            $result_balance = $stmt_balance->get_result();
-            $row_balance = $result_balance->fetch_assoc();
+        // Obtener el balance total de las facturas del cliente
+        $query_balance_facturas = "SELECT SUM(f.balance) AS total_balance FROM facturas AS f WHERE idCliente = ?";
+        $stmt_balance = $conn->prepare($query_balance_facturas);
+        $stmt_balance->bind_param("i", $cliente_id);
+        $stmt_balance->execute();
+        $result_balance = $stmt_balance->get_result();
+        $row_balance = $result_balance->fetch_assoc();
 
-            // Calcular el nuevo balance
-            $total_balance_facturas = $row_balance['total_balance'] ?? 0; // Si no hay facturas, el balance es 0
-            $nuevo_balance = $limite_credito - $total_balance_facturas;
+        // Calcular el nuevo balance
+        $total_balance_facturas = $row_balance['total_balance'] ?? 0; // Si no hay facturas, el balance es 0
+        $nuevo_balance = $limite_credito - $total_balance_facturas;
 
         /* FIN DE LA FORMULA */
 

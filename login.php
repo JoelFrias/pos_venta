@@ -77,22 +77,43 @@ if (isset($_GET['session_expired']) && $_GET['session_expired'] === 'session_exp
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
+    <div class="login-container">
     <h2>Iniciar Sesión</h2>
-    <div><?php echo isset($error) ? $error : ''; ?></div>
+        <!-- Mensaje de error con botón de cierre -->
+        <?php if(isset($error)): ?>
+            <div class="error-message" id="error-message">
+                <?php echo $error; ?>
+                <button class="close-btn" onclick="closeErrorMessage()">×</button>
+            </div>
+        <?php endif; ?>
 
-    <form action="" method="post">
-        <label>Username:</label>
-        <input type="text" name="username" id="username" autocomplete="off" required><br>
-        <label>Contraseña:</label>
-        <input type="password" name="password" id="password" required><br>
-        <input type="submit" value="Iniciar Sesión">
-    </form>
+        <form action="" method="post">
+            <div class="form-group">
+                <input type="text" name="username" id="username" autocomplete="off" required>
+                <label for="username">Username:</label>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" id="password" required>
+                <label for="password">Contraseña:</label>
+            </div>
+            <input type="submit" value="Iniciar Sesión">
+        </form>
+    </div>
+    <script>
+        // Función para cerrar el mensaje de error
+        function closeErrorMessage() {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'none'; // Oculta el mensaje
+        }
+    </script>
 </body>
 </html>
