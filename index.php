@@ -56,12 +56,12 @@ $_SESSION['last_activity'] = time();
             <i class="fas fa-bars"></i>
         </button>
         
-        <!-- Switch para modo oscuro -->
+        <!-- Switch para modo oscuro 
         <label class="switch">
             <input id="toggleDarkMode" type="checkbox" />
             <span class="slider"></span>
         </label>
-        
+        -->
         <!-- Inclusión del menú de navegación -->
         <?php require 'menu.html' ?>
         
@@ -87,8 +87,6 @@ $_SESSION['last_activity'] = time();
         <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
         <div class="overlay" id="overlay"></div>
     </div>
-
-    <p>Sesion iniciada como: <?php echo $_SESSION['username']?></p>
     
     <!-- Scripts JS -->
     <script src="js/menu.js"></script>

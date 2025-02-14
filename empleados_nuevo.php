@@ -30,7 +30,7 @@ $_SESSION['last_activity'] = time();
 /* Fin de verificacion de sesion */
 
 if ($_SESSION['idPuesto'] > 2) {
-    
+
     ?>
     
     <script>

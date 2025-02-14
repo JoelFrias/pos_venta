@@ -31,7 +31,7 @@ $_SESSION['last_activity'] = time();
 
 require 'php/conexion.php';
 
-$sql = "SELECT id, descripcion, existencia, precioVenta1, precioVenta2 FROM productos LIMIT 30";
+$sql = "SELECT id, descripcion, existencia, precioVenta1, precioVenta2, precioCompra FROM productos LIMIT 30";
 $result = $conn->query($sql);
 
 if (!$result) {
@@ -103,7 +103,7 @@ if ($result->num_rows > 0) {
                     echo '        <button class="product-button" id="button2-' . $row["id"] . '" onclick="handleButton1(' . $row["id"] . ', ' . $row["precioVenta1"] . ')">Precio 1</button>';
                     echo '    </div>';
                     echo '    <input type="number" class="quantity-input" id="quantity-' . $row["id"] . '" placeholder="Cantidad a llevar" min="1">';
-                    echo '    <button class="quantity-button" onclick="addToCart(' . $row["id"] . ', \'' . addslashes($row["descripcion"]) . '\', ' . $row["precioVenta1"] . ')">Agregar Producto</button>';
+                    echo '    <button class="quantity-button" onclick="addToCart(' . $row["id"] . ', \'' . addslashes($row["descripcion"]) . '\', ' . $row["precioVenta1"] . ', ' . $row["precioCompra"] . ')">Agregar Producto</button>';
                     echo '</div>';
                 }
             } else {
@@ -139,7 +139,7 @@ if ($result->num_rows > 0) {
 <!-- Campos del cliente en el menú desplegable -->
 <div class="order-menu" id="orderMenu">
     <div class="menu-header">
-        <h2 class="menu-title">Menu<span>Facturacion</span></h2>
+        <h2 class="menu-title"><span>Procesar Factura</span></h2>
     </div>
     <div class="menu-content">
         <input type="text" class="menu-input" id="id-cliente" placeholder="ID del cliente" readonly>
@@ -155,14 +155,12 @@ if ($result->num_rows > 0) {
         <!-- Total de la compra -->
         <div class="order-total">
             <span>Total:</span>
-            <span id="totalAmount">RD$ 0.00</span>
+            <span>RD$<span id="totalAmount">0.00</span></span>
         </div>
     </div>
     <!-- Nuevos botones en fila -->
     <div class="menu-footer">
-        <button class="footer-button" id="btn-volver">Volver Atrás</button>
-        <button class="footer-button" id="btn-limpiar">Limpiar</button>
-        <button class="footer-button primary" id="btn-generar">Generar Factura</button>
+        <button class="footer-button primary" id="btn-generar">Procesar Factura</button>
     </div>
 </div>
 
@@ -193,9 +191,9 @@ if ($result->num_rows > 0) {
     <div id="div-banco" style="display: none;">
         <label for="banco">Seleccione el banco:</label>
         <select name="banco" id="banco">
-        <option value="0" disabled selected>Seleccionar banco</option>
+        <option value="1" disabled selected>Seleccionar</option>
         <?php
-        $sql = "SELECT * FROM bancos ORDER BY id ASC";
+        $sql = "SELECT * FROM bancos WHERE id <> 1 ORDER BY id ASC";
         $resultado = $conn->query($sql);
         if ($resultado->num_rows > 0) {
             while ($fila = $resultado->fetch_assoc()) {
@@ -209,10 +207,10 @@ if ($result->num_rows > 0) {
     </div>
     <div id="div-destino" style="display: none;">
         <label for="destino-cuenta">Seleccione el destino:</label>
-        <select name="banco" id="banco">
-        <option value="0" disabled selected>Seleccionar destino</option>
+        <select name="destino-cuenta" id="destino-cuenta">
+        <option value="1" disabled selected>Seleccionar</option>
         <?php
-        $sql = "SELECT * FROM destinoCuentas ORDER BY id ASC";
+        $sql = "SELECT * FROM destinoCuentas WHERE id <> 1 ORDER BY id ASC";
         $resultado = $conn->query($sql);
         if ($resultado->num_rows > 0) {
             while ($fila = $resultado->fetch_assoc()) {
@@ -224,15 +222,13 @@ if ($result->num_rows > 0) {
         ?>
         </select>
     </div>
-    <label for="monto-pagado">Monto Pagado:</label>
-    <input type="number" name="monto-pagado" id="monto-pagado" placeholder="Ingrese la cantidad pagada" step="0.01" min="0" required>
-    <div id="div-devuelta">
-        <label for="devuelta">Devuelta:<span id="devuelta">0.00</span></label>
+    <div id="div-monto">
+        <label for="monto-pagado">Monto Pagado:</label>
+        <input type="number" name="monto-pagado" id="monto-pagado" placeholder="Ingrese la cantidad pagada" step="0.01" min="0" required>
     </div>
     <div id="botones-facturas">
-        <button id="guardar-factura" class="footer-button">Guardar Factura</button>
+        <button id="guardar-factura" class="footer-button" onclick="guardarFactura()">Guardar Factura</button>
         <button id="guardar-imprimir-factura" class="footer-button">Guardar e Imprimir Factura</button>
-    </div>
     </div>
 </div>
 
@@ -272,11 +268,11 @@ if ($result->num_rows > 0) {
         banco.style.display = "block";
         destino.style.display = "block";
 
-        tarjeta.value = "";
-        autorizacion.value = "";
-        banco.value = "0";
-        destino.value = "0";
         document.getElementById("monto-pagado").value = "";
+        document.getElementById("banco").value = "1";
+        document.getElementById("destino-cuenta").value = "1";
+        document.getElementById("numero-tarjeta").value = "";
+        document.getElementById("numero-autorizacion").value = "";
 
     } else if (metodo.value === "transferencia") {
         tarjeta.style.display = "none";
@@ -284,11 +280,11 @@ if ($result->num_rows > 0) {
         banco.style.display = "block";
         destino.style.display = "block";
 
-        tarjeta.value = "";
-        autorizacion.value = "";
-        banco.value = "0";
-        destino.value = "0";
         document.getElementById("monto-pagado").value = "";
+        document.getElementById("banco").value = "1";
+        document.getElementById("destino-cuenta").value = "1";
+        document.getElementById("numero-tarjeta").value = "";
+        document.getElementById("numero-autorizacion").value = "";
 
     } else {
         tarjeta.style.display = "none";
@@ -296,11 +292,11 @@ if ($result->num_rows > 0) {
         banco.style.display = "none";
         destino.style.display = "none";
 
-        tarjeta.value = "";
-        autorizacion.value = "";
-        banco.value = "0";
-        destino.value = "0";
         document.getElementById("monto-pagado").value = "";
+        document.getElementById("banco").value = "1";
+        document.getElementById("destino-cuenta").value = "1";
+        document.getElementById("numero-tarjeta").value = "";
+        document.getElementById("numero-autorizacion").value = "";
 
     }
     });
@@ -403,8 +399,9 @@ function handleButton2(productId, price2) {
     document.getElementById(`button2-${productId}`).classList.remove("selected");
 }
 
+let productos = [];
 // Función para agregar productos al carrito
-function addToCart(productId, productName) {
+function addToCart(productId, productName, venta, precio) {
     const quantityInput = document.getElementById(`quantity-${productId}`);
     const quantity = quantityInput.value;
 
@@ -423,6 +420,17 @@ function addToCart(productId, productName) {
     // Calcular el subtotal del producto
     const subtotal = selectedPrice * quantity;
 
+    // Crear un objeto con los datos del producto
+    productos.push({
+        id: productId,
+        venta: selectedPrice,
+        cantidad: quantity,
+        precio: precio,
+        subtotal: subtotal
+    });
+
+    console.log(productos);
+
     // Crear el elemento del producto en el carrito
     const orderList = document.getElementById('orderList');
     const orderItem = document.createElement('div');
@@ -437,7 +445,7 @@ function addToCart(productId, productName) {
             <span class="item-quantity">x${quantity}</span>
             <span class="item-total-price">RD$${subtotal.toFixed(2)}</span>
         </div>
-        <button class="delete-item" onclick="removeFromCart(this, ${subtotal})">&times;</button>
+        <button class="delete-item" id-producto="${productId}" onclick="removeFromCart(this, ${subtotal})">&times;</button>
     `;
 
     // Agregar el producto al carrito
@@ -457,27 +465,26 @@ function removeFromCart(button, subtotal) {
     total -= subtotal;
     updateTotal();
 
+    // Obtener el ID del producto a eliminar
+    const productId = button.getAttribute('id-producto');
+
+    // Eliminar el producto del array
+    productos = productos.filter(producto => producto.id !== parseInt(productId));
+
+    console.log(productos);
+
     // Eliminar el elemento del DOM
     button.parentElement.remove();
 }
 
 // Función para actualizar el total en el modal
 function updateTotal() {
-    document.getElementById('totalAmount').textContent = `RD$ ${total.toFixed(2)}`;
-}
-// Función para eliminar un producto del carrito
-function removeFromCart(button, subtotal) {
-    // Restar el subtotal del producto eliminado
-    total -= subtotal;
-    updateTotal();
-
-    // Eliminar el elemento del DOM
-    button.parentElement.remove();
+    document.getElementById('totalAmount').textContent = `${total.toFixed(2)}`;
 }
 
 // Función para uso de , ., donde esta minimunfraction y maximumfraction
 function updateTotal() {
-    document.getElementById('totalAmount').textContent = `RD$ ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById('totalAmount').textContent = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 </script>
 
@@ -492,6 +499,93 @@ function updateTotal() {
     toggleButton.addEventListener('click', () => {
         orderMenu.classList.toggle('active');
     });
+</script>
+
+<script>
+
+    function guardarFactura() {
+        // Obtener valores de los campos del formulario
+        let idCliente = document.getElementById("id-cliente").value.trim();
+        let tipoFactura = document.getElementById("tipo-factura").value.trim();
+        let formaPago = document.getElementById("forma-pago").value.trim();
+        let numeroTarjeta = document.getElementById("numero-tarjeta").value.trim();
+        let numeroAutorizacion = document.getElementById("numero-autorizacion").value.trim();
+        let banco = document.getElementById("banco").value.trim();
+        let destino = document.getElementById("destino-cuenta").value.trim();
+        let montoPagado = document.getElementById("monto-pagado").value.trim();
+        let total = document.getElementById("totalAmount").textContent.replace(/,/g, "");
+
+        // Validaciones
+        if (!idCliente) {
+            alert("Por favor, seleccione un cliente.");
+            return;
+        }
+
+        if (productos.length === 0) {
+            alert("Por favor, añada productos a la factura.");
+            return;
+        }
+
+        if (!montoPagado) {
+            alert("Por favor, ingrese el monto pagado.");
+            return;
+        }
+
+        if (parseFloat(montoPagado) < parseFloat(total) && tipoFactura === "contado") {
+            alert("El monto pagado no puede ser menor que el total de la compra.");
+            return;
+        }
+
+        if (formaPago === "tarjeta" && (!numeroTarjeta || !numeroAutorizacion || !banco || !destino)) {
+            alert("Complete todos los campos para el pago con tarjeta.");
+            return;
+        }
+
+        if (formaPago === "transferencia" && (!numeroAutorizacion || !banco || !destino)) {
+            alert("Complete todos los campos para el pago por transferencia.");
+            return;
+        }
+
+        // Crear objeto con los datos de la factura
+        const datos = {
+            idCliente: idCliente,
+            tipoFactura: tipoFactura,
+            formaPago: formaPago,
+            numeroTarjeta: numeroTarjeta,
+            numeroAutorizacion: numeroAutorizacion,
+            banco: banco,
+            destino: destino,
+            montoPagado: parseFloat(montoPagado),
+            total: parseFloat(total),
+            productos: productos
+        };
+
+        console.log(datos);
+
+        // Enviar datos al servidor
+        fetch("php/facturacion_guardar.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(datos)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Factura guardada correctamete");
+                console.log("Éxito:", data.message);
+            } else {
+                alert("Error al procesar la factura");
+                console.error("Error:", data.error);
+            }
+        })
+        .catch(error => {
+            alert("Error en el servidor al intentar procesar la factura: ",error);
+            console.error("Error de red:", error);
+        });
+
+    }
 </script>
 
  <!-- Scripts adicionales -->

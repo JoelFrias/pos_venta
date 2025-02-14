@@ -37,11 +37,11 @@ $sql = "SELECT
             pt.descripcion AS tipo_producto,
             p.existencia AS existencia,
             i.existencia AS existencia_inventario,
-            p.precioCompra AS Costo,
+            CONCAT('$',p.precioCompra) AS Costo,
             CONCAT('$',p.precioVenta1, ', $',p.precioVenta2) AS PreciosVentas,
             CASE
                 WHEN i.existencia = 0 THEN 'Agotado'
-                WHEN i.existencia < 10 THEN 'Casi Agotado'
+                WHEN i.existencia <= p.reorden THEN 'Casi Agotado'
                 ELSE 'Disponible'
             END AS disponiblidad_inventario
         FROM
@@ -58,7 +58,7 @@ $result = $conn->query($sql);
 // Consultas para estadísticas
 $totalProductos = $conn->query("SELECT COUNT(*) as total FROM inventario")->fetch_assoc()['total'];
 $totalCategorias = $conn->query("SELECT COUNT(DISTINCT idTipo) as total FROM productos")->fetch_assoc()['total'];
-$casiAgotados = $conn->query("SELECT COUNT(*) as total FROM inventario WHERE existencia < 10 AND existencia > 0")->fetch_assoc()['total'];
+$casiAgotados = $conn->query("SELECT COUNT(*) as total FROM inventario,productos WHERE inventario.existencia <= productos.reorden AND inventario.existencia > 0 AND productos.id = inventario.idProducto")->fetch_assoc()['total'];
 $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario WHERE existencia = 0")->fetch_assoc()['total'];
 ?>
 
@@ -224,11 +224,11 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario WHERE ex
                             </div>
                             <div class="mobile-card-item">
                                 <span class="mobile-card-label">Precio Compra:</span>
-                                <span class="mobile-card-value">$' . htmlspecialchars($row["Costo"], ENT_QUOTES, 'UTF-8') . '</span>
+                                <span class="mobile-card-value">' . htmlspecialchars($row["Costo"], ENT_QUOTES, 'UTF-8') . '</span>
                             </div>
                             <div class="mobile-card-item">
                                 <span class="mobile-card-label">Precio Venta:</span>
-                                <span class="mobile-card-value">$' . htmlspecialchars($row["PreciosVentas"], ENT_QUOTES, 'UTF-8') . '</span>
+                                <span class="mobile-card-value">' . htmlspecialchars($row["PreciosVentas"], ENT_QUOTES, 'UTF-8') . '</span>
                             </div>
                         </div>
                     </div>';

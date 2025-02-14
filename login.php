@@ -99,11 +99,11 @@ if (isset($_GET['session_expired']) && $_GET['session_expired'] === 'session_exp
         <form action="" method="post">
             <div class="form-group">
                 <input type="text" name="username" id="username" autocomplete="off" required>
-                <label for="username">Username:</label>
+                <label for="username">Username</label>
             </div>
             <div class="form-group">
                 <input type="password" name="password" id="password" required>
-                <label for="password">Contraseña:</label>
+                <label for="password">Contraseña</label>
             </div>
             <input type="submit" value="Iniciar Sesión">
         </form>
