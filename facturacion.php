@@ -29,9 +29,20 @@ $_SESSION['last_activity'] = time();
 
 /* Fin de verificacion de sesion */
 
-require 'php/conexion.php';
+require_once 'php/conexion.php';
 
-$sql = "SELECT id, descripcion, existencia, precioVenta1, precioVenta2, precioCompra FROM productos LIMIT 30";
+$sql = "SELECT 
+            p.id AS id, 
+            p.descripcion AS descripcion, 
+            ie.cantidad AS existencia, 
+            p.precioVenta1 AS precioVenta1, 
+            p.precioVenta2 AS precioVenta2, 
+            p.precioCompra AS precioCompra 
+        FROM productos AS p
+        INNER JOIN inventarioempleados AS ie ON p.id = ie.idProducto
+        WHERE ie.idempleado = ".$_SESSION["idEmpleado"]." 
+        AND p.activo = TRUE
+        ";
 $result = $conn->query($sql);
 
 if (!$result) {
@@ -41,7 +52,7 @@ if (!$result) {
 if ($result->num_rows > 0) {
     // echo "Número de filas: " . $result->num_rows; // Muestra el número de filas obtenidas
 } else {
-    echo "0 resultados";
+    // echo "0 resultados";
 }
 ?>
 <!--NO BORRAR ESTO:> PORQUE ESTO ES COMO MUESTRA LOS PRODUCTOS EN SU RESPECTIVAS POSISCIONES -->
@@ -103,11 +114,11 @@ if ($result->num_rows > 0) {
                     echo '        <button class="product-button" id="button2-' . $row["id"] . '" onclick="handleButton1(' . $row["id"] . ', ' . $row["precioVenta1"] . ')">Precio 1</button>';
                     echo '    </div>';
                     echo '    <input type="number" class="quantity-input" id="quantity-' . $row["id"] . '" placeholder="Cantidad a llevar" min="1">';
-                    echo '    <button class="quantity-button" onclick="addToCart(' . $row["id"] . ', \'' . addslashes($row["descripcion"]) . '\', ' . $row["precioVenta1"] . ', ' . $row["precioCompra"] . ')">Agregar Producto</button>';
+                    echo '    <button class="quantity-button" onclick="addToCart(' . $row["id"] . ', \'' . addslashes($row["descripcion"]) . '\', ' . $row["precioVenta1"] . ', ' . $row["precioCompra"] . ', ' . $row["existencia"] . ')">Agregar Producto</button>';
                     echo '</div>';
                 }
             } else {
-                echo "No hay productos disponibles.";
+                echo "No existe ningun producto en tu inventario personal";
             }
             ?>
         </div>
@@ -400,13 +411,19 @@ function handleButton2(productId, price2) {
 }
 
 let productos = [];
+
 // Función para agregar productos al carrito
-function addToCart(productId, productName, venta, precio) {
+function addToCart(productId, productName, venta, precio, existencia) {
     const quantityInput = document.getElementById(`quantity-${productId}`);
     const quantity = quantityInput.value;
 
     if (quantity <= 0) {
         alert("La cantidad debe ser mayor que 0.");
+        return;
+    }
+
+    if(quantity > existencia){
+        alert("La cantidad requerida es mayor a la existencia");
         return;
     }
 
@@ -503,89 +520,78 @@ function updateTotal() {
 
 <script>
 
-    function guardarFactura() {
-        // Obtener valores de los campos del formulario
-        let idCliente = document.getElementById("id-cliente").value.trim();
-        let tipoFactura = document.getElementById("tipo-factura").value.trim();
-        let formaPago = document.getElementById("forma-pago").value.trim();
-        let numeroTarjeta = document.getElementById("numero-tarjeta").value.trim();
-        let numeroAutorizacion = document.getElementById("numero-autorizacion").value.trim();
-        let banco = document.getElementById("banco").value.trim();
-        let destino = document.getElementById("destino-cuenta").value.trim();
-        let montoPagado = document.getElementById("monto-pagado").value.trim();
-        let total = document.getElementById("totalAmount").textContent.replace(/,/g, "");
+function guardarFactura() {
+    let idCliente = document.getElementById("id-cliente").value.trim();
+    let tipoFactura = document.getElementById("tipo-factura").value.trim();
+    let formaPago = document.getElementById("forma-pago").value.trim();
+    let numeroTarjeta = document.getElementById("numero-tarjeta").value.trim();
+    let numeroAutorizacion = document.getElementById("numero-autorizacion").value.trim();
+    let banco = document.getElementById("banco").value.trim();
+    let destino = document.getElementById("destino-cuenta").value.trim();
+    let montoPagado = document.getElementById("monto-pagado").value.trim();
+    let total = document.getElementById("totalAmount").textContent.replace(/,/g, "");
 
-        // Validaciones
-        if (!idCliente) {
-            alert("Por favor, seleccione un cliente.");
-            return;
-        }
+    // Convertir valores numéricos y validar
+    idCliente = idCliente ? parseInt(idCliente) : null;
+    banco = banco ? parseInt(banco) : null;
+    destino = destino ? parseInt(destino) : null;
+    montoPagado = montoPagado ? parseFloat(montoPagado) : null;
+    total = total ? parseFloat(total) : null;
 
-        if (productos.length === 0) {
-            alert("Por favor, añada productos a la factura.");
-            return;
-        }
-
-        if (!montoPagado) {
-            alert("Por favor, ingrese el monto pagado.");
-            return;
-        }
-
-        if (parseFloat(montoPagado) < parseFloat(total) && tipoFactura === "contado") {
-            alert("El monto pagado no puede ser menor que el total de la compra.");
-            return;
-        }
-
-        if (formaPago === "tarjeta" && (!numeroTarjeta || !numeroAutorizacion || !banco || !destino)) {
-            alert("Complete todos los campos para el pago con tarjeta.");
-            return;
-        }
-
-        if (formaPago === "transferencia" && (!numeroAutorizacion || !banco || !destino)) {
-            alert("Complete todos los campos para el pago por transferencia.");
-            return;
-        }
-
-        // Crear objeto con los datos de la factura
-        const datos = {
-            idCliente: idCliente,
-            tipoFactura: tipoFactura,
-            formaPago: formaPago,
-            numeroTarjeta: numeroTarjeta,
-            numeroAutorizacion: numeroAutorizacion,
-            banco: banco,
-            destino: destino,
-            montoPagado: parseFloat(montoPagado),
-            total: parseFloat(total),
-            productos: productos
-        };
-
-        console.log(datos);
-
-        // Enviar datos al servidor
-        fetch("php/facturacion_guardar.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(datos)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Factura guardada correctamete");
-                console.log("Éxito:", data.message);
-            } else {
-                alert("Error al procesar la factura");
-                console.error("Error:", data.error);
-            }
-        })
-        .catch(error => {
-            alert("Error en el servidor al intentar procesar la factura: ",error);
-            console.error("Error de red:", error);
-        });
-
+    // Validación de campos obligatorios
+    if (!idCliente || !tipoFactura || !formaPago || Number.isNaN(montoPagado)) {
+        alert("Por favor, complete todos los campos obligatorios.");
+        return;
     }
+
+    // Validar que el total sea un número válido
+    if (Number.isNaN(total)) {
+        alert("El total de la factura no es válido.");
+        return;
+    }
+
+    const datos = {
+        idCliente,
+        tipoFactura,
+        formaPago,
+        numeroTarjeta: numeroTarjeta || null, 
+        numeroAutorizacion: numeroAutorizacion || null, 
+        banco: banco || null,
+        destino: destino || null,
+        montoPagado,
+        total,
+        productos
+    };
+
+    console.log("Enviando datos:", datos);
+
+    fetch("php/facturacion_guardar.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
+    })
+    .then(response => response.text())
+    .then(text => {
+        console.log("Respuesta completa del servidor:", text);
+        try {
+            let data = JSON.parse(text);
+            if (data.success) {
+                alert("Factura guardada correctamente");
+                location.reload();
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch (error) {
+            console.error("Error: Respuesta no es JSON válido:", text);
+            alert("Error inesperado en el servidor.");
+        }
+    })
+    .catch(error => {
+        console.error("Error de red o servidor:", error);
+        alert("No se pudo conectar con el servidor.");
+    });
+}
+
 </script>
 
  <!-- Scripts adicionales -->

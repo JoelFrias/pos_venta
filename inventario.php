@@ -139,9 +139,11 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario WHERE ex
                     <p>Casi Agotados</p>
                     <h2><?php echo htmlspecialchars($casiAgotados, ENT_QUOTES, 'UTF-8'); ?></h2>
                 </div>
+                <!--
                 <div class="stat-footer">
                     <button class="view-more-button">Ver más</button>
                 </div>
+                -->
             </div>
 
             <div class="stat-card">
@@ -152,12 +154,14 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario WHERE ex
                     <button class="filter-button"><i class="lucide-filter"></i></button>
                 </div>
                 <div class="stat-info">
-                    <p>No Disponibles</p>
+                    <p>Agostados</p>
                     <h2><?php echo htmlspecialchars($noDisponibles, ENT_QUOTES, 'UTF-8'); ?></h2>
                 </div>
+                <!--
                 <div class="stat-footer">
                     <button class="view-more-button">Ver más</button>
                 </div>
+                -->
             </div>
         </div>
 
