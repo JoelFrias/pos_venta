@@ -29,18 +29,21 @@ $_SESSION['last_activity'] = time();
 
 /* Fin de verificacion de sesion */
 
-if ($_SESSION['idPuesto'] > 2) {
+/**
+ * Validacion de usuario administrador
+ */
 
-    ?>
-    
-    <script>
-        alert('No tienes permisos para acceder a esta página.');
-    </script>
-
-    <?php
-    header('Location: ./');
+ if ($_SESSION['idPuesto'] > 2) {
+    echo '<script>
+            alert("Usted no cuenta con permisos de administración");
+            window.location.href = "./"; 
+          </script>';
     exit();
 }
+
+/**
+ * Fin de la validacion
+ */
 
 require 'php/conexion.php';
 
@@ -108,9 +111,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <!-- Incluir el menú -->
         <?php require 'menu.html' ?>
-        <script src="js/sidebar_menu.js"></script>
-
-        <!-- Overlay para dispositivos móviles -->
+        <!-- Script para navegación interna -->
+        <script>
+            /**
+             * Redirige a la página especificada dentro de la misma pestaña.
+             * @param {string} page - URL de la página a la que se desea navegar.
+             */
+            function navigateTo(page) {
+                window.location.href = page;
+            }
+            
+            /**
+             * Alterna la visibilidad del menú lateral.
+             */
+            function toggleNav() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('active');
+            }
+        </script>
+        
+        <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
         <div class="overlay" id="overlay"></div>
 <!------------------------------------------------------------>
     <div class="form-container">

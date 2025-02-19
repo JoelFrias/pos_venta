@@ -538,9 +538,27 @@ function guardarFactura() {
     montoPagado = montoPagado ? parseFloat(montoPagado) : null;
     total = total ? parseFloat(total) : null;
 
+    // Validacion de seleccion de cliente
+    if (!idCliente) {
+        alert("Por favor, Seleccione un cliente.");
+        return;
+    }
+
     // Validación de campos obligatorios
-    if (!idCliente || !tipoFactura || !formaPago || Number.isNaN(montoPagado)) {
+    if (!idCliente || !tipoFactura || !formaPago || Number.isNaN(montoPagado)) {    
         alert("Por favor, complete todos los campos obligatorios.");
+        return;
+    }
+
+    // Validar campos con tarjeta
+    if (formaPago == "tarjeta" && (!numeroTarjeta || !numeroAutorizacion || banco == "1" || destino  == "1")){
+        alert("Por favor, complete todos los campos obligatorios");
+        return;
+    }
+
+    // Validar campos por transferencia
+    if (formaPago == "transferencia" && (!numeroAutorizacion || banco == "1" || banco == "1")){
+        alert("Por favor, complete todos los campos obligatorios");
         return;
     }
 

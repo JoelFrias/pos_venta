@@ -1,7 +1,37 @@
 <?php
+
+/* Verificacion de sesion */
+
+// Iniciar sesión
 session_start();
+
+// Configurar el tiempo de caducidad de la sesión
+$inactivity_limit = 900; // 15 minutos en segundos
+
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['username'])) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header('Location: login.php'); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Actualizar el tiempo de la última actividad
+$_SESSION['last_activity'] = time();
+
+/* Fin de verificacion de sesion */
+
 require_once 'conexion.php';
 
+// Funcion para guardar los logs de facturacion
 function logDebug($message, $data = null) {
     $logMessage = date('Y-m-d H:i:s') . " - " . $message;
     if ($data !== null) {
@@ -9,14 +39,10 @@ function logDebug($message, $data = null) {
     }
     error_log($logMessage);
 }
+
 // Validar metodo de entrada
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     die(json_encode(["success" => false, "error" => "Método no permitido"]));
-}
-
-// Verificar autenticación y permisos
-if (!isset($_SESSION['username']) || empty($_SESSION['username']) || !isset($_SESSION['idEmpleado']) || empty($_SESSION['idEmpleado'])) {
-    die(json_encode(['success' => false, 'error' => 'Acceso no autorizado']));
 }
 
 // Obtener datos JSON
@@ -49,7 +75,7 @@ try {
     }
     
     if (!empty($missingFields)) {
-        throw new Exception("Campos requeridos faltantes: " . implode(', ', $missingFields));
+        throw new Exception("Campos obligatorios faltantes: " . implode(', ', $missingFields));
     }
 
     // Sanitización y asignación de variables
@@ -58,11 +84,11 @@ try {
     $formaPago = $conn->real_escape_string($data['formaPago']);
     $total = (float)$data['total'];
     $productos = $data['productos'];
-    $montoPagado = isset($data['montoPagado']) ? (float)$data['montoPagado'] : $total;
+    $montoPagado = (float)$data['montoPagado'];
     $numeroAutorizacion = $data['numeroAutorizacion'] ?? 'N/A';
     $numeroTarjeta = $data['numeroTarjeta'] ?? 'N/A';
     $banco = isset($data['banco']) ? (int)$data['banco'] : 1;
-    $destino = isset($data['destino']) ? (int)$data['destino'] : 0;
+    $destino = isset($data['destino']) ? (int)$data['destino'] : 1;
 
     logDebug("Variables procesadas", [
         'idCliente' => $idCliente,
@@ -72,10 +98,21 @@ try {
         'montoPagado' => $montoPagado
     ]);
 
+
+    /**
+     *      0. Iniciamos la transaccion
+     */
+
+
     $conn->begin_transaction();
     logDebug("Transacción iniciada");
 
-    // 1. Verificar facturas pendientes
+
+    /**
+     *      1. Verificar numero de facturas pendientes
+     */
+
+
     $stmt = $conn->prepare("SELECT COUNT(*) AS pendientes FROM facturas WHERE balance > 0 AND idCliente = ?");
     if (!$stmt) {
         throw new Exception("Error preparando consulta de facturas pendientes: " . $conn->error);
@@ -83,13 +120,37 @@ try {
     $stmt->bind_param('i', $idCliente);
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
-    logDebug("Facturas pendientes", $result);
+    logDebug("Facturas pendientes: ", $result);
     
-    if ($result['pendientes'] > 2 && $tipoFactura === 'credito') {
-        throw new Exception("Cliente ID $idCliente tiene más de 2 facturas pendientes");
+    if ($result['pendientes'] >= 2 && $tipoFactura === 'credito') {
+        throw new Exception("Cliente ID $idCliente tiene dos facturas pendientes, el crédito está cancelado.\nPara desbloquear el crédito se deben de pagar al menos una factura.");
+    }
+ 
+ 
+    /**
+     *      2. Verificar balance del cliente disponible
+     */
+
+
+    $stmt = $conn->prepare("SELECT balance FROM clientes_cuenta WHERE idCliente = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de varificar limite de credito: " . $conn->error);
+    }
+    $stmt->bind_param('i', $idCliente);
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc();
+    logDebug("Balance adeudado: ", $result);
+    
+    if ($result['balance'] < $total && $tipoFactura === 'credito') {
+        throw new Exception("Cliente ID $idCliente excede el limite de credito disponible");
     }
 
-    // 2. Obtener número de factura
+
+    /**
+     *      3. Obtener número de factura y actualizar el numero de factura
+     */
+
+
     $stmt = $conn->prepare("SELECT num FROM numFactura LIMIT 1 FOR UPDATE");
     if (!$stmt) {
         throw new Exception("Error preparando consulta de número de factura: " . $conn->error);
@@ -101,7 +162,9 @@ try {
         throw new Exception('Error al obtener el número de factura');
     }
 
+    // Variable que almacena el numero de factura a utilizar
     $numFactura = $_SESSION['idEmpleado'] . $fila['num'];
+
     $nuevoNumero = str_pad((int)$fila['num'] + 1, strlen($fila['num']), '0', STR_PAD_LEFT);
     logDebug("Número de factura generado", ['numFactura' => $numFactura, 'nuevoNumero' => $nuevoNumero]);
     
@@ -115,8 +178,21 @@ try {
     }
     logDebug("Número de factura actualizado");
 
-    // 3. Insertar factura principal
-    $balance = ($tipoFactura === 'credito') ? max(0, $total - $montoPagado) : 0;
+
+    /**
+     *      4. Insertar factura principal
+     */
+    
+
+    if ($tipoFactura == "credito") {
+        $balance = $total - $montoPagado;
+        if ($balance < 0) {
+            $balance = 0;
+        }
+    } else {
+        $balance = 0;
+    }
+
     $estado = ($balance > 0) ? 'Pendiente' : 'Pagada';
 
     $query = "INSERT INTO facturas (numFactura, tipoFactura, fecha, importe, descuento, total, total_ajuste, balance, idCliente, idEmpleado, estado) 
@@ -136,14 +212,19 @@ try {
         'estado' => $estado
     ]);
 
-    // 4. Insertar detalles de productos
+    
+    /**
+     *      5. Insertar detalles de productos
+     */
+
+
     $stmt = $conn->prepare("INSERT INTO facturas_detalles (numFactura, idProducto, cantidad, precioCompra, precioVenta, importe, ganancias, fecha) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
     if (!$stmt) {
         throw new Exception("Error preparando inserción de detalles: " . $conn->error);
     }
 
     foreach ($productos as $producto) {
-        $ganancia = $producto['venta'] - $producto['precio'];
+        $ganancia = ($producto['venta'] - $producto['precio']) * $producto['cantidad'];
         $stmt->bind_param('siidddd', $numFactura, $producto['id'], $producto['cantidad'], $producto['precio'], $producto['venta'], $producto['subtotal'], $ganancia);
         if (!$stmt->execute()) {
             throw new Exception("Error insertando detalle de producto {$producto['id']}: " . $stmt->error);
@@ -151,7 +232,58 @@ try {
         logDebug("Detalle de producto insertado", $producto);
     }
 
-    // 5. Actualizar inventario
+
+    /**
+     *      6. Actualizar inventario del empleado
+     */
+
+
+    $stmt = $conn->prepare("UPDATE inventarioempleados SET cantidad = cantidad - ? WHERE idProducto = ? AND idEmpleado = ? AND cantidad >= ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando actualización de inventario: " . $conn->error);
+    }
+
+    foreach ($productos as $producto) {
+        
+        $idProducto = $producto['id'];
+        
+        $stmt->bind_param('diii', $producto['cantidad'], $idProducto, $_SESSION['idEmpleado'], $producto['cantidad']);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error actualizando inventario del empleado para producto {$idProducto} del empleado {$_SESSION['idEmpleado']}: " . $stmt->error);
+        }
+
+        // Verificar si el stock llegó a 0 y eliminar la fila
+        $stmtCheck = $conn->prepare("SELECT cantidad FROM inventarioempleados WHERE idProducto = ? AND idEmpleado = ?");
+        $stmtCheck->bind_param('ii', $idProducto, $_SESSION['idEmpleado']);
+        $stmtCheck->execute();
+        $result = $stmtCheck->get_result();
+        $row = $result->fetch_assoc();
+
+        if ($row && $row['cantidad'] == 0) {
+            $stmtDelete = $conn->prepare("DELETE FROM inventarioempleados WHERE idProducto = ? AND idEmpleado = ?");
+            $stmtDelete->bind_param('ii', $idProducto, $_SESSION['idEmpleado']);
+            $stmtDelete->execute();
+            $stmtDelete->close();
+            logDebug("Fila eliminada para producto ID {$idProducto} del empleado ID {$_SESSION['idEmpleado']}");
+        }
+
+        $stmtCheck->close();
+
+        logDebug("Inventario personal actualizado", [
+            'id' => $idProducto,
+            'cantidad' => $producto['cantidad'],
+            'idEmpleado' => $_SESSION['idEmpleado']
+        ]);
+    }
+
+  
+    
+    /**
+     *      7. Actualizar existencia en productos
+     */
+
+
     $stmt = $conn->prepare("UPDATE productos SET existencia = existencia - ? WHERE id = ? AND existencia >= ?");
     if (!$stmt) {
         throw new Exception("Error preparando actualización de inventario: " . $conn->error);
@@ -168,29 +300,113 @@ try {
         logDebug("Inventario actualizado", $producto);
     }
 
-    // 6. Registrar método de pago
+
+    /**
+     *      8. Registrar trasacciones de inventario
+     */
+
+    $stmt = $conn->prepare("INSERT INTO inventariotransacciones (tipo, idProducto, cantidad, fecha, descripcion) VALUES ( 'retiro', ?, ?, NOW(), 'Venta por factura #".$numFactura."')");
+    if (!$stmt) {
+        throw new Exception("Error registrando las transacciones de inventario: " . $conn->error);
+    }
+    
+    foreach ($productos as $producto) {
+        $stmt->bind_param('ii', $producto['id'], $producto['cantidad']);
+        if (!$stmt->execute()) {
+            throw new Exception("Error registrar las transacciones de inventario del producto -> {$producto['id']}: " . $stmt->error);
+        }
+        logDebug("Transaccion de invatario realizada", $producto);
+    }
+
+    
+    /**
+     *      9. Registrar método de pago
+     */
+
+     $devuelta = $montoPagado - $total;
+
+     if ($devuelta > 0) {
+         $montoNeto = $total;
+     } else {
+         $montoNeto = $montoPagado;
+     }
+
     $stmt = $conn->prepare("INSERT INTO facturas_metodoPago (numFactura, metodo, monto, numAutorizacion, referencia, idBanco, idDestino) VALUES (?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Error preparando inserción de método de pago: " . $conn->error);
     }
-    $stmt->bind_param('ssdssii', $numFactura, $formaPago, $montoPagado, $numeroAutorizacion, $numeroTarjeta, $banco, $destino);
+    $stmt->bind_param('ssdssii', $numFactura, $formaPago, $montoNeto, $numeroAutorizacion, $numeroTarjeta, $banco, $destino);
     if (!$stmt->execute()) {
         throw new Exception("Error insertando método de pago: " . $stmt->error);
     }
     logDebug("Método de pago registrado");
 
-    // 7. Actualizar balance del cliente
-    $stmt = $conn->prepare("UPDATE clientes_cuenta SET balance = (SELECT IFNULL(SUM(balance), 0) FROM facturas WHERE idCliente = ?) WHERE idCliente = ?");
+    
+    /**
+     *      10. Actualizar balance del cliente
+     */
+
+    $stmt = $conn->prepare("SELECT limite_credito FROM clientes_cuenta WHERE idCliente = ?");
+
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de límite de crédito: " . $conn->error);
+    }
+
+    $stmt->bind_param('i', $idCliente);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+
+    if (!$row) {
+        throw new Exception("Cliente no encontrado: " . $idCliente);
+    }
+
+    $limiteCredito = $row['limite_credito'];
+
+    // Obtener la suma de todos los balances pendientes de facturas
+    $stmt = $conn->prepare("SELECT IFNULL(SUM(balance), 0) as balance_pendiente FROM facturas WHERE idCliente = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de balance pendiente: " . $conn->error);
+    }
+
+    $stmt->bind_param('i', $idCliente);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+
+    $balancePendiente = $row['balance_pendiente'];
+
+    // Calcular el nuevo balance disponible
+    $balanceDisponible = $limiteCredito - $balancePendiente;
+
+    // Actualizar el balance disponible en clientes_cuenta
+    $stmt = $conn->prepare("UPDATE clientes_cuenta SET balance = ? WHERE idCliente = ?");
+
     if (!$stmt) {
         throw new Exception("Error preparando actualización de balance: " . $conn->error);
     }
-    $stmt->bind_param('ii', $idCliente, $idCliente);
+
+    $stmt->bind_param('di', $balanceDisponible, $idCliente);
+
     if (!$stmt->execute()) {
         throw new Exception("Error actualizando balance del cliente: " . $stmt->error);
     }
-    logDebug("Balance del cliente actualizado");
 
-    // 8. Confirmar la transacción
+    logDebug("Balance del cliente actualizado", [
+        'idCliente' => $idCliente,
+        'limiteCredito' => $limiteCredito,
+        'balancePendiente' => $balancePendiente,
+        'balanceDisponible' => $balanceDisponible
+    ]);
+
+
+    /**
+     *      11. Confirmar la transacción
+     */
+
+    
     $conn->commit();
     logDebug("Transacción completada exitosamente");
     

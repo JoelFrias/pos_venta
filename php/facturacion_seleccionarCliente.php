@@ -7,7 +7,7 @@ header('Content-Type: application/json'); // Asegura que la respuesta sea JSON
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
 
-    $sql = "SELECT id, CONCAT(nombre, ' ', apellido) AS nombre, empresa FROM clientes WHERE id = ?";
+    $sql = "SELECT id, CONCAT(nombre, ' ', apellido) AS nombre, empresa FROM clientes WHERE id = ? AND activo = TRUE";
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
