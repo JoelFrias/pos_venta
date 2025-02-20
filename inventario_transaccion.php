@@ -61,6 +61,8 @@ $sql = "SELECT
             p.id = i.idProducto
         WHERE
             p.activo = TRUE
+        ORDER BY
+            p.descripcion ASC
         ";
 $result = $conn->query($sql);
 
@@ -123,7 +125,7 @@ if ($result->num_rows > 0) {
                     echo '        <div>';
                     echo '            <div class="product-name">' . $row["id"] .'   '. $row["descripcion"] . '</div>';
                     echo '            <div class="product-quantity">Existencia General: ' . $row["existenciaGeneral"] . '</div>';
-                    echo '            <div class="product-quantity">Existenica en Almacén: ' . $row["existenciaInventario"] . '</div>';   
+                    echo '            <div class="product-quantity">Existencia en Almacén: ' . $row["existenciaInventario"] . '</div>';   
                     echo '        </div>';
                     echo '        <div class="product-total"></div>';
                     echo '    </div>';

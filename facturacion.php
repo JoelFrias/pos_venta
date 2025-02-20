@@ -41,7 +41,9 @@ $sql = "SELECT
         FROM productos AS p
         INNER JOIN inventarioempleados AS ie ON p.id = ie.idProducto
         WHERE ie.idempleado = ".$_SESSION["idEmpleado"]." 
-        AND p.activo = TRUE
+        AND p.activo = TRUE 
+        ORDER BY
+            p.descripcion ASC
         ";
 $result = $conn->query($sql);
 
@@ -102,7 +104,7 @@ if ($result->num_rows > 0) {
                     echo '<div class="product-card">';
                     echo '    <div class="product-info">';
                     echo '        <div>';
-                    echo '            <div class="product-name">' . $row["descripcion"] . '</div>';
+                    echo '            <div class="product-name">'  . $row["id"] .'   '. $row["descripcion"] . '</div>';
                     echo '            <div class="product-quantity">Existencia: ' . $row["existencia"] . '</div>';
                     echo '        </div>';
                     echo '        <div class="product-total"></div>';

@@ -31,37 +31,50 @@ $_SESSION['last_activity'] = time();
 
 require "php/conexion.php";
 
-$sql = "SELECT
-            p.id,
-            p.descripcion AS producto,
-            pt.descripcion AS tipo_producto,
-            p.existencia AS existencia,
-            i.existencia AS existencia_inventario,
-            CONCAT('$',p.precioCompra) AS Costo,
-            CONCAT('$',p.precioVenta1, ', $',p.precioVenta2) AS PreciosVentas,
-            CASE
-                WHEN i.existencia = 0 THEN 'Agotado'
-                WHEN i.existencia <= p.reorden THEN 'Casi Agotado'
-                ELSE 'Disponible'
+$sql = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $idEmpleado = $_POST['seleccionar-empleado'];
+
+    $sql = "SELECT
+                p.id,
+                p.descripcion AS producto,
+                pt.descripcion AS tipo_producto,
+                p.existencia AS existencia,
+                ie.cantidad AS existencia_inventario,
+                CONCAT('$', p.precioCompra) AS Costo,
+                CONCAT(
+                    '$',
+                    p.precioVenta1,
+                    ', $',
+                    p.precioVenta2
+                ) AS PreciosVentas,
+                CASE WHEN ie.cantidad = 0 THEN 'Agotado' WHEN ie.cantidad <= p.reorden THEN 'Casi Agotado' ELSE 'Disponible'
             END AS disponiblidad_inventario
-        FROM
-            productos AS p
-        INNER JOIN inventario AS i
-            ON p.id = i.idProducto
-        LEFT JOIN productos_tipo AS pt
-            ON p.idTipo = pt.id
-            ";
+            FROM
+                productos AS p
+            INNER JOIN inventarioempleados AS ie
+            ON
+                p.id = ie.idProducto
+            LEFT JOIN productos_tipo AS pt
+            ON
+                p.idTipo = pt.id
+            WHERE
+                p.activo = TRUE AND
+                ie.idEmpleado = ".$idEmpleado;
+
+    // Consultas para estadísticas
+    $totalProductos = $conn->query("SELECT COUNT(*) as total FROM inventarioempleados JOIN productos ON inventarioempleados.idProducto = productos.id WHERE productos.activo = TRUE AND inventarioempleados.idEmpleado = ".$idEmpleado)->fetch_assoc()['total'];
+
+    $totalCategorias = $conn->query("SELECT COUNT(DISTINCT idTipo) as total FROM inventarioempleados JOIN productos ON inventarioempleados.idProducto = productos.id WHERE productos.activo = TRUE AND inventarioempleados.idEmpleado = ".$idEmpleado)->fetch_assoc()['total'];
+
+    $casiAgotados = $conn->query("SELECT COUNT(*) as total FROM inventarioempleados JOIN productos ON inventarioempleados.idProducto = productos.id WHERE productos.activo = TRUE AND inventarioempleados.cantidad <= productos.reorden AND inventarioempleados.cantidad > 0 AND inventarioempleados.idEmpleado = ".$idEmpleado)->fetch_assoc()['total'];    
+
+}
 
 $result = $conn->query($sql);
-// aca manejas el limine que quiere que cuente si meno a 5 etc
-// Consultas para estadísticas
-$totalProductos = $conn->query("SELECT COUNT(*) as total FROM inventario")->fetch_assoc()['total'];
 
-$totalCategorias = $conn->query("SELECT COUNT(DISTINCT idTipo) as total FROM inventario JOIN productos ON inventario.idProducto = productos.id WHERE productos.activo = TRUE")->fetch_assoc()['total'];
-
-$casiAgotados = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN productos ON inventario.idProducto = productos.id WHERE inventario.existencia <= productos.reorden AND inventario.existencia > 0 AND productos.activo = TRUE")->fetch_assoc()['total'];
-
-$noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN productos ON inventario.idProducto = productos.id WHERE inventario.existencia = 0 AND productos.activo = TRUE")->fetch_assoc()['total'];
 ?>
 
 <!DOCTYPE html>
@@ -69,7 +82,7 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vista de Inventario</title>
+    <title>Inventario Personal</title>
     <link rel="stylesheet" href="css/menu.css">
     <!-- link de los iconos raro que le puse random -->
     <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet">
@@ -93,7 +106,37 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
 
     <div class="general-container">
         <div class="header">
-            <h1>Almacén Principal de Productos</h1>
+            <h1>Inventario Personal de Productos</h1>
+            <div class="header">
+                <form action="" method="post">
+                    <span for="seleccionar-empleado">Selecciona el Empleado:</span>
+                    <select name="seleccionar-empleado" id="seleccionar-empleado">
+                        <option disabled selected>---</option>
+
+                        <?php
+                        $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE id <> 1 AND activo = TRUE";
+                        $resultado = $conn->query($sql);
+                        if ($resultado->num_rows > 0) {
+                            while ($fila = $resultado->fetch_assoc()) {
+                                if ($_SERVER['REQUEST_METHOD'] == "POST") {
+                                    echo "<option value='" . $fila['id'] . "'" . 
+                                         ($_POST['seleccionar-empleado'] == $fila['id'] ? " selected" : "") . 
+                                         ">" . $fila['nombre'] . "</option>";
+                                } else {
+                                    echo "<option value='" . $fila['id'] . "'>" . $fila['nombre'] . "</option>";
+                                }                                
+                            }
+                        } else {
+                            echo "<option value='' disabled>No hay opciones</option>";
+                        }
+                        ?>
+
+                    </select>
+
+                    <input type="submit" value="Buscar">
+
+                </form>
+            </div>
             <div class="search-container">
                 <i class="lucide-search"></i>
                 <input type="text" id="searchInput" placeholder="Buscar productos...">
@@ -110,7 +153,14 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                 </div>
                 <div class="stat-info">
                     <p>Total Productos</p>
-                    <h2><?php echo htmlspecialchars($totalProductos, ENT_QUOTES, 'UTF-8'); ?></h2>
+                    <h2><?php 
+                        if($_SERVER["REQUEST_METHOD"] == "POST"){
+                            echo htmlspecialchars($totalProductos, ENT_QUOTES, 'UTF-8');
+                        }else{
+                            echo "N/A";
+                        }
+                        ?>
+                    </h2>
                 </div>
                 <div class="stat-footer">
                 </div>
@@ -124,7 +174,14 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                 </div>
                 <div class="stat-info">
                     <p>Total Categorías</p>
-                    <h2><?php echo htmlspecialchars($totalCategorias, ENT_QUOTES, 'UTF-8'); ?></h2>
+                    <h2><?php 
+                        if($_SERVER["REQUEST_METHOD"] == "POST"){
+                            echo htmlspecialchars($totalCategorias, ENT_QUOTES, 'UTF-8');
+                        }else{
+                            echo "N/A";
+                        }
+                        ?>
+                    </h2>
                 </div>
                 <div class="stat-footer">
                 </div>
@@ -139,25 +196,14 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                 </div>
                 <div class="stat-info">
                     <p>Casi Agotados</p>
-                    <h2><?php echo htmlspecialchars($casiAgotados, ENT_QUOTES, 'UTF-8'); ?></h2>
-                </div>
-                <!--
-                <div class="stat-footer">
-                    <button class="view-more-button">Ver más</button>
-                </div>
-                -->
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="icon-container red">
-                        <i class="lucide-x-circle"></i>
-                    </div>
-                    <button class="filter-button"><i class="lucide-filter"></i></button>
-                </div>
-                <div class="stat-info">
-                    <p>Agostados</p>
-                    <h2><?php echo htmlspecialchars($noDisponibles, ENT_QUOTES, 'UTF-8'); ?></h2>
+                    <h2><?php 
+                        if($_SERVER["REQUEST_METHOD"] == "POST"){
+                            echo htmlspecialchars($casiAgotados, ENT_QUOTES, 'UTF-8');
+                        }else{
+                            echo "N/A";
+                        }
+                        ?>
+                    </h2>
                 </div>
                 <!--
                 <div class="stat-footer">
