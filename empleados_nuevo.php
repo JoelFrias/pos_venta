@@ -136,6 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="form-container">
         <h2 class="form-title">Registro de Empleado</h2>
         <form class="registration-form" action="" method="post">
+        <legend>Datos del Empleado</legend>
             <div class="form-grid">
                 <div class="form-group">
                     <label for="nombre">Nombre:</label>
@@ -178,6 +179,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         ?>
                     </select>
                 </div>
+            </div>
+            <legend>Datos de Usuario</legend>
+                    <div class="form-grid">
                 <div class="form-group">
                     <label for="username">Usuario:</label>
                     <input type="text" id="username" name="username" autocomplete="off" required>
@@ -187,7 +191,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="password" id="password" name="password" autocomplete="off" minlength="4" required>
                 </div>
             </div>
-            <button type="submit" class="btn-submit">Registrar</button>
+            <button type="submit" class="btn-submit">Guardar Cambios</button>
         </form>
     </div>
     <!--script de manejo de mensajes-->
