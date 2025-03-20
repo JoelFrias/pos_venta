@@ -89,7 +89,8 @@ try {
     $productos = $data['productos'];
 
     logDebug("Variables procesadas", [
-        'idCliente' => $idCliente
+        'idEmpleado' => $idEmpleado,
+        'Productos' => $productos
     ]);
 
 
