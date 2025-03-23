@@ -68,9 +68,9 @@ if ($result->num_rows > 0) {
     <link rel="stylesheet" href="css/menu.css">
     <!-- <link rel="stylesheet" href="css/menu.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-
 <!-- Contenedor principal -->
 <div class="container">
         <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
@@ -368,7 +368,14 @@ function getDataClientes() {
 // Script para seleccionar cliente
 function selectCliente(id) {
     if (!id) {
-        alert("Error al seleccionar cliente");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al seleccionar cliente.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
+        console.error("Error: Respuesta no es JSON válido:", text);
         return;
     }
 
@@ -376,7 +383,14 @@ function selectCliente(id) {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                alert(data.error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al seleccionar cliente.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                console.error(data.error);
             } else {
                 document.getElementById("id-cliente").value = data.id;
                 document.getElementById("nombre-cliente").value = data.nombre;
@@ -420,19 +434,37 @@ function addToCart(productId, productName, venta, precio, existencia) {
     const quantity = quantityInput.value;
 
     if (quantity <= 0) {
-        alert("La cantidad debe ser mayor que 0.");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validación',
+            text: 'La cantidad debe ser mayor que 0.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
     if(quantity > existencia){
-        alert("La cantidad requerida es mayor a la existencia");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validación',
+            text: 'La cantidad requerida es mayor a la existencia.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
     // Obtener el precio seleccionado
     const selectedPrice = selectedPrices[productId];
     if (!selectedPrice) {
-        alert("Por favor, selecciona un precio antes de agregar al carrito.");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validación',
+            text: 'Por favor, selecciona un precio antes de agregar a la factura.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
@@ -542,31 +574,61 @@ function guardarFactura() {
 
     // Validacion de seleccion de cliente
     if (!idCliente) {
-        alert("Por favor, Seleccione un cliente.");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validación',
+            text: 'Por favor, Seleccione un cliente.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
     // Validación de campos obligatorios
-    if (!idCliente || !tipoFactura || !formaPago || Number.isNaN(montoPagado)) {    
-        alert("Por favor, complete todos los campos obligatorios.");
+    if (!idCliente || !tipoFactura || !formaPago || Number.isNaN(montoPagado)) {   
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validación',
+            text: 'Por favor, complete todos los campos obligatorios.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
     // Validar campos con tarjeta
     if (formaPago == "tarjeta" && (!numeroTarjeta || !numeroAutorizacion || banco == "1" || destino  == "1")){
-        alert("Por favor, complete todos los campos obligatorios");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validación',
+            text: 'Por favor, complete todos los campos obligatorios.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
     // Validar campos por transferencia
     if (formaPago == "transferencia" && (!numeroAutorizacion || banco == "1" || banco == "1")){
-        alert("Por favor, complete todos los campos obligatorios");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validación',
+            text: 'Por favor, complete todos los campos obligatorios.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
     // Validar que el total sea un número válido
     if (Number.isNaN(total)) {
-        alert("El total de la factura no es válido.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'El total de la factura no es válido.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
@@ -596,19 +658,50 @@ function guardarFactura() {
         try {
             let data = JSON.parse(text);
             if (data.success) {
-                alert("Factura guardada correctamente");
-                location.reload();
+
+                document.getElementById("modal-procesar-factura").style.display = "none";
+
+                // Mostrar mensaje de éxito
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: 'Factura Guardada Exitosamente',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    location.reload();
+                });
+
             } else {
-                alert("Error: " + data.error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Se produjo un error al guardar la factura',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                console.error("Error al guardar la factura:", data.error);
             }
         } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Se produjo un error inesperado en el servidor.\nFactura no guardada.',
+                showConfirmButton: true,
+                confirmButtonText: 'Aceptar'
+            });
             console.error("Error: Respuesta no es JSON válido:", text);
-            alert("Error inesperado en el servidor.");
         }
     })
     .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Se produjo un error de red o en el servidor.\nPor favor, inténtelo de nuevo.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         console.error("Error de red o servidor:", error);
-        alert("No se pudo conectar con el servidor.");
     });
 }
 

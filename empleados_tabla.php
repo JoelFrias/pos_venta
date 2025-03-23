@@ -756,7 +756,7 @@ if (isset($_GET['editar'])) {
                             <label for="idPuesto">Puesto:</label>
                             <select id="idPuesto" name="idPuesto" required>
                                 <?php
-                                $sql_puestos = "SELECT id, descripcion FROM empleados_puestos WHERE id <> 1 ORDER BY descripcion ASC";
+                                $sql_puestos = "SELECT id, descripcion FROM empleados_puestos ORDER BY descripcion ASC";
                                 $resultado_puestos = $conn->query($sql_puestos);
                                 if ($resultado_puestos && $resultado_puestos->num_rows > 0) {
                                     while ($fila = $resultado_puestos->fetch_assoc()) {

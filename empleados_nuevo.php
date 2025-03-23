@@ -29,22 +29,6 @@ $_SESSION['last_activity'] = time();
 
 /* Fin de verificacion de sesion */
 
-/**
- * Validacion de usuario administrador
- */
-
- if ($_SESSION['idPuesto'] > 2) {
-    echo '<script>
-            alert("Usted no cuenta con permisos de administración");
-            window.location.href = "./"; 
-          </script>';
-    exit();
-}
-
-/**
- * Fin de la validacion
- */
-
 require 'php/conexion.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -101,6 +85,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+
+<?php
+
+if ($_SESSION['idPuesto'] > 2) {
+    echo "<script>
+            Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso Prohibido',
+                    text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    window.location.href = './';
+                });
+          </script>";
+    exit();
+}
+
+?>
 <!----------------------------------------->
   <!-- Contenedor principal -->
   <div class="container">
@@ -166,7 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <select id="idPuesto" name="idPuesto" required>
                         <?php
                         // Obtener el id y la descripción de los tipos de producto
-                        $sql = "SELECT id, descripcion FROM empleados_puestos WHERE id <> 1 ORDER BY descripcion ASC";
+                        $sql = "SELECT id, descripcion FROM empleados_puestos ORDER BY descripcion ASC";
                         $resultado = $conn->query($sql);
 
                         if ($resultado->num_rows > 0) {

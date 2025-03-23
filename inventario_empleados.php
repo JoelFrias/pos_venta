@@ -73,7 +73,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 }
 
-$result = $conn->query($sql);
+if (!empty($sql)) {
+    $result = $conn->query($sql);
+} else {
+    $result = false;
+}
 
 ?>
 
@@ -230,7 +234,7 @@ $result = $conn->query($sql);
                 </thead>
                 <tbody>
                     <?php
-                    if ($result->num_rows > 0) {
+                    if ($result && $result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
                                     <td>" . htmlspecialchars($row["id"], ENT_QUOTES, 'UTF-8') . "</td>

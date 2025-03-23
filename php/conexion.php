@@ -1,8 +1,8 @@
 <?php
 // Datos de conexión
-$servername = "localhost";
+$servername = "127.0.0.1";
 $username = "root";
-$password = "Joelbless23";
+$password = "";
 $dbname = "pos_venta";
 
 // Crear conexión

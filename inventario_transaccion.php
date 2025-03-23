@@ -29,24 +29,6 @@ $_SESSION['last_activity'] = time();
 
 /* Fin de verificacion de sesion */
 
-
-/**
- * Validacion de usuario administrador
- */
-
-if ($_SESSION['idPuesto'] > 2) {
-    echo '<script>
-            alert("Usted no cuenta con permisos de administración");
-            window.location.href = "./"; 
-          </script>';
-    exit();
-}
-
-/**
- * Fin de la validacion
- */
-
-
 require_once 'php/conexion.php';
 
 $sql = "SELECT
@@ -87,8 +69,28 @@ if ($result->num_rows > 0) {
     <link rel="stylesheet" href="css/menu.css">
     <!-- <link rel="stylesheet" href="css/menu.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+
+<?php
+
+if ($_SESSION['idPuesto'] > 2) {
+    echo "<script>
+            Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso Prohibido',
+                    text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    window.location.href = './';
+                });
+          </script>";
+    exit();
+}
+
+?>
 
 <!-- Contenedor principal -->
 <div class="container">
@@ -234,7 +236,13 @@ function getDataClientes() {
 // Script para seleccionar cliente
 function selectCliente(id) {
     if (!id) {
-        alert("Error al seleccionar cliente");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al seleccionar cliente.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
@@ -242,7 +250,14 @@ function selectCliente(id) {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                alert(data.error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al seleccionar cliente.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                console.error(data.error);
             } else {
                 document.getElementById("id-cliente").value = data.id;
                 document.getElementById("nombre-cliente").value = data.nombre;
@@ -269,12 +284,24 @@ function addToCart(productId, productName, existenciaGeneral, existenciaInventar
     const quantity = quantityInput.value;
 
     if (quantity <= 0) {
-        alert("La cantidad debe ser mayor que 0.");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Valor inválido',
+            text: 'La cantidad debe ser mayor que 0.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
     if(quantity > existenciaInventario){
-        alert("La cantidad requerida es mayor a la existencia en inventario");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Valor inválido',
+            text: 'La cantidad no puede ser mayor a la existencia en almacén.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
@@ -349,12 +376,24 @@ function guardarFactura() {
 
     // Validacion de seleccion de cliente
     if (!idEmpleado) {
-        alert("Por favor, Seleccione un Empleado.");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Empleado no seleccionado',
+            text: 'Por favor, seleccione un Empleado.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
     if (!productos || productos.length === 0) {
-        alert("Por favor, agregue productos a transferir");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Carrito vacío',
+            text: 'No se han agregado productos al carrito.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
@@ -376,19 +415,46 @@ function guardarFactura() {
         try {
             let data = JSON.parse(text);
             if (data.success) {
-                alert("Transacción realizada exitósamente");
-                location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Transacción exitosa',
+                    text: 'La transacción se ha realizado exitósamente.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    location.reload();
+                });
+                
             } else {
-                alert("Error: " + data.error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al procesar la transacción.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                console.error("Error: " + data.error);
             }
         } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error inesperado en el servidor.',
+                showConfirmButton: true,
+                confirmButtonText: 'Aceptar'
+            });
             console.error("Error: Respuesta no es JSON válido:", text);
-            alert("Error inesperado en el servidor.");
         }
     })
     .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo conectar con el servidor.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
         console.error("Error de red o servidor:", error);
-        alert("No se pudo conectar con el servidor.");
     });
 }
 

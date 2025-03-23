@@ -10,7 +10,7 @@ $sql = "SELECT
             empleados 
         WHERE 
             (id LIKE ? OR CONCAT(nombre, ' ', apellido) LIKE ? OR nombre LIKE ? OR apellido LIKE ?)
-            AND activo = TRUE AND id <> 1 
+            AND activo = TRUE 
         ORDER BY id ASC
         LIMIT 5;";
 
