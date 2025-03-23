@@ -155,7 +155,15 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                     </form>
                 </div>
             </div>
-            
+
+<div class="table-wrapper">
+    <div class="swipe-hint">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 5l7 7-7 7"></path>
+            <path d="M3 5l7 7-7 7"></path>
+        </svg>
+        <span>Desliza</span>
+    </div>
             <div class="table-section">
                 <div class="table-container">
                     <table class="client-table">
@@ -215,7 +223,7 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                     </table>
                 </div>
             </div>
-
+</div>
             <div class="mobile-table">
                 <?php 
                 $result->data_seek(0);
@@ -371,6 +379,7 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
             <script src="js/menu.js"></script>
             <script src="js/modo_oscuro.js"></script>
             <script src="js/oscuro_recargar.js"></script>
+            <script src="js/deslizar.js"></script>
         </main>
     </div>
 </body>

@@ -108,34 +108,34 @@ $result = $conn->query($sql);
         <div class="header">
             <h1>Inventario Personal de Productos</h1>
             <div class="header">
-                <form action="" method="post">
-                    <span for="seleccionar-empleado">Selecciona el Empleado:</span>
-                    <select name="seleccionar-empleado" id="seleccionar-empleado">
-                        <option disabled selected>---</option>
-
-                        <?php
-                        $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE id <> 1 AND activo = TRUE";
-                        $resultado = $conn->query($sql);
-                        if ($resultado->num_rows > 0) {
-                            while ($fila = $resultado->fetch_assoc()) {
-                                if ($_SERVER['REQUEST_METHOD'] == "POST") {
-                                    echo "<option value='" . $fila['id'] . "'" . 
-                                         ($_POST['seleccionar-empleado'] == $fila['id'] ? " selected" : "") . 
-                                         ">" . $fila['nombre'] . "</option>";
-                                } else {
-                                    echo "<option value='" . $fila['id'] . "'>" . $fila['nombre'] . "</option>";
-                                }                                
+            <form action="" method="post" class="employee-selector-form">
+                <span class="employee-selector-label">Selecciona el Empleado:</span>
+                <div class="employee-selector-controls">
+                    <div class="select-container">
+                        <select name="seleccionar-empleado" id="seleccionar-empleado" class="employee-select">
+                            <option disabled selected>---</option>
+                            <?php
+                            $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE id <> 1 AND activo = TRUE";
+                            $resultado = $conn->query($sql);
+                            if ($resultado->num_rows > 0) {
+                                while ($fila = $resultado->fetch_assoc()) {
+                                    if ($_SERVER['REQUEST_METHOD'] == "POST") {
+                                        echo "<option value='" . $fila['id'] . "'" . 
+                                             ($_POST['seleccionar-empleado'] == $fila['id'] ? " selected" : "") . 
+                                             ">" . $fila['nombre'] . "</option>";
+                                    } else {
+                                        echo "<option value='" . $fila['id'] . "'>" . $fila['nombre'] . "</option>";
+                                    }                                
+                                }
+                            } else {
+                                echo "<option value='' disabled>No hay opciones</option>";
                             }
-                        } else {
-                            echo "<option value='' disabled>No hay opciones</option>";
-                        }
-                        ?>
-
-                    </select>
-
-                    <input type="submit" value="Buscar">
-
-                </form>
+                            ?>
+                        </select>
+                    </div>
+                    <button type="submit" class="employee-submit-button">Buscar</button>
+                </div>
+            </form>
             </div>
             <div class="search-container">
                 <i class="lucide-search"></i>

@@ -93,19 +93,27 @@ if (isset($_GET['editar'])) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+
+/*--------------------------------------------------------------------------*/
         /* Estilos para el formulario de búsqueda */
         .emp_search-form {
             display: flex;
             gap: 10px;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
-
+        .emp_search-input-container {
+    display: flex;
+    flex: 1;
+    min-width: 0; /* Permite que el contenedor se encoja si es necesario */
+}
         .emp_search-input {
             flex-grow: 1;
-            padding: 0.5rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem 0 0 0.375rem;
+    font-size: 0.875rem;
+    border-right: none;
         }
 
         .emp_search-button {
@@ -117,17 +125,13 @@ if (isset($_GET['editar'])) {
             font-size: 0.875rem;
             cursor: pointer;
             transition: background-color 0.2s;
+            white-space: nowrap;
         }
 
         .emp_search-button:hover {
             background-color: #2563eb;
         }
 
-        @media (max-width: 768px) {
-            .emp_search-form {
-                flex-direction: column;
-            }
-        }
         /* Estilos específicos para la tabla de empleados - con prefijo emp_ para evitar conflictos */
         .emp_general-container {
             max-width: 1200px;
@@ -245,7 +249,7 @@ if (isset($_GET['editar'])) {
             font-weight: 500;
             font-size: 0.8125rem;
         }
-
+/*  */
         /* Button Styles */
         .emp_btn-edit {
             display: inline-block;
@@ -263,7 +267,93 @@ if (isset($_GET['editar'])) {
         .emp_btn-edit:hover {
             background-color: #2563eb;
         }
+/* --------------------------------------------------------------------------*/
+/* Estilos para el encabezado y botón nuevo */
+.emp_header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
 
+.emp_header h1 {
+    margin-bottom: 0; /* Anulamos el margen inferior existente */
+}
+
+.emp_new-button {
+    padding: 0.5rem 1rem;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.emp_new-button:hover {
+    background-color: #059669;
+}
+
+
+/* Estilos responsivos */
+/*manipulacion para que se quede siempre de lado al input*/
+@media (max-width: 768px) {
+    .emp_search-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .emp_search-form {
+        width: 100%;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .emp_search-button,
+    .emp_new-button {
+        width: auto;
+        text-align: center;
+    }
+}
+/*manipulacion para que se quede siempre de lado al input*/
+@media (max-width: 480px) {
+    .emp_search-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .emp_search-form {
+        width: 100%;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .emp_search-button,
+    .emp_new-button {
+        width: auto;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .emp_header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .emp_new-button {
+        align-self: flex-end;
+    }
+}
+
+/* ...existing code... */
+/*-------------------------------------------------------------------------------------*/
         /* Modal Styles - More compact and responsive */
         .emp_modal {
             display: <?php echo ($empleado_editar ? 'flex' : 'none'); ?>;
@@ -502,8 +592,13 @@ if (isset($_GET['editar'])) {
     <div class="overlay" id="overlay" onclick="toggleNav()"></div>
     
     <div class="emp_general-container">
-        <div class="emp_header">
+    <div class="emp_header">
+        <div class="emp_header-top">
             <h1>Lista de Empleados</h1>
+            <a href="empleados_nuevo.php" class="emp_new-button">
+                <i class="fas fa-plus"></i> Nuevo Empleado
+            </a>
+        </div>
             
             <!-- Formulario de búsqueda -->
             <form action="" method="GET" class="emp_search-form">
@@ -517,13 +612,12 @@ if (isset($_GET['editar'])) {
                 <button type="submit" class="emp_search-button">
                     <i class="fas fa-search"></i> Buscar
                 </button>
-                <?php if (!empty($busqueda)): ?>
-                <a href="empleados_tabla.php" class="emp_clear-search">
-                    <i class="fas fa-times"></i> Limpiar
-                </a>
-                <?php endif; ?>
+               
             </form>
-            
+             
+               
+        
+
             <!-- Contador de resultados -->
             <?php if ($resultado): ?>
             <div class="emp_results-count">

@@ -155,6 +155,14 @@ $result = $conn->query($query);
                 </div>
             </div>
 
+ <div class="table-wrapper">
+    <div class="swipe-hint">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 5l7 7-7 7"></path>
+            <path d="M3 5l7 7-7 7"></path>
+        </svg>
+        <span>Desliza</span>
+    </div>
             <!-- Sección de la tabla -->
             <div class="table-section">
                 <div class="table-container">
@@ -212,6 +220,8 @@ $result = $conn->query($query);
                     </table>
                 </div>
             </div>
+</div>
+<!-- div para decir dezlizas -->
 
             <!-- Tabla móvil -->
             <div class="mobile-table">
@@ -289,5 +299,7 @@ $result = $conn->query($query);
     <script src="js/menu.js"></script>
     <script src="js/modo_oscuro.js"></script>
     <script src="js/oscuro_recargar.js"></script>
+    <script src="js/deslizar.js"></script>
+
 </body>
 </html>
