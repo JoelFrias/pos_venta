@@ -177,7 +177,6 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                         <th>Tipo de Producto</th>
                         <th>Existencia</th>
                         <th>Existencia en Inventario</th>
-                        <th>Costo</th>
                         <th>Precios de Venta</th>
                         <th>Disponibilidad</th>
                     </tr>
@@ -192,7 +191,6 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                                     <td>" . htmlspecialchars($row["tipo_producto"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td>" . htmlspecialchars($row["existencia"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td>" . htmlspecialchars($row["existencia_inventario"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td>" . htmlspecialchars($row["Costo"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td>" . htmlspecialchars($row["PreciosVentas"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td><span class='status " . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "</span></td>
                                   </tr>";

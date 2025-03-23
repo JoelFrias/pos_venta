@@ -119,8 +119,13 @@ if (!empty($sql)) {
                         <select name="seleccionar-empleado" id="seleccionar-empleado" class="employee-select">
                             <option disabled selected>---</option>
                             <?php
-                            $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE id <> 1 AND activo = TRUE";
-                            $resultado = $conn->query($sql);
+                            if ($_SESSION['idPuesto'] > 2){
+                                $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE id <> 1 AND activo = TRUE AND id = ".$_SESSION['idEmpleado'];
+                                $resultado = $conn->query($sql);
+                            } else {
+                                $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE id <> 1 AND activo = TRUE";
+                                $resultado = $conn->query($sql);
+                            }
                             if ($resultado->num_rows > 0) {
                                 while ($fila = $resultado->fetch_assoc()) {
                                     if ($_SERVER['REQUEST_METHOD'] == "POST") {
@@ -225,9 +230,7 @@ if (!empty($sql)) {
                         <th>ID</th>
                         <th>Producto</th>
                         <th>Tipo de Producto</th>
-                        <th>Existencia</th>
                         <th>Existencia en Inventario</th>
-                        <th>Costo</th>
                         <th>Precios de Venta</th>
                         <th>Disponibilidad</th>
                     </tr>
@@ -240,9 +243,7 @@ if (!empty($sql)) {
                                     <td>" . htmlspecialchars($row["id"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td>" . htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td>" . htmlspecialchars($row["tipo_producto"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td>" . htmlspecialchars($row["existencia"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td>" . htmlspecialchars($row["existencia_inventario"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td>" . htmlspecialchars($row["Costo"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td>" . htmlspecialchars($row["PreciosVentas"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td><span class='status " . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "</span></td>
                                   </tr>";
@@ -258,7 +259,7 @@ if (!empty($sql)) {
         <!-- Vista móvil -->
         <div class="mobile-view">
             <?php
-            if ($result->num_rows > 0) {
+            if ($result && $result->num_rows > 0) {
                 $result->data_seek(0); // Reset pointer to start
                 while ($row = $result->fetch_assoc()) {
                     echo '<div class="mobile-card" data-product="' . htmlspecialchars(strtoupper($row["producto"]), ENT_QUOTES, 'UTF-8') . '">
@@ -276,11 +277,7 @@ if (!empty($sql)) {
                             </div>
                             <div class="mobile-card-item">
                                 <span class="mobile-card-label">Existencia:</span>
-                                <span class="mobile-card-value">' . htmlspecialchars($row["existencia"], ENT_QUOTES, 'UTF-8') . '</span>
-                            </div>
-                            <div class="mobile-card-item">
-                                <span class="mobile-card-label">Precio Compra:</span>
-                                <span class="mobile-card-value">' . htmlspecialchars($row["Costo"], ENT_QUOTES, 'UTF-8') . '</span>
+                                <span class="mobile-card-value">' . htmlspecialchars($row["existencia_inventario"], ENT_QUOTES, 'UTF-8') . '</span>
                             </div>
                             <div class="mobile-card-item">
                                 <span class="mobile-card-label">Precio Venta:</span>

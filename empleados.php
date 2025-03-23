@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Redirigir para evitar reenvío del formulario
-    header('Location: empleados_tabla.php');
+    header('Location: empleados.php');
     exit();
 }
 
@@ -578,6 +578,25 @@ if (isset($_GET['editar'])) {
     </style>
 </head>
 <body>
+
+<?php
+
+if ($_SESSION['idPuesto'] > 2) {
+    echo "<script>
+            Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso Prohibido',
+                    text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    window.location.href = './';
+                });
+          </script>";
+    exit();
+}
+
+?>
     
 <div class="container">
     <!-- Botón de menú móvil -->
@@ -658,7 +677,7 @@ if (isset($_GET['editar'])) {
                                     <td><?php echo htmlspecialchars($fila['telefono']); ?></td>
                                     <td><?php echo htmlspecialchars($fila['puesto']); ?></td>
                                     <td>
-                                        <a href="empleados_tabla.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
+                                        <a href="empleados.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -686,7 +705,7 @@ if (isset($_GET['editar'])) {
                                 <h3 class="emp_mobile-card-title"><?php echo htmlspecialchars($fila['nombre'] . ' ' . $fila['apellido']); ?></h3>
                                 <p class="emp_mobile-card-subtitle"><?php echo htmlspecialchars($fila['puesto']); ?></p>
                             </div>
-                            <a href="empleados_tabla.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
+                            <a href="empleados.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
                         </div>
                         <div class="emp_mobile-card-content">
                             <div class="emp_mobile-card-item">
@@ -769,7 +788,7 @@ if (isset($_GET['editar'])) {
                         </div>
                         
                         <div class="emp_form-actions">
-                            <button type="button" onclick="window.location.href='empleados_tabla.php<?php echo !empty($busqueda) ? '?busqueda=' . urlencode($busqueda) : ''; ?>'">Cancelar</button>
+                            <button type="button" onclick="window.location.href='empleados.php<?php echo !empty($busqueda) ? '?busqueda=' . urlencode($busqueda) : ''; ?>'">Cancelar</button>
                             <button type="submit">Actualizar</button>
                         </div>
                     </div>

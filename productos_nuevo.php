@@ -104,6 +104,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
+<?php
+
+if ($_SESSION['idPuesto'] > 2) {
+    echo "<script>
+            Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso Prohibido',
+                    text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    window.location.href = './';
+                });
+          </script>";
+    exit();
+}
+
+?>
+
     <div class="container">
         <!-- Botón de menú móvil -->
         <button id="mobileToggle" class="toggle-btn">
