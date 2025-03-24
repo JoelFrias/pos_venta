@@ -143,11 +143,11 @@ if ($_SESSION['idPuesto'] > 2) {
             <div class="form-grid">
                 <div class="form-group">
                     <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" autocomplete="off" required>
+                    <input type="text" id="nombre" name="nombre" autocomplete="off" placeholder="Nombre" required>
                 </div>
                 <div class="form-group">
                     <label for="apellido">Apellido:</label>
-                    <input type="text" id="apellido" name="apellido" autocomplete="off" required>
+                    <input type="text" id="apellido" name="apellido" autocomplete="off" placeholder="Apellido" required>
                 </div>
                 <div class="form-group">
                     <label for="tipo_identificacion">Tipo de Identificación:</label>
@@ -158,11 +158,11 @@ if ($_SESSION['idPuesto'] > 2) {
                 </div>
                 <div class="form-group">
                     <label for="identificacion">Identificación:</label>
-                    <input type="text" id="identificacion" name="identificacion" autocomplete="off" required>
+                    <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="Identificacion" required>
                 </div>
                 <div class="form-group">
                     <label for="telefono">Teléfono:</label>
-                    <input type="text" id="telefono" name="telefono" autocomplete="off" required>
+                    <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" minlength="12" maxlength="12" required>
                 </div>
                 <div class="form-group">
                     <label for="idPuesto">Puesto:</label>
@@ -187,18 +187,18 @@ if ($_SESSION['idPuesto'] > 2) {
                     <div class="form-grid">
                 <div class="form-group">
                     <label for="username">Usuario:</label>
-                    <input type="text" id="username" name="username" autocomplete="off" required>
+                    <input type="text" id="username" name="username" placeholder="Usuario" autocomplete="off" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" autocomplete="off" minlength="4" required>
+                    <input type="password" id="password" name="password" placeholder="Contraseña" autocomplete="off" minlength="4" required>
                 </div>
             </div>
             <button type="submit" class="btn-submit">Guardar Cambios</button>
         </form>
     </div>
     <!--script de manejo de mensajes-->
-<script>
+    <script>
         // Verificar si hay un mensaje de éxito y mostrarlo con SweetAlert2
         <?php if (isset($_SESSION['success_message'])): ?>
             Swal.fire({
@@ -218,6 +218,26 @@ if ($_SESSION['idPuesto'] > 2) {
             });
             <?php unset($_SESSION['error_message']); ?> // Limpiar el mensaje de la sesión
         <?php endif; ?>
+    </script>
+    <!-- Script para formatear el número de teléfono -->
+    <script>
+        const telefonoInput = document.getElementById('telefono');
+        telefonoInput.addEventListener('input', function () {
+            let value = this.value.replace(/[^0-9]/g, '');  // Eliminar cualquier carácter que no sea número
+
+            // Agregar el primer guion después de los tres primeros números
+            if (value.length > 3 && value.charAt(3) !== '-') {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+            }
+
+            // Agregar el segundo guion después de los seis primeros números (3+3)
+            if (value.length > 6 && value.charAt(6) !== '-') {
+                value = value.slice(0, 7) + '-' + value.slice(7);
+            }
+
+            // Asignar el valor al campo de entrada
+            this.value = value;
+        });
     </script>
 </body>
 </html>

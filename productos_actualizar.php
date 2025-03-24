@@ -23,37 +23,37 @@
     <!-- Descripción ocupa 2 columnas -->
     <div class="modal-input1-form-group">
         <label for="descripcion">Descripción:</label>
-        <input type="text" id="descripcion" name="descripcion" class="modal-input1">
+        <input type="text" id="descripcion" name="descripcion" class="modal-input" required>
     </div>
 
     <!-- Precio de compra -->
     <div class="form-group">
         <label for="precioCompra">Precio Compra:</label>
-        <input type="number" id="precioCompra" name="precioCompra" step="0.01" class="modal-input">
+        <input type="number" id="precioCompra" name="precioCompra" min="0" step="0.01" class="modal-input" required>
     </div>
 
     <!-- Precio Venta 1 -->
     <div class="form-group">
         <label for="precioVenta1">Precio Venta 1:</label>
-        <input type="number" id="precioVenta1" name="precioVenta1" step="0.01" class="modal-input">
+        <input type="number" id="precioVenta1" name="precioVenta1" min="0" step="0.01" class="modal-input" required>
     </div>
 
     <!-- Precio Venta 2 -->
     <div class="form-group">
         <label for="precioVenta2">Precio Venta 2:</label>
-        <input type="number" id="precioVenta2" name="precioVenta2" step="0.01" class="modal-input">
+        <input type="number" id="precioVenta2" name="precioVenta2" min="0" step="0.01" class="modal-input" required>
     </div>
 
     <!-- Reorden -->
     <div class="form-group">
         <label for="reorden">Reorden:</label>
-        <input type="number" id="reorden" name="reorden" class="modal-input">
+        <input type="number" id="reorden" name="reorden" min="0" class="modal-input" required>
     </div>
 
     <!-- Tipo de Producto -->
     <div class="form-group">
         <label for="tipo">Tipo de Producto:</label>
-        <select id="tipo" name="tipo" class="modal-input">
+        <select id="tipo" name="tipo" class="modal-input" required>
             <?php foreach ($tipos_producto as $tipo): ?>
                 <option value="<?php echo $tipo['id']; ?>"><?php echo htmlspecialchars($tipo['descripcion']); ?></option>
             <?php endforeach; ?>
@@ -63,7 +63,7 @@
     <!-- Estado -->
     <div class="form-group">
         <label for="activo">Estado:</label>
-        <select id="activo" name="activo" class="modal-input">
+        <select id="activo" name="activo" class="modal-input" required>
             <option value="1">Activo</option>
             <option value="0">Inactivo</option>
         </select>

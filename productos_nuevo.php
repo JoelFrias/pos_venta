@@ -187,7 +187,7 @@ if ($_SESSION['idPuesto'] > 2) {
                     <legend>Datos del Producto</legend>
                     <div class="form-grid-producto">
                         <div class="form-group">
-                            <label for="nombre">Descripción:</label>
+                            <label for="descripcion">Descripción:</label>
                             <input type="text" id="descripcion" name="descripcion" autocomplete="off" placeholder="Nombre del producto" required>   
                         </div>
 
@@ -215,22 +215,22 @@ if ($_SESSION['idPuesto'] > 2) {
                             </div>
                         </div>    
                         <div class="form-group">
-                            <label for="apellido">Precio de Compra:</label>
+                            <label for="precioCompra">Precio de Compra:</label>
                             <input type="number" id="precioCompra" name="precioCompra" step="0.01" autocomplete="off" placeholder="Precio de Compra" min="1" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="empresa">Precio de Venta 1:</label>
+                            <label for="precio1">Precio de Venta 1:</label>
                             <input type="number" id="precio1" name="precio1" step="0.01" autocomplete="off" placeholder="Precio de venta 1" min="1" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="identificacion">Precio de Venta 2:</label>
+                            <label for="precio2">Precio de Venta 2:</label>
                             <input type="number" id="precio2" name="precio2" step="0.01" autocomplete="off" placeholder="Precio de venta 2" min="1" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="telefono">Cantidad Existente:</label>
+                            <label for="cantidad">Cantidad Existente:</label>
                             <input type="number" id="cantidad" name="cantidad" step="0.01" autocomplete="off" placeholder="Cantidad existente" min="1" required>
                         </div>
 
@@ -255,8 +255,6 @@ if ($_SESSION['idPuesto'] > 2) {
                         text: 'El producto ha sido registrado exitosamente.',
                         icon: 'success',
                         confirmButtonText: 'Aceptar'
-                    }).then(function() {
-                        window.location.href = 'productos_nuevo.php'; 
                     });
                 </script>
             ";

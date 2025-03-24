@@ -120,10 +120,10 @@ if (!empty($sql)) {
                             <option disabled selected>---</option>
                             <?php
                             if ($_SESSION['idPuesto'] > 2){
-                                $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE id <> 1 AND activo = TRUE AND id = ".$_SESSION['idEmpleado'];
+                                $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE activo = TRUE AND id = ".$_SESSION['idEmpleado'];
                                 $resultado = $conn->query($sql);
                             } else {
-                                $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE id <> 1 AND activo = TRUE";
+                                $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE activo = TRUE";
                                 $resultado = $conn->query($sql);
                             }
                             if ($resultado->num_rows > 0) {

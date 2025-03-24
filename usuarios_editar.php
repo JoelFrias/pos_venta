@@ -459,13 +459,7 @@ if (isset($_GET['editar'])) {
             
             <!-- Formulario de búsqueda -->
             <form action="" method="GET" class="emp_search-form">
-                <input 
-                    type="text" 
-                    name="busqueda" 
-                    placeholder="Buscar por nombre de usuario..." 
-                    class="emp_search-input"
-                    value="<?php echo htmlspecialchars($busqueda ?? ''); ?>"
-                >
+                <input type="text" name="busqueda" placeholder="Buscar por nombre de usuario..." class="emp_search-input" value="<?php echo htmlspecialchars($busqueda ?? ''); ?>">
                 <button type="submit" class="emp_search-button">
                     <i class="fas fa-search"></i> Buscar
                 </button>
@@ -563,7 +557,7 @@ if (isset($_GET['editar'])) {
                     
                     <div class="emp_form-group">
                         <label for="new_password">Nueva Contraseña:</label>
-                        <input type="password" id="new_password" name="new_password" required>
+                        <input type="password" id="new_password" name="new_password" minlength="4" required>
                     </div>
                     
                     <div class="emp_form-actions">

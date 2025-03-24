@@ -65,8 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->begin_transaction();
 
         // Insertar en la tabla 'clientes'
-        $stmt_cliente = $conn->prepare("INSERT INTO clientes (nombre, apellido, empresa, tipo_identificacion, identificacion, telefono, notas, fechaRegistro, activo) 
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)");
+        $stmt_cliente = $conn->prepare("INSERT INTO clientes (nombre, apellido, empresa, tipo_identificacion, identificacion, telefono, notas, fechaRegistro, activo) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)");
         $stmt_cliente->bind_param("sssssss", $nombre, $apellido, $empresa, $tipo_identificacion, $identificacion, $telefono, $notas);
         $stmt_cliente->execute();
 
@@ -74,14 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cliente_id = $conn->insert_id;
 
         // Insertar en la tabla 'clientes_cuenta'
-        $stmt_cuenta = $conn->prepare("INSERT INTO clientes_cuenta (idCliente, limite_credito, balance) 
-                                       VALUES (?, ?, ?)");
+        $stmt_cuenta = $conn->prepare("INSERT INTO clientes_cuenta (idCliente, limite_credito, balance) VALUES (?, ?, ?)");
         $stmt_cuenta->bind_param("idd", $cliente_id, $limite_credito, $limite_credito);
         $stmt_cuenta->execute();
 
         // Insertar en la tabla 'clientes_direcciones'
-        $stmt_direccion = $conn->prepare("INSERT INTO clientes_direcciones (idCliente, no, calle, sector, ciudad, referencia) 
-                                         VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt_direccion = $conn->prepare("INSERT INTO clientes_direcciones (idCliente, no, calle, sector, ciudad, referencia) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt_direccion->bind_param("isssss", $cliente_id, $no, $calle, $sector, $ciudad, $referencia);
         $stmt_direccion->execute();
 
@@ -181,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="form-group">
                             <label for="telefono">Teléfono:</label>
-                            <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" required maxlength="12">
+                            <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" maxlength="12" minlength="12" required>
                         </div>
                     </div>
                     <div class="form-group full-width">
@@ -196,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="limite_credito">Límite de Crédito:</label>
-                            <input type="number" id="limite_credito" name="limite_credito" step="0.01" autocomplete="off" placeholder="Ingrese un límite de crédito" required>
+                            <input type="number" id="limite_credito" name="limite_credito" min="0" step="0.01" autocomplete="off" placeholder="Ingrese un límite de crédito" required>
                         </div>
                     </div>
                 </fieldset>

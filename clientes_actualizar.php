@@ -152,8 +152,6 @@ if (isset($_SESSION['status']) && $_SESSION['status'] === 'update_success') {
                 text: 'El cliente ha sido actualizado exitosamente.',
                 icon: 'success',
                 confirmButtonText: 'Aceptar'
-            }).then(function() {
-                window.location.href = 'index.php'; 
             });
         </script>
     ";
@@ -212,15 +210,15 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="nombre">Nombre:</label>
-                        <input type="text" id="nombre" name="nombre" value="<?php echo $cliente['nombre']; ?>" placeholder="Ingrese el nombre" required>
+                        <input type="text" id="nombre" name="nombre" minlength="1" value="<?php echo $cliente['nombre']; ?>" placeholder="Ingrese el nombre" required>
                     </div>
                     <div class="form-group">
                         <label for="apellido">Apellido:</label>
-                        <input type="text" id="apellido" name="apellido" value="<?php echo $cliente['apellido']; ?>" placeholder="Ingrese el apellido" required>
+                        <input type="text" id="apellido" name="apellido" minlength="1" value="<?php echo $cliente['apellido']; ?>" placeholder="Ingrese el apellido" required>
                     </div>
                     <div class="form-group">
                         <label for="empresa">Empresa:</label>
-                        <input type="text" id="empresa" name="empresa" value="<?php echo $cliente['empresa']; ?>" placeholder="Ingrese la empresa">
+                        <input type="text" id="empresa" name="empresa" minlength="1" value="<?php echo $cliente['empresa']; ?>" placeholder="Ingrese la empresa" required>
                     </div>
                     <div class="form-group">
                         <label for="tipo_identificacion">Tipo Identificación:</label>
@@ -232,15 +230,15 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
                     </div>
                     <div class="form-group">
                         <label for="identificacion">Identificación:</label>
-                        <input type="text" id="identificacion" name="identificacion" value="<?php echo $cliente['identificacion']; ?>" placeholder="Ingrese la identificación" required>
+                        <input type="number" id="identificacion" name="identificacion" min="0" value="<?php echo $cliente['identificacion']; ?>" placeholder="Ingrese la identificación" required>
                     </div>
                     <div class="form-group">
                         <label for="telefono">Teléfono:</label>
-                        <input type="text" id="telefono" name="telefono" value="<?php echo $cliente['telefono']; ?>" placeholder="000-000-0000" required>
+                        <input type="text" id="telefono" name="telefono" minlength="12" maxlength="12" value="<?php echo $cliente['telefono']; ?>" placeholder="000-000-0000" required>
                     </div>
                     <div class="form-group">
                         <label for="notas">Notas:</label>
-                        <textarea id="notas" name="notas" placeholder="Indique notas del cliente"><?php echo $cliente['notas']; ?></textarea>
+                        <textarea id="notas" name="notas" minlength="1" placeholder="Indique notas del cliente"><?php echo $cliente['notas']; ?></textarea>
                     </div>
                 </div>
             </fieldset>
@@ -251,7 +249,7 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="limite_credito">Límite Crédito:</label>
-                        <input type="number" id="limite_credito" name="limite_credito" value="<?php echo $cliente['limite_credito']; ?>" step="0.01" placeholder="Ingrese el límite de crédito" required>
+                        <input type="number" id="limite_credito" name="limite_credito" min="0" value="<?php echo $cliente['limite_credito']; ?>" step="0.01" placeholder="Ingrese el límite de crédito" required>
                     </div>
                 </div>
             </fieldset>
@@ -262,23 +260,23 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="no">No:</label>
-                        <input type="text" id="no" name="no" value="<?php echo $cliente['no']; ?>" placeholder="Ingrese el número de casa" required>
+                        <input type="text" id="no" name="no" minlength="1" value="<?php echo $cliente['no']; ?>" placeholder="Ingrese el número de casa" required>
                     </div>
                     <div class="form-group">
                         <label for="calle">Calle:</label>
-                        <input type="text" id="calle" name="calle" value="<?php echo $cliente['calle']; ?>" placeholder="Ingrese la calle" required>
+                        <input type="text" id="calle" name="calle" minlength="1" value="<?php echo $cliente['calle']; ?>" placeholder="Ingrese la calle" required>
                     </div>
                     <div class="form-group">
                         <label for="sector">Sector:</label>
-                        <input type="text" id="sector" name="sector" value="<?php echo $cliente['sector']; ?>" placeholder="Ingrese el sector" required>
+                        <input type="text" id="sector" name="sector" minlength="1" value="<?php echo $cliente['sector']; ?>" placeholder="Ingrese el sector" required>
                     </div>
                     <div class="form-group">
                         <label for="ciudad">Ciudad:</label>
-                        <input type="text" id="ciudad" name="ciudad" value="<?php echo $cliente['ciudad']; ?>" placeholder="Ingrese la ciudad" required>
+                        <input type="text" id="ciudad" name="ciudad" minlength="1" value="<?php echo $cliente['ciudad']; ?>" placeholder="Ingrese la ciudad" required>
                     </div>
                     <div class="form-group">
                         <label for="referencia">Referencia:</label>
-                        <textarea id="referencia" name="referencia" placeholder="Indique referencia de direccion (Ej: Al lado de una farmacia)" required><?php echo $cliente['referencia']; ?></textarea>
+                        <textarea id="referencia" name="referencia" minlength="1" placeholder="Indique referencia de direccion (Ej: Al lado de una farmacia)" required><?php echo $cliente['referencia']; ?></textarea>
                     </div>
                 </div>
             </fieldset>
@@ -288,7 +286,7 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
                 <legend>Estado</legend>
                 <div class="form-group">
                     <label for="inactividad">Estado:</label>
-                    <select id="inactividad" name="inactividad">
+                    <select id="inactividad" name="inactividad" required>
                         <option value="TRUE" <?php echo $cliente['activo'] ? 'selected' : ''; ?>>Activo</option>
                         <option value="FALSE" <?php echo !$cliente['activo'] ? 'selected' : ''; ?>>Inactivo</option>
                     </select>
@@ -300,6 +298,27 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
         </form>
     </div>
 
+    <!-- Script para formatear el número de teléfono -->
+    <script>
+        const telefonoInput = document.getElementById('telefono');
+        telefonoInput.addEventListener('input', function () {
+            let value = this.value.replace(/[^0-9]/g, '');  // Eliminar cualquier carácter que no sea número
+
+            // Agregar el primer guion después de los tres primeros números
+            if (value.length > 3 && value.charAt(3) !== '-') {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+            }
+
+            // Agregar el segundo guion después de los seis primeros números (3+3)
+            if (value.length > 6 && value.charAt(6) !== '-') {
+                value = value.slice(0, 7) + '-' + value.slice(7);
+            }
+
+            // Asignar el valor al campo de entrada
+            this.value = value;
+        });
+    </script>
+</div>
     <!-- Scripts adicionales -->
     <script src="js/menu.js"></script>
     <script src="js/modo_oscuro.js"></script>

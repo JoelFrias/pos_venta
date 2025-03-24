@@ -19,11 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($user) || empty($pass)) {
         $error = "Usuario y contraseña son requeridos.";
     } else {
-        // Verificar que la conexión está establecida
-        if (!isset($conn)) {
-            die("Error: No se estableció la conexión a la base de datos. Por favor contacta al administrador.");
-        }
-        
+
         $query = "SELECT
                     u.id,
                     e.id AS idEmpleado,
@@ -40,12 +36,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   LIMIT 1";
 
         if ($stmt = $conn->prepare($query)) {
-            $stmt->bind_param("s", $user); // Solo se pasa el username
+            $stmt->bind_param("s", $user);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($row = $result->fetch_assoc()) {
-                // Verificar la contraseña usando password_verify
                 if (password_verify($pass, $row['password'])) {
                     // Guardar datos en la sesión
                     $_SESSION['id'] = $row['id'];
@@ -54,7 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['nombre'] = $row['nombre'];
                     $_SESSION['idPuesto'] = $row['idPuesto'];
 
-                    // Redirigir a la página de inicio
                     header("Location: index.php");
                     exit();
                 } else {
@@ -66,7 +60,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $stmt->close();
         } else {
-            $error = "Error en la consulta: " . $conn->error; // Mostrar el error de MySQLi
+            $error = "Se ha producido un error interno en el servidor.";
+            ?>
+
+            <script>
+                console.log("Error: <?php echo $conn->error; ?>");
+            </script>
+
+            <?php
         }
     }
 }
@@ -96,7 +97,7 @@ if (isset($_GET['session_expired']) && $_GET['session_expired'] === 'session_exp
             </div>
         <?php endif; ?>
 
-        <form action="" method="post">
+        <form action="login.php" method="post">
             <div class="form-group">
                 <input type="text" name="username" id="username" autocomplete="off" required>
                 <label for="username">Username</label>
