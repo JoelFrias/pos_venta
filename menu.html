@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    
-    <!-- Estilos CSS -->
     <link rel="stylesheet" href="css/modo_oscuro.css">
 </head>
 <body>
@@ -30,9 +25,26 @@
             <li onclick="navigateTo('inventario_empleados.php')"><i class="fa-solid fa-boxes-stacked"></i></i>Inventario Empleados</li>
             <li onclick="navigateTo('inventario_transaccion.php')"><i class="fa-solid fa-cart-flatbed"></i>Transacción Inventario</li>
             <li onclick="navigateTo('facturacion.php')"><i class="fas fa-cash-register"></i>Facturación</li>
-            <li onclick="navigateTo('php/logout.php')"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</li>
+            <li onclick="logout()"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</li>
         </ul>
     </nav>
+
+    <script>
+        function logout() {
+            Swal.fire({
+                icon: 'question',
+                title: 'Cierre de Sesión',
+                text: '¿Desea cerrar la sesión?',
+                showCancelButton: true,
+                confirmButtonText: 'Cerrar sesión',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'php/logout.php';
+                }
+            });
+        }
+    </script>
     
     <!-- Scripts JS -->
     <script src="js/modo_oscuro.js"></script>

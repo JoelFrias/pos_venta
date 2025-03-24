@@ -676,7 +676,7 @@ function guardarFactura() {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Se produjo un error al guardar la factura',
+                    text: data.error,
                     showConfirmButton: true,
                     confirmButtonText: 'Aceptar'
                 });

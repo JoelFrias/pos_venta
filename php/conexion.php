@@ -2,7 +2,7 @@
 // Datos de conexión
 $servername = "127.0.0.1";
 $username = "root";
-$password = "";
+$password = "Joelbless23";
 $dbname = "pos_venta";
 
 // Crear conexión
