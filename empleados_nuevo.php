@@ -113,7 +113,7 @@ if ($_SESSION['idPuesto'] > 2) {
         </button>
 
         <!-- Incluir el menú -->
-        <?php require 'menu.html' ?>
+        <?php require 'menu.php' ?>
         <!-- Script para navegación interna -->
         <script>
             /**

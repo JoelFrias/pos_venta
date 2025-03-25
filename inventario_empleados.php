@@ -102,7 +102,7 @@ if (!empty($sql)) {
         </button>
 
         <!-- Incluir el menú -->
-        <?php require 'menu.html' ?>
+        <?php require 'menu.php' ?>
         <script src="js/sidebar_menu.js"></script>
 
         <!-- Overlay para dispositivos móviles -->

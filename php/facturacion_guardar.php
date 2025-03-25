@@ -405,7 +405,6 @@ try {
     /**
      *      11. Confirmar la transacción
      */
-
     
     $conn->commit();
     logDebug("Transacción completada exitosamente");

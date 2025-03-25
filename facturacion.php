@@ -79,7 +79,7 @@ if ($result->num_rows > 0) {
         </button>
 
         <!-- Incluir el menú -->
-        <?php require 'menu.html' ?>
+        <?php require 'menu.php' ?>
         <script src="js/sidebar_menu.js"></script>
         
 
@@ -204,35 +204,35 @@ if ($result->num_rows > 0) {
     <div id="div-banco" style="display: none;">
         <label for="banco">Seleccione el banco:</label>
         <select name="banco" id="banco">
-        <option value="1" disabled selected>Seleccionar</option>
-        <?php
-        $sql = "SELECT * FROM bancos WHERE id <> 1 ORDER BY id ASC";
-        $resultado = $conn->query($sql);
-        if ($resultado->num_rows > 0) {
-            while ($fila = $resultado->fetch_assoc()) {
-            echo "<option value='" . $fila['id'] . "'>" . $fila['nombreBanco'] . "</option>";
-            }
-        } else {
-            echo "<option value='' disabled>No hay opciones</option>";
-        }
-        ?>
+            <option value="1" disabled selected>Seleccionar</option>
+            <?php
+                $sql = "SELECT * FROM bancos WHERE id <> 1 ORDER BY id ASC";
+                $resultado = $conn->query($sql);
+                if ($resultado->num_rows > 0) {
+                    while ($fila = $resultado->fetch_assoc()) {
+                    echo "<option value='" . $fila['id'] . "'>" . $fila['nombreBanco'] . "</option>";
+                    }
+                } else {
+                    echo "<option value='' disabled>No hay opciones</option>";
+                }
+            ?>
         </select>
     </div>
     <div id="div-destino" style="display: none;">
         <label for="destino-cuenta">Seleccione el destino:</label>
         <select name="destino-cuenta" id="destino-cuenta">
-        <option value="1" disabled selected>Seleccionar</option>
-        <?php
-        $sql = "SELECT * FROM destinoCuentas WHERE id <> 1 ORDER BY id ASC";
-        $resultado = $conn->query($sql);
-        if ($resultado->num_rows > 0) {
-            while ($fila = $resultado->fetch_assoc()) {
-            echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
-            }
-        } else {
-            echo "<option value='' disabled>No hay opciones</option>";
-        }
-        ?>
+            <option value="1" disabled selected>Seleccionar</option>
+            <?php
+                $sql = "SELECT * FROM destinoCuentas WHERE id <> 1 ORDER BY id ASC";
+                $resultado = $conn->query($sql);
+                if ($resultado->num_rows > 0) {
+                    while ($fila = $resultado->fetch_assoc()) {
+                    echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
+                    }
+                } else {
+                    echo "<option value='' disabled>No hay opciones</option>";
+                }
+            ?>
         </select>
     </div>
     <div id="div-monto">
@@ -275,43 +275,43 @@ if ($result->num_rows > 0) {
     const destino = document.getElementById("div-destino");
     
     metodo.addEventListener("change", () => {
-    if (metodo.value === "tarjeta") {
-        tarjeta.style.display = "block";
-        autorizacion.style.display = "block";
-        banco.style.display = "block";
-        destino.style.display = "block";
+        if (metodo.value === "tarjeta") {
+            tarjeta.style.display = "block";
+            autorizacion.style.display = "block";
+            banco.style.display = "block";
+            destino.style.display = "block";
 
-        document.getElementById("monto-pagado").value = "";
-        document.getElementById("banco").value = "1";
-        document.getElementById("destino-cuenta").value = "1";
-        document.getElementById("numero-tarjeta").value = "";
-        document.getElementById("numero-autorizacion").value = "";
+            document.getElementById("monto-pagado").value = "";
+            document.getElementById("banco").value = "1";
+            document.getElementById("destino-cuenta").value = "1";
+            document.getElementById("numero-tarjeta").value = "";
+            document.getElementById("numero-autorizacion").value = "";
 
-    } else if (metodo.value === "transferencia") {
-        tarjeta.style.display = "none";
-        autorizacion.style.display = "block";
-        banco.style.display = "block";
-        destino.style.display = "block";
+        } else if (metodo.value === "transferencia") {
+            tarjeta.style.display = "none";
+            autorizacion.style.display = "block";
+            banco.style.display = "block";
+            destino.style.display = "block";
 
-        document.getElementById("monto-pagado").value = "";
-        document.getElementById("banco").value = "1";
-        document.getElementById("destino-cuenta").value = "1";
-        document.getElementById("numero-tarjeta").value = "";
-        document.getElementById("numero-autorizacion").value = "";
+            document.getElementById("monto-pagado").value = "";
+            document.getElementById("banco").value = "1";
+            document.getElementById("destino-cuenta").value = "1";
+            document.getElementById("numero-tarjeta").value = "";
+            document.getElementById("numero-autorizacion").value = "";
 
-    } else {
-        tarjeta.style.display = "none";
-        autorizacion.style.display = "none";
-        banco.style.display = "none";
-        destino.style.display = "none";
+        } else {
+            tarjeta.style.display = "none";
+            autorizacion.style.display = "none";
+            banco.style.display = "none";
+            destino.style.display = "none";
 
-        document.getElementById("monto-pagado").value = "";
-        document.getElementById("banco").value = "1";
-        document.getElementById("destino-cuenta").value = "1";
-        document.getElementById("numero-tarjeta").value = "";
-        document.getElementById("numero-autorizacion").value = "";
+            document.getElementById("monto-pagado").value = "";
+            document.getElementById("banco").value = "1";
+            document.getElementById("destino-cuenta").value = "1";
+            document.getElementById("numero-tarjeta").value = "";
+            document.getElementById("numero-autorizacion").value = "";
 
-    }
+        }
     });
 
 

@@ -448,7 +448,7 @@ if (isset($_GET['editar'])) {
     </button>
 
     <!-- Requerimiento de Menú -->
-    <?php require 'menu.html' ?>
+    <?php require 'menu.php' ?>
 
     <!-- Overlay para móviles -->
     <div class="overlay" id="overlay" onclick="toggleNav()"></div>

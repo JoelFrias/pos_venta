@@ -605,7 +605,7 @@ if ($_SESSION['idPuesto'] > 2) {
     </button>
 
     <!-- Requerimiento de Menú -->
-    <?php require 'menu.html' ?>
+    <?php require 'menu.php' ?>
 
     <!-- Overlay para móviles -->
     <div class="overlay" id="overlay" onclick="toggleNav()"></div>

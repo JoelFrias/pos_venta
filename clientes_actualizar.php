@@ -183,7 +183,7 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
     </button>
 
     <!-- Incluir el menú -->
-    <?php require 'menu.html' ?>
+    <?php require 'menu.php' ?>
 
     <!-- Script para navegar entre páginas y mostrar/ocultar el menú -->
     <script>

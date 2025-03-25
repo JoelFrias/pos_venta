@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="css/modo_oscuro.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <!-- Barra lateral de navegación -->
@@ -17,19 +18,45 @@
         
         <!-- Menú de navegación -->
         <ul class="menu">
-            <li onclick="navigateTo('index.php')"><i class="fas fa-home"></i> Inicio</li>
-            <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i> Clientes</li>
+            <li onclick="navigateTo('index.php')"><i class="fas fa-home"></i>Inicio</li>
+            <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i>Clientes</li>
+            <li onclick="navigateTo('cuenta_avance.php?idCliente=1')"><i class="fa-solid fa-money-check-dollar"></i></i>Avance a Cuenta</li>
             <li onclick="navigateTo('productos.php')"><i class="fas fa-box"></i> Productos</li>
-            <li onclick="navigateTo('empleados.php')"><i class="fa-solid fa-user"></i>Empleados</li>
+            <li onclick="empleados(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-user"></i>Empleados</li>
             <li onclick="navigateTo('inventario.php')"><i class="fa-solid fa-warehouse"></i>Almacén</li>
             <li onclick="navigateTo('inventario_empleados.php')"><i class="fa-solid fa-boxes-stacked"></i></i>Inventario Empleados</li>
-            <li onclick="navigateTo('inventario_transaccion.php')"><i class="fa-solid fa-cart-flatbed"></i>Transacción Inventario</li>
+            <li onclick="inventario_transaccion(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-cart-flatbed"></i>Transacción Inventario</li>
             <li onclick="navigateTo('facturacion.php')"><i class="fas fa-cash-register"></i>Facturación</li>
             <li onclick="logout()"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</li>
         </ul>
     </nav>
 
     <script>
+
+        function empleados(idPuesto) {
+            if (idPuesto > 2) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso denegado',
+                    text: 'No tienes permisos para acceder a esta página.'
+                });
+            } else {
+                navigateTo('empleados.php');
+            }
+        }
+
+        function inventario_transaccion(idPuesto) {
+            if (idPuesto > 2) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso denegado',
+                    text: 'No tienes permisos para acceder a esta página.'
+                });
+            } else {
+                navigateTo('inventario_transaccion.php');
+            }
+        }
+
         function logout() {
             Swal.fire({
                 icon: 'question',

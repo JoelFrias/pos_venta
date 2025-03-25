@@ -63,7 +63,7 @@ $_SESSION['last_activity'] = time();
         </label>
         -->
         <!-- Inclusión del menú de navegación -->
-        <?php require 'menu.html' ?>
+        <?php require 'menu.php' ?>
         
         <!-- Script para navegación interna -->
         <script>

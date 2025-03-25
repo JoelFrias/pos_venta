@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </button>
 
         <!-- Incluir el menú -->
-        <?php require 'menu.html' ?>
+        <?php require 'menu.php' ?>
 
         <!-- Script para navegar entre páginas y mostrar/ocultar el menú -->
         <script>

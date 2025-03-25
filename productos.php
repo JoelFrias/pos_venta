@@ -109,7 +109,7 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
         </button>
         <!-------------------------->
         <!-- Requerimiento de Menú -->
-        <?php require 'menu.html' ?>
+        <?php require 'menu.php' ?>
         <script src="js/sidebar_menu.js"></script>
         <!--------------------------->
         <!-- Overlay para móviles -->
@@ -290,8 +290,6 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                 </div>
                 <?php endwhile; ?>
             </div>
-            <!-- referencia al html donde esta el modal -->
-            <?php include 'producto_actualizar.php'; ?>
 
             <!-- manejo de mensajes  -->
             <?php

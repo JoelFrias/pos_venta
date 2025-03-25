@@ -100,7 +100,7 @@ if ($_SESSION['idPuesto'] > 2) {
         </button>
 
         <!-- Incluir el menú -->
-        <?php require 'menu.html' ?>
+        <?php require 'menu.php' ?>
         <script src="js/sidebar_menu.js"></script>
         
 
