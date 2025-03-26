@@ -429,7 +429,7 @@ function guardarFactura() {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Error al procesar la transacción.',
+                    text: data.error,
                     showConfirmButton: true,
                     confirmButtonText: 'Aceptar'
                 });

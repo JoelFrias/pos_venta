@@ -230,7 +230,7 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
                     </div>
                     <div class="form-group">
                         <label for="identificacion">Identificación:</label>
-                        <input type="number" id="identificacion" name="identificacion" min="0" value="<?php echo $cliente['identificacion']; ?>" placeholder="Ingrese la identificación" required>
+                        <input type="text" id="identificacion" name="identificacion" min="0" value="<?php echo $cliente['identificacion']; ?>" placeholder="Ingrese la identificación" required>
                     </div>
                     <div class="form-group">
                         <label for="telefono">Teléfono:</label>

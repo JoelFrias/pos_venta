@@ -1,37 +1,46 @@
 <?php
-require('../fpdf/fpdf.php'); // Incluir la librería FPDF
+require('../fpdf/fpdf.php');
 
-// Crear el PDF con ancho 7" (177.8mm) y altura ajustable
-$pdf = new FPDF('P', 'mm', [177.8, 250]);
+class InvoiceReport extends FPDF
+{
+    function Header()
+    {
+        // Company Information
+        $this->SetFont('Arial', 'B', 12);
+        $this->Cell(0, 10, 'Mary Variedades', 0, 1, 'C');
+        
+        $this->SetFont('Arial', '', 10);
+        $this->Cell(0, 6, 'Ave. Hatuey, frente a Pedro Racing, Santiago, Rep Dom.', 0, 1, 'C');
+        $this->Cell(0, 6, 'Telefono: (829)789-4950   Instagram: @mary_varides', 0, 1, 'C');
+        
+        // Date and Invoice Number
+        $this->SetY(30);
+        $this->Cell(0, 6, '25/03/2025 12.27 AM', 0, 1, 'R');
+        $this->Cell(0, 6, 'Factura Contado # 1650', 0, 1, 'R');
+        
+        // Customer Information
+        $this->SetY(45);
+        $this->Cell(0, 6, 'Nombre Cliente: Cliente al Contado', 0, 1);
+        $this->Cell(0, 6, 'NCF: 0', 0, 1);
+        
+        // Table Header
+        $this->SetY(60);
+        $this->SetFont('Arial', 'B', 10);
+        $this->Cell(120, 10, 'DESCRIPCION', 1, 0, 'C');
+        $this->Cell(30, 10, 'ITBIS', 1, 0, 'C');
+        $this->Cell(40, 10, 'IMPORTE', 1, 1, 'C');
+        
+        // Table Content
+        $this->SetFont('Arial', '', 10);
+        $this->Cell(120, 10, 'Base de Mujer', 1, 0);
+        $this->Cell(30, 10, '0.00', 1, 0, 'R');
+        $this->Cell(40, 10, '700.00', 1, 1, 'R');
+    }
+}
+
+// Create new PDF document
+$pdf = new InvoiceReport();
 $pdf->AddPage();
-
-// Configuración de fuente y encabezado
-$pdf->SetFont('Arial', 'B', 16);
-$pdf->Cell(0, 10, 'Factura', 0, 1, 'C');
-$pdf->SetFont('Arial', '', 12);
-$pdf->Cell(0, 10, 'Fecha: ' . date('Y-m-d'), 0, 1);
-
-// Encabezados de la tabla
-$pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(80, 10, 'Descripcion', 1);
-$pdf->Cell(40, 10, 'Cantidad', 1);
-$pdf->Cell(40, 10, 'Precio', 1, 1);
-
-// Datos de prueba
-$pdf->SetFont('Arial', '', 10);
-$pdf->Cell(80, 10, 'Producto A', 1);
-$pdf->Cell(40, 10, '2', 1);
-$pdf->Cell(40, 10, '$10.00', 1, 1);
-
-$pdf->Cell(80, 10, 'Producto B', 1);
-$pdf->Cell(40, 10, '1', 1);
-$pdf->Cell(40, 10, '$15.00', 1, 1);
-
-// Total
-$pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(120, 10, 'Total', 1);
-$pdf->Cell(40, 10, '$35.00', 1, 1, 'R');
-
-// Salida del PDF
-$pdf->Output();
+$pdf->Output('invoice.pdf', 'F');
+echo "PDF generated successfully!";
 ?>

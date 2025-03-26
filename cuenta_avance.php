@@ -368,7 +368,8 @@
 
                             </tbody>
                         </table>
-                    </div>
+                    </div> <br>
+                    <a class="btn">Ver mas</a>
                 </div>
                 
                 <div class="history-table">
