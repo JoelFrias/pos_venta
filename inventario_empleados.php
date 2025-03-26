@@ -85,7 +85,7 @@ if (!empty($sql)) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Inventario Personal</title>
     <link rel="stylesheet" href="css/menu.css">
     <!-- link de los iconos raro que le puse random -->

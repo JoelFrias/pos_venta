@@ -68,7 +68,7 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Vista de Inventario</title>
     <link rel="stylesheet" href="css/menu.css">
     <!-- link de los iconos raro que le puse random -->

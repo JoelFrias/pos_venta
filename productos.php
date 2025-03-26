@@ -92,7 +92,7 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Lista de Productos</title>
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/cliente_tabla.css">         <!--------tabla de cliente--------->

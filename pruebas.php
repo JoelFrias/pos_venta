@@ -51,7 +51,7 @@ if ($result->num_rows > 0) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Sistema de Facturación</title>
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/detalle_factura.css">
