@@ -31,7 +31,6 @@ $_SESSION['last_activity'] = time();
 
 require_once 'php/conexion.php';
 
-// Consulta SQL para obtener las facturas
 $sql = "SELECT
             f.numFactura AS numf,
             f.tipoFactura AS tipof,
@@ -43,61 +42,58 @@ $sql = "SELECT
             f.estado AS estadof
         FROM
             facturas AS f
-        JOIN clientes AS c
-        ON
-            c.id = f.idCliente
-        JOIN empleados AS e
-        ON
-            e.id = f.idEmpleado
-        WHERE
-            1=1";
+        JOIN clientes AS c ON c.id = f.idCliente
+        JOIN empleados AS e ON e.id = f.idEmpleado
+        WHERE 1=1";
+
+$params = [];
+$types = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-        // Verificar si se han recividos filtros de búsqueda
-        if (isset($_POST['tipo']) && !empty($_POST['tipo'])) {
-            $tipo = $_POST['tipo'];
-            $sql .= " AND f.tipoFactura = '$tipo'";
-        }
-
-        if (isset($_POST['estado']) && !empty($_POST['estado'])) {
-            $estado = $_POST['estado'];
-            $sql .= " AND f.estado = '$estado'";
-        }
-
-        if (isset($_POST['desde']) && !empty($_POST['desde'])) {
-            $desde = $_POST['desde'];
-            $sql .= " AND f.fecha >= '$desde'";
-        }
-
-        if (isset($_POST['hasta']) && !empty($_POST['hasta'])) {
-            $hasta = $_POST['hasta'];
-            $sql .= " AND f.fecha <= '$hasta'";
-        }
-
-        if (isset($_POST['buscador']) && !empty($_POST['buscador'])) {
-            $busqueda = $_POST['buscador'];
-            $sql .= " AND (f.numFactura LIKE '%$busqueda%' OR CONCAT(c.nombre, ' ', c.apellido) LIKE '%$busqueda%' OR CONCAT(e.nombre, ' ', e.apellido) LIKE '%$busqueda%')";
-        }
+    if (!empty($_POST['tipo'])) {
+        $sql .= " AND f.tipoFactura = ?";
+        $params[] = $_POST['tipo'];
+        $types .= "s";
+    }
+    if (!empty($_POST['estado'])) {
+        $sql .= " AND f.estado = ?";
+        $params[] = $_POST['estado'];
+        $types .= "s";
+    }
+    if (!empty($_POST['desde'])) {
+        $sql .= " AND f.fecha >= ?";
+        $params[] = $_POST['desde'];
+        $types .= "s";
+    }
+    if (!empty($_POST['hasta'])) {
+        $sql .= " AND f.fecha <= ?";
+        $params[] = $_POST['hasta'];
+        $types .= "s";
+    }
+    if (!empty($_POST['buscador'])) {
+        $sql .= " AND (f.numFactura LIKE ? OR CONCAT(c.nombre, ' ', c.apellido) LIKE ? OR CONCAT(e.nombre, ' ', e.apellido) LIKE ?)";
+        $searchTerm = "%" . $_POST['buscador'] . "%";
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+        $types .= "sss";
+    }
 }
 
-$sql .= " GROUP BY
-                f.numFactura
-            ORDER BY
-                f.fecha DESC
-            LIMIT 30";
+$sql .= " GROUP BY f.numFactura ORDER BY f.fecha DESC LIMIT 30";
 
 $stmt = $conn->prepare($sql);
+if (!empty($params)) {$stmt->bind_param($types, ...$params);}
 $stmt->execute();
 $results = $stmt->get_result();
 
 $stmt1 = $conn->prepare($sql);
+if (!empty($params)) {$stmt1->bind_param($types, ...$params);}
 $stmt1->execute();
 $results1 = $stmt1->get_result();
 
-
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -447,17 +443,18 @@ $results1 = $stmt1->get_result();
                         <label>Tipo de Factura</label>
                         <select name="tipo" id="tipo">
                             <option value="" disabled selected>Seleccionar</option>
-                            <option value="credito" <?php echo isset($_POST['tipo']) == 'credito' ? 'selected' : ''; ?>>Crédito</option>
-                            <option value="contado" <?php echo isset($_POST['tipo']) == 'contado' ? 'selected' : ''; ?>>Contado</option>
+                            <option value="credito" <?php echo (isset($_POST['tipo']) && $_POST['tipo'] == 'credito') ? 'selected' : ''; ?>>Crédito</option>
+                            <option value="contado" <?php echo (isset($_POST['tipo']) && $_POST['tipo'] == 'contado') ? 'selected' : ''; ?>>Contado</option>
                         </select>
+
                     </div>
                     <div class="filter-group">
                         <label>Estado de Factura</label>
                         <select name="estado" id="estado">
                             <option value="" disabled selected>Seleccionar</option>
-                            <option value="Pagada" <?php echo isset($_POST['estado']) == 'Pagada' ? 'selected' : ''; ?>>Pagada</option>
-                            <option value="Pendiente" <?php echo isset($_POST['estado']) == 'Pendiente' ? 'selected' : ''; ?>>Pendiente</option>
-                            <option value="Cancelada" <?php echo isset($_POST['estado']) == 'Cancelada' ? 'selected' : ''; ?>>Canceladas</option>
+                            <option value="Pagada" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Pagada') ? 'selected' : ''; ?>>Pagada</option>
+                            <option value="Pendiente" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Pendiente') ? 'selected' : ''; ?>>Pendiente</option>
+                            <option value="Cancelada" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Cancelada') ? 'selected' : ''; ?>>Cancelada</option>
                         </select>
                     </div>
                 </div>
