@@ -1,5 +1,35 @@
 <?php
-require "php/conexion.php";
+
+/* Verificacion de sesion */
+
+// Iniciar sesión
+session_start();
+
+// Configurar el tiempo de caducidad de la sesión
+$inactivity_limit = 900; // 15 minutos en segundos
+
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['username'])) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header('Location: login.php'); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Actualizar el tiempo de la última actividad
+$_SESSION['last_activity'] = time();
+
+/* Fin de verificacion de sesion */
+
+require_once 'php/conexion.php';
 
 // Obtener el número de factura y el estado desde el formulario (si existen)
 $numFactura = isset($_GET['numFactura']) && !empty($_GET['numFactura']) ? intval($_GET['numFactura']) : null;
@@ -81,18 +111,6 @@ if ($result->num_rows > 0) {
         <div class="invoice-container">
             <div class="search-section">
                 <h2>Detalle de Factura</h2>
-                <!-- Formulario de búsqueda y filtrado -->
-                <form method="GET" action="">
-                    <div class="search-box">
-                        <input type="text" name="numFactura" placeholder="Buscar factura..." value="<?php echo $numFactura !== null ? $numFactura : ''; ?>">
-                        <select name="estado">
-                            <option value="todas" <?php echo $estado === 'todas' ? 'selected' : ''; ?>>Todas</option>
-                            <option value="Pagada" <?php echo $estado === 'Pagada' ? 'selected' : ''; ?>>Pagadas</option>
-                            <option value="Pendiente" <?php echo $estado === 'Pendiente' ? 'selected' : ''; ?>>Pendientes</option>
-                        </select>
-                        <button type="submit">Buscar</button>
-                    </div>
-                </form>
             </div>
             <?php if (isset($mensaje)): ?>
                 <!-- Mostrar mensaje si no se encontraron facturas -->
@@ -208,9 +226,9 @@ if ($result->num_rows > 0) {
                                 </div>
                             </div>
                             <div class="action-buttons">
-                                <button class="btn-primary">Avance a Cuenta</button>
+                                <button class="btn-primary" onclick="navigateTo('cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
                                 <button class="btn-secondary">
-                                    <span class="printer-icon">🖨</span>
+                                    <span class="printer-icon">🖨️</span>
                                     Reimprimir
                                 </button>
                             </div>

@@ -152,28 +152,41 @@ if ($result->num_rows > 0) {
 <!-- Campos del cliente en el menú desplegable -->
 <div class="order-menu" id="orderMenu">
     <div class="menu-header">
-        <h2 class="menu-title"><span>Procesar Factura</span></h2>
+        <h2 class="menu-title">Procesar Factura</h2>
     </div>
     <div class="menu-content">
-        <input type="text" class="menu-input" id="id-cliente" placeholder="ID del cliente" readonly>
-        <input type="text" class="menu-input" id="nombre-cliente" placeholder="Nombre del cliente" readonly>
-        <input type="text" class="menu-input" id="empresa" placeholder="Empresa" readonly>
-        <button class="menu-button" id="buscar-cliente">Buscar Cliente</button>
+        <div class="input-group">
+            <label for="id-cliente" class="input-label">ID del cliente</label>
+            <input type="text" class="menu-input" id="id-cliente" placeholder="ID del cliente" readonly>
+        </div>
+        <div class="input-group">
+            <label for="nombre-cliente" class="input-label">Nombre del cliente</label>
+            <input type="text" class="menu-input" id="nombre-cliente" placeholder="Nombre del cliente" readonly>
+        </div>
+        <div class="input-group">
+            <label for="empresa" class="input-label">Empresa</label>
+            <input type="text" class="menu-input" id="empresa" placeholder="Empresa" readonly>
+        </div>
 
-          <!-- Lista de productos agregados -->
-          <div class="order-list" id="orderList">
+        <div class="menu-footer">
+            <button class="footer-button secundary" id="buscar-cliente">Buscar Cliente</button>
+            <button class="footer-button primary" id="btn-generar">Procesar Factura</button>
+        </div>
+
+        <!-- Lista de productos agregados -->
+        <div class="order-list" id="orderList">
+            <h3 class="order-list-title">Productos Agregados</h3>
             <!-- Los productos se agregarán aquí dinámicamente -->
+            <div class="order-list-empty">
+               
+            </div>
         </div>
 
         <!-- Total de la compra -->
         <div class="order-total">
-            <span>Total:</span>
-            <span>RD$<span id="totalAmount">0.00</span></span>
+            <div class="total-label">Total:</div>
+            <div class="total-amount">RD$ <span id="totalAmount">0.00</span></div>
         </div>
-    </div>
-    <!-- Nuevos botones en fila -->
-    <div class="menu-footer">
-        <button class="footer-button primary" id="btn-generar">Procesar Factura</button>
     </div>
 </div>
 

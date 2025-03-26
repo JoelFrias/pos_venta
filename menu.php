@@ -13,7 +13,6 @@
     <ul class="menu">
         <li onclick="navigateTo('index.php')"><i class="fas fa-home"></i>Inicio</li>
         <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i>Clientes</li>
-        <li onclick="navigateTo('cuenta_avance.php?idCliente=1')"><i class="fa-solid fa-money-check-dollar"></i></i>Avance a Cuenta</li>
         <li onclick="navigateTo('productos.php')"><i class="fas fa-box"></i> Productos</li>
         <li onclick="empleados(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-user"></i>Empleados</li>
         <li onclick="navigateTo('inventario.php')"><i class="fa-solid fa-warehouse"></i>Almacén</li>

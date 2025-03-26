@@ -139,8 +139,8 @@ try {
      */
 
     $sqlFactura = "SELECT numFactura, balance FROM facturas WHERE idCliente = ? AND balance > 0 ORDER BY fecha ASC LIMIT 1";
-    $sqlActualizarFactura = "UPDATE facturas SET balance = ? WHERE numFactura = ?";
-
+    $sqlActualizarFactura = "UPDATE facturas SET balance = ?, estado = CASE WHEN balance <= 0 THEN 'Pagada' ELSE estado END WHERE numFactura = ?";
+    
     while ($montoPagado > 0) {
         // Buscar la factura pendiente más vieja
         $pstFactura = $conn->prepare($sqlFactura);
@@ -154,15 +154,15 @@ try {
         }
         
         $rsFactura = $pstFactura->get_result();
-
+    
         if ($rsFactura->num_rows > 0) {
             $factura = $rsFactura->fetch_assoc();
             $idFactura = $factura['numFactura'];
             $balanceFactura = floatval($factura['balance']);
-
+    
             // Restar el monto del balance de la factura
             $nuevoBalance = $balanceFactura - $montoPagado;
-
+    
             if ($nuevoBalance >= 0) {
                 // Actualizar el balance de la factura
                 $pstActualizar = $conn->prepare($sqlActualizarFactura);
@@ -179,13 +179,13 @@ try {
             } else {
                 // El pago excede el balance actual de la factura
                 $montoPagado = abs($nuevoBalance);
-
-                // Dejar el balance de la factura en 0
+    
+                // Actualizar el estado de la factura a Pagada y balance a 0
                 $pstActualizar = $conn->prepare($sqlActualizarFactura);
                 if (!$pstActualizar) {
                     throw new Exception("Error al preparar actualización de factura: " . $conn->error, 2005);
                 }
-
+    
                 $nuevoBalance = 0.0;
                 $pstActualizar->bind_param("ds", $nuevoBalance, $idFactura);
                 

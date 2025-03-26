@@ -386,39 +386,164 @@ padding: 8px;
 /*PARTE DE LOS BOTONES DE MENUFACTURA*/
 /* Estilos para el footer y los botones */
 .menu-footer {
-display: flex;
-justify-content: space-between;
-padding: 15px;
-background-color: #f9fafb;
-border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
 }
 
 .footer-button {
-flex: 1;
-padding: 10px;
-border: 1px solid #d1d5db;
-background-color: white;
-color: #374151;
-font-size: 14px;
-font-weight: 500;
-border-radius: 6px;
-cursor: pointer;
-transition: all 0.3s ease;
-margin: 0 5px;
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #d1d5db;
+  font-size: 16px;
+  font-weight: 450;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
 }
 
-.footer-button:hover {
-background-color: #f3f4f6;
+.footer-button.secundary {
+  order: -1; /* Ensures secundary button is always first */
+  background-color: white;
+  color: #374151;
 }
 
 .footer-button.primary {
-background-color: #3b82f6;
-color: white;
-border-color: #3b82f6;
+  background-color: #2563eb;
+  color: #fff;
+}
+
+/* Hover states for buttons */
+.footer-button.secundary:hover {
+  background-color: #f3f4f6;
 }
 
 .footer-button.primary:hover {
-background-color: #2563eb;
+  background-color: #1d4ed8;
+}
+
+/* Existing Order Menu Styles */
+.order-menu {
+  position: fixed;
+  top: 0;
+  right: -450x;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  padding: 20px;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  transition: right 0.3s ease;
+  z-index: 999;
+  overflow-y: auto;
+}
+
+.order-menu.active {
+  right: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .order-menu {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.menu-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.menu-title {
+  font-size: 1.5rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.input-group {
+  margin-bottom: 0px;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.menu-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.menu-input:read-only {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.menu-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.order-list {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.order-list-title {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.order-list-empty {
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.order-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: white;
+}
+
+.total-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.total-amount {
+  font-size: 1.25rem;
+  color: #374151;
+  font-weight: bold;
+}
+
+@media (min-width: 480px) {
+  .menu-footer {
+      flex-direction: column;
+  }
+
+  .footer-button {
+      flex: 1;
+      margin: 0 5px;
+  }
 }
 /*=================================*/
 /*------como se muestra el menu de desplazamiento------*/
