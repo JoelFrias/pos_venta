@@ -56,19 +56,26 @@ LEFT JOIN empleados AS e ON f.idEmpleado = e.id
 LEFT JOIN clientes AS c ON f.idCliente = c.id
 WHERE 1=1";
 
-// Filtrar por número de factura si se ha ingresado
-if ($numFactura) {
-    $sql .= " AND f.numFactura = $numFactura";
-}
+$params = [];
+$types = "";
 
-// Filtrar por estado si no es "todas"
-if ($estado !== 'todas') {
-    $sql .= " AND f.estado = '$estado'";
+// Filtrar por número de factura si se ha ingresado
+if (!empty($numFactura)) {
+    $sql .= " AND f.numFactura = ?";
+    $params[] = $numFactura;
+    $types .= "i"; // 'i' para enteros
 }
 
 $sql .= " ORDER BY f.numFactura DESC";
 
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
 
 // Verificar si hay resultados
 if ($result->num_rows > 0) {
@@ -76,6 +83,7 @@ if ($result->num_rows > 0) {
 } else {
     $mensaje = "No se encontraron facturas con los filtros seleccionados.";
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
