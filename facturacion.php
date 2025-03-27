@@ -73,6 +73,7 @@ if ($result->num_rows > 0) {
 <body>
 <!-- Contenedor principal -->
 <div class="container">
+
         <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
         <button id="mobileToggle" class="toggle-btn">
             <i class="fas fa-bars"></i>
@@ -85,6 +86,16 @@ if ($result->num_rows > 0) {
 
         <!-- Overlay para dispositivos móviles -->
         <div class="overlay" id="overlay"></div>
+
+        <script>
+            // Toggle del menú
+            const toggleButton = document.getElementById('toggleMenuFacturacion');
+            const orderMenu = document.getElementById('orderMenu');
+
+            toggleButton.addEventListener('click', () => {
+                orderMenu.classList.toggle('active');
+            });
+        </script>
 
     <!-- Contenedor principal -->
     
@@ -555,15 +566,6 @@ function updateTotal() {
 <!--------------------------------------------------------------------->
 <!--------------PARA ABRIR EL MENU DESPEJABLE DE FACTURA--------------->
 <!--------------------------------------------------------------------->
-<script>
-       // Toggle del menú
-    const toggleButton = document.getElementById('toggleMenuFacturacion');
-    const orderMenu = document.getElementById('orderMenu');
-
-    toggleButton.addEventListener('click', () => {
-        orderMenu.classList.toggle('active');
-    });
-</script>
 
 <script>
 

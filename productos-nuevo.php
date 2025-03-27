@@ -71,14 +71,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
         // Almacenar mensaje de éxito en sesión y redirigir
         $_SESSION['status'] = 'success';
-        header("Location: productos_nuevo.php");
+        header("Location: productos-nuevo.php");
         exit;
     
     } catch (Exception $e) {
         // En caso de error, revertir la transacción
         $conn->rollback();
         $_SESSION['errors'][] = "Error al registrar producto: " . $e->getMessage();
-        header("Location: productos_nuevo.php");
+        header("Location: productos-nuevo.php");
         exit;
     } finally {
         // Cerrar las declaraciones preparadas
@@ -149,7 +149,7 @@ if ($_SESSION['idPuesto'] > 2) {
             <div class="modal-contenedor">
                 <span onclick="document.getElementById('myModal').style.display='none'" class="close">&times;</span>
                 <h4>Registrar Categoría</h4>
-                <form action="modal_categoria.php" method="POST">
+                <form action="modal-categoria.php" method="POST">
                     <input type="text" name="descripcion" placeholder="Tipo de Producto" class="input-fila" required>
                     <button id="submitBtn" type="submit" class="btn-subir">Registrar</button>
                 </form>

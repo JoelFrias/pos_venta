@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Establecer mensaje de éxito y redirigir
         $_SESSION['status'] = 'update_success';
-        header("Location: clientes_actualizar.php?id=$cliente_id");
+        header("Location: clientes-actualizar.php?id=$cliente_id");
         exit;
 
     } catch (Exception $e) {
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->rollback();
         // Almacenar el error en la sesión
         $_SESSION['errors'][] = "Error al actualizar cliente: " . $e->getMessage();
-        header("Location: clientes_actualizar.php?id=$cliente_id");
+        header("Location: clientes-actualizar.php?id=$cliente_id");
         exit;
     } finally {
         // Cerrar las declaraciones preparadas

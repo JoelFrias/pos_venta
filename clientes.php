@@ -118,7 +118,7 @@ $result = $conn->query($query);
                 <div class="title-container">
                     <h1>Lista de Clientes</h1>
                     <!-- Botón para agregar un nuevo cliente -->
-                    <a href="clientes_nuevo.php" class="btn btn-new">
+                    <a href="clientes-nuevo.php" class="btn btn-new">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 5v14m-7-7h14"></path>
                         </svg>
@@ -205,7 +205,7 @@ $result = $conn->query($query);
                                 </td>
                                 <td>
                                     <!-- Botón para actualizar el cliente -->
-                                    <a href="clientes_actualizar.php?id=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
+                                    <a href="clientes-actualizar.php?id=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M21 2v6h-6M3 22v-6h6"></path>
                                             <path d="M21 8c0 9.941-8.059 18-18 18"></path>
@@ -278,7 +278,7 @@ $result = $conn->query($query);
                             </div>
                             <div class="mobile-actions">
                                 <!-- Botón para actualizar el cliente -->
-                                <a href="clientes_actualizar.php?id=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
+                                <a href="clientes-actualizar.php?id=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M21 2v6h-6M3 22v-6h6"></path>
                                         <path d="M21 8c0 9.941-8.059 18-18 18"></path>

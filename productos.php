@@ -121,7 +121,7 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
             <div class="header-section">
                 <div class="title-container">
                     <h1>Lista de Productos</h1>
-                    <a href="productos_nuevo.php" class="btn btn-new ">
+                    <a href="productos-nuevo.php" class="btn btn-new ">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 5v14m-7-7h14"></path>
                         </svg>
@@ -327,7 +327,7 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
             }
             ?>
 
-            <?php require 'productos_actualizar.php'; ?>
+            <?php require 'productos-actualizar.php'; ?>
 
             <!-- Scripts -->
             <script>

@@ -87,14 +87,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Almacenar mensaje de éxito en sesión y redirigir
         $_SESSION['status'] = 'success';
-        header("Location: clientes_nuevo.php");
+        header("Location: clientes-nuevo.php");
         exit;
 
     } catch (Exception $e) {
         // En caso de error, revertir la transacción
         $conn->rollback();
         $_SESSION['errors'][] = "Error al registrar cliente: " . $e->getMessage();
-        header("Location: clientes_nuevo.php");
+        header("Location: clientes-nuevo.php");
         exit;
     } finally {
         // Cerrar las declaraciones preparadas
@@ -241,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         icon: 'success',
                         confirmButtonText: 'Aceptar'
                     }).then(function() {
-                        window.location.href = 'clientes_nuevo.php'; 
+                        window.location.href = 'clientes-nuevo.php'; 
                     });
                 </script>
             ";

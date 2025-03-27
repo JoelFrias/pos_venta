@@ -611,7 +611,7 @@ if ($_SESSION['idPuesto'] > 2) {
     <div class="emp_header">
         <div class="emp_header-top">
             <h1>Lista de Empleados</h1>
-            <a href="empleados_nuevo.php" class="emp_new-button">
+            <a href="empleados-nuevo.php" class="emp_new-button">
                 <i class="fas fa-plus"></i> Nuevo Empleado
             </a>
         </div>

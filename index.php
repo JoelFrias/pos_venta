@@ -51,33 +51,20 @@ $_SESSION['last_activity'] = time();
 </head>
 <body>
     <div class="container">
-        <!-- Botón para alternar menú en dispositivos móviles -->
+        <!-- Barra de navegación -->
         <button id="mobileToggle" class="toggle-btn">
             <i class="fas fa-bars"></i>
         </button>
         
-        <!-- Switch para modo oscuro 
-        <label class="switch">
-            <input id="toggleDarkMode" type="checkbox" />
-            <span class="slider"></span>
-        </label>
-        -->
         <!-- Inclusión del menú de navegación -->
         <?php require 'menu.php' ?>
         
         <!-- Script para navegación interna -->
         <script>
-            /**
-             * Redirige a la página especificada dentro de la misma pestaña.
-             * @param {string} page - URL de la página a la que se desea navegar.
-             */
             function navigateTo(page) {
                 window.location.href = page;
             }
             
-            /**
-             * Alterna la visibilidad del menú lateral.
-             */
             function toggleNav() {
                 const sidebar = document.getElementById('sidebar');
                 sidebar.classList.toggle('active');
@@ -86,6 +73,18 @@ $_SESSION['last_activity'] = time();
         
         <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
         <div class="overlay" id="overlay"></div>
+
+        <!-- Contenido de la página -->
+
+
+        
+        <!-- Switch para modo oscuro 
+        <label class="switch">
+            <input id="toggleDarkMode" type="checkbox" />
+            <span class="slider"></span>
+        </label>
+        -->
+
     </div>
     
     <!-- Scripts JS -->
