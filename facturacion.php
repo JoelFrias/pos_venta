@@ -156,15 +156,12 @@ if ($result->num_rows > 0) {
     </div>
     <div class="menu-content">
         <div class="input-group">
-            <label for="id-cliente" class="input-label">ID del cliente</label>
             <input type="text" class="menu-input" id="id-cliente" placeholder="ID del cliente" readonly>
         </div>
         <div class="input-group">
-            <label for="nombre-cliente" class="input-label">Nombre del cliente</label>
             <input type="text" class="menu-input" id="nombre-cliente" placeholder="Nombre del cliente" readonly>
         </div>
         <div class="input-group">
-            <label for="empresa" class="input-label">Empresa</label>
             <input type="text" class="menu-input" id="empresa" placeholder="Empresa" readonly>
         </div>
 
@@ -254,7 +251,7 @@ if ($result->num_rows > 0) {
     </div>
     <div id="botones-facturas">
         <button id="guardar-factura" class="footer-button" onclick="guardarFactura()">Guardar Factura</button>
-        <button id="guardar-imprimir-factura" class="footer-button">Guardar e Imprimir Factura</button>
+        <button id="guardar-imprimir-factura" class="footer-button">Guardar e Imprimir</button>
     </div>
 </div>
 
@@ -513,7 +510,7 @@ function addToCart(productId, productName, venta, precio, existencia) {
         idElimination: counter
     });
 
-    console.log(productos);
+    // console.log(productos);
 
     // Crear el elemento del producto en el carrito
     const orderList = document.getElementById('orderList');
@@ -544,7 +541,7 @@ function addToCart(productId, productName, venta, precio, existencia) {
 
     // Limpiar el campo de cantidad
     quantityInput.value = '';
-    
+
     // Desmarcar los botones de precio
     document.getElementById(`button1-${productId}`).classList.remove("selected");
     document.getElementById(`button2-${productId}`).classList.remove("selected");
@@ -568,7 +565,7 @@ function removeFromCart(button, subtotal) {
     // Eliminar el producto del array
     productos = productos.filter(producto => producto.idElimination !== parseInt(idElimination));
 
-    console.log(productos);
+    // console.log(productos);
 
     // Eliminar el elemento del DOM
     button.parentElement.remove();
@@ -731,7 +728,7 @@ function guardarFactura() {
         productos
     };
 
-    console.log("Enviando datos:", datos);
+    // console.log("Enviando datos:", datos);
 
     fetch("php/facturacion_guardar.php", {
         method: "POST",
@@ -740,13 +737,14 @@ function guardarFactura() {
     })
     .then(response => response.text())
     .then(text => {
-        console.log("Respuesta completa del servidor:", text);
+        // console.log("Respuesta completa del servidor:", text);
         try {
             let data = JSON.parse(text);
             if (data.success) {
 
+                // Cerrar el modal de procesar factura
                 document.getElementById("modal-procesar-factura").style.display = "none";
-
+                
                 // Mostrar mensaje de éxito
                 Swal.fire({
                     icon: 'success',
@@ -766,7 +764,7 @@ function guardarFactura() {
                     showConfirmButton: true,
                     confirmButtonText: 'Aceptar'
                 });
-                console.error("Error al guardar la factura:", data.error);
+                console.log("Error al guardar la factura:", data.error);
             }
         } catch (error) {
             Swal.fire({

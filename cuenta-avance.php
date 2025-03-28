@@ -1,5 +1,34 @@
 <?php
 
+    /* Verificacion de sesion */
+
+    // Iniciar sesión
+    session_start();
+
+    // Configurar el tiempo de caducidad de la sesión
+    $inactivity_limit = 900; // 15 minutos en segundos
+
+    // Verificar si el usuario ha iniciado sesión
+    if (!isset($_SESSION['username'])) {
+        session_unset(); // Eliminar todas las variables de sesión
+        session_destroy(); // Destruir la sesión
+        header('Location: login.php'); // Redirigir al login
+        exit(); // Detener la ejecución del script
+    }
+
+    // Verificar si la sesión ha expirado por inactividad
+    if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+        session_unset(); // Eliminar todas las variables de sesión
+        session_destroy(); // Destruir la sesión
+        header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+        exit(); // Detener la ejecución del script
+    }
+
+    // Actualizar el tiempo de la última actividad
+    $_SESSION['last_activity'] = time();
+
+    /* Fin de verificacion de sesion */
+
     include_once 'php/conexion.php';
 
     // Variables
@@ -84,127 +113,265 @@
     <title>Avance de Cuenta</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 15px;
         }
+
         .container {
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 8px;
         }
+
+        /* Header Styles */
         .header {
-            border-bottom: 1px solid #ddd;
+            text-align: center;
+            margin-bottom: 20px;
             padding-bottom: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-bottom: 2px solid #007bff;
         }
-        .section {
-            margin-bottom: 20px;
+
+        .header h2 {
+            color: #007bff;
         }
+
+        /* Flex Container Responsive Layout */
         .flex-container {
             display: flex;
+            flex-wrap: wrap;
             gap: 20px;
         }
-        .client-data {
+
+        .client-data, .payment-section {
             flex: 1;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            min-width: 300px;
+            background-color: #f9f9f9;
             padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .payment-section {
-            flex: 2;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
         }
+
+        .form-row label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Payment Input Styles */
         .payment-input {
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
-            align-items: center;
-            margin-bottom: 15px;
         }
-        .payment-summary {
-            background-color: #f9f9f9;
+
+        .payment-input > div {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .payment-input label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .payment-input input,
+        .payment-input select {
+            width: 100%;
+            padding: 8px;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
+            border-radius: 4px;
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 10px;
             margin-top: 15px;
         }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* History Tables */
         .history-tables {
             display: flex;
+            flex-wrap: wrap;
             gap: 20px;
         }
+
         .history-table {
             flex: 1;
+            min-width: 300px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .history-table h3 {
-            margin-top: 0;
+
+        .table-container {
+            max-width: 100%;
+            overflow-x: auto;
         }
-        .history-table table {
+
+        table {
             width: 100%;
             border-collapse: collapse;
         }
-        .history-table th {
-            background-color: #e6e9f0;
+
+        table th, table td {
+            padding: 10px;
             text-align: left;
-            padding: 8px;
+            border-bottom: 1px solid #ddd;
         }
-        .history-table td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
+
+        table th {
+            background-color: #007bff;
+            color: white;
         }
-        .table-container {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-        }
-        .btn {
-            background-color: #e6e9f0;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            padding: 8px 15px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn:hover {
-            background-color: #d8dce6;
-        }
-        .btn-primary {
-            background-color: #e6e9f0;
-            font-weight: bold;
-        }
-        .form-row {
-            margin-bottom: 10px;
-        }
-        .form-row label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 3px;
-        }
-        select, input {
-            padding: 6px;
+
+        /* Estilos para el modal de historial de pagos */
+        .modal-history-payment {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
             width: 100%;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 3px;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
         }
-        .note {
-            font-size: 12px;
-            color: #666;
+
+        .modal-content-history-payments {
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .button-group {
+
+        .close-modal-history-payments {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+        }
+
+        .close-modal-history-payments:hover,
+        .close-modal-history-payments:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .pagination {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            align-items: center;
             margin-top: 15px;
+        }
+
+        .pagination a, 
+        .pagination .current {
+            color: #007bff;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+        }
+
+        .pagination a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .pagination .current {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Responsive Adjustments */
+        @media screen and (max-width: 768px) {
+            .flex-container,
+            .history-tables {
+                flex-direction: column;
+            }
+
+            .client-data,
+            .payment-section,
+            .history-table {
+                width: 100%;
+                min-width: 100%;
+            }
+
+            .payment-input > div {
+                min-width: 100%;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Mobile Specific Adjustments */
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .form-row label {
+                margin-bottom: 5px;
+            }
         }
     </style>
 </head>
@@ -248,9 +415,8 @@
             </div>
             
             <div class="payment-section">
-                <h3>Avance a Cuenta de Cliente</h3>
+                <h3>Avance a Cuenta de Cliente</h3> <br>
                 <div class="section">
-                    <h4>Ingresar Avance a Cuenta</h4>
                     <div class="payment-input">
                         <div style="flex: 1;">
                             <label>Método de Pago:</label>
@@ -369,9 +535,9 @@
                             </tbody>
                         </table>
                     </div> <br>
-                    <a class="btn">Ver mas</a>
+                    <a class="btn" id="show-more-modal">Ver mas</a>
                 </div>
-                
+
                 <div class="history-table">
                     <h3>Facturas Pendientes:</h3>
                     <div class="table-container">
@@ -416,12 +582,170 @@
             </div>
         </div>
     </div>
-    
+
+    <div class="modal-history-payment">
+        <div class="modal-content-history-payments">
+            <span class="close-modal-history-payments">&times;</span>
+
+            <?php 
+
+                // Número de registros por página
+                $registrosPorPagina = 10;
+
+                // Página actual (por defecto 1)
+                $paginaActual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+
+                // Calcular el offset
+                $offset = ($paginaActual - 1) * $registrosPorPagina;
+
+                // Consulta para obtener el total de registros
+                $sqlTotal = "SELECT COUNT(*) AS total FROM clientes_historialpagos WHERE idCliente = ?";
+                $stmtTotal = $conn->prepare($sqlTotal);
+                $stmtTotal->bind_param("i", $idCliente);
+                $stmtTotal->execute();
+                $resultTotal = $stmtTotal->get_result();
+                $totalRegistros = $resultTotal->fetch_assoc()['total'];
+
+                // Calcular total de páginas
+                $totalPaginas = ceil($totalRegistros / $registrosPorPagina);
+
+                // Modificar la consulta original para incluir LIMIT y OFFSET
+                $sql = "SELECT
+                            DATE_FORMAT(chp.fecha, '%d/%m/%Y %l:%i %p') AS fechachp,
+                            chp.metodo AS metodochp,
+                            chp.monto AS montochp,
+                            chp.numAutorizacion AS autorizacionchp,
+                            chp.referencia AS tarjetachp,
+                            b.nombreBanco AS bancochp,
+                            d.descripcion AS destinochp,
+                            CONCAT(e.nombre, ' ', e.apellido) AS nombree
+                        FROM
+                            clientes_historialpagos AS chp
+                        JOIN bancos AS b ON chp.idBanco = b.id
+                        JOIN destinocuentas AS d ON chp.idDestino = d.id
+                        JOIN empleados AS e ON e.id = chp.idEmpleado
+                        WHERE
+                            chp.idCliente = ?
+                        ORDER BY
+                            chp.fecha DESC
+                        LIMIT ? OFFSET ?;";
+
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("iii", $idCliente, $registrosPorPagina, $offset);
+                $stmt->execute();
+                $result = $stmt->get_result();
+            ?>
+
+            <h3>Historial de Pagos</h3>
+            <p>Pagos realizados por el cliente.</p>
+
+            <div class="payments-history-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Método</th>
+                            <th>Monto</th>
+                            <th>No. Autorización</th>
+                            <th>No. Tarjeta</th>    
+                            <th>Banco</th>
+                            <th>Destino</th>
+                            <th>Empleado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    // FORMATO DE MONEDA
+                                    $montochp = number_format($row['montochp'], 2, '.', ',');
+
+                                    echo "
+                                        <tr>
+                                            <td>{$row['fechachp']}</td>
+                                            <td>{$row['metodochp']}</td>
+                                            <td>RD$ {$montochp}</td>
+                                            <td>{$row['autorizacionchp']}</td>
+                                            <td>{$row['tarjetachp']}</td>
+                                            <td>{$row['bancochp']}</td>
+                                            <td>{$row['destinochp']}</td>
+                                            <td>{$row['nombree']}</td>
+                                        </tr>
+                                    ";
+                                }
+                            } else {
+                                echo "<tr>
+                                        <td colspan='8'>No se encontraron resultados.</td>
+                                    </tr>";
+                            }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination">
+                <?php
+                // Botón Anterior
+                if ($paginaActual > 1) {
+                    echo "<a href='?idCliente=".($idCliente)."&pagina=" . ($paginaActual - 1) . "&modal=true" . "'>Anterior</a>";
+                }
+
+                // Números de página
+                for ($i = 1; $i <= $totalPaginas; $i++) {
+                    if ($i == $paginaActual) {
+                        echo "<span class='current'> $i</span>";
+                    } else {
+                        echo "<a href='?idCliente=".($idCliente)."&pagina=$i&modal=true'>$i</a>";
+                    }
+                }
+
+                // Botón Siguiente
+                if ($paginaActual < $totalPaginas) {
+                    echo "<a href='?idCliente=".($idCliente)."&pagina=" . ($paginaActual + 1) . "&modal=true" . "'> Siguiente</a>";
+                }
+                ?>
+            </div>
+        </div>
+    </div>
+
+    <?php
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if(isset($_GET['modal']) == "true") {
+                echo "<script>document.querySelector('.modal-history-payment').style.display = 'flex';</script>";
+            } else {
+                echo "<script>document.querySelector('.modal-history-payment').style.display = 'none';</script>";
+            }
+        }
+    ?>
+
     <script>
 
         // Variables globales
         let totalpagado = 0;
         let deuda = <?php echo $rowc['adeudadoc'] ?>;
+
+        // Script para mostrar el modal de historial de pagos
+        const openBtn = document.getElementById("show-more-modal");
+        const openModal = document.querySelector('.modal-history-payment');
+
+        openBtn.addEventListener('click', () => {
+            openModal.style.display = 'flex';
+        });
+
+        // Script para cerrar el modal de historial de pagos
+        const Closeodal = document.querySelector('.modal-history-payment');
+        const closeBtn = document.querySelector('.close-modal-history-payments');
+
+        closeBtn.addEventListener('click', () => {
+            window.location.href = '?idCliente=<?php echo $idCliente ?>';
+        });
+
+        window.onclick = function(event) {
+            if (event.target == Closeodal) {
+                window.location.href = '?idCliente=<?php echo $idCliente ?>';
+            }
+        }
 
         function procesarPago() {
             let idCliente = <?php echo $idCliente ?>;

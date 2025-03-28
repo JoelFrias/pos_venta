@@ -12,22 +12,30 @@ $inactivity_limit = 900; // 15 minutos en segundos
 if (!isset($_SESSION['username'])) {
     session_unset(); // Eliminar todas las variables de sesión
     session_destroy(); // Destruir la sesión
-    header('Location: login.php'); // Redirigir al login
-    exit(); // Detener la ejecución del script
+    die(json_encode([
+        "success" => false, 
+        "error" => "No se ha encontrado una sesión activa",
+        "error_code" => "SESSION_NOT_FOUND",
+        "solution" => "Por favor inicie sesión nuevamente"
+    ]));
 }
 
 // Verificar si la sesión ha expirado por inactividad
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
     session_unset(); // Eliminar todas las variables de sesión
     session_destroy(); // Destruir la sesión
-    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
-    exit(); // Detener la ejecución del script
+    die(json_encode([
+        "success" => false, 
+        "error" => "La sesión ha expirado por inactividad",
+        "error_code" => "SESSION_EXPIRED",
+        "solution" => "Por favor inicie sesión nuevamente"
+    ]));
 }
 
 // Actualizar el tiempo de la última actividad
 $_SESSION['last_activity'] = time();
 
-/* Fin de verificacion de sesion */
+/* Fin de verificacion de sesion */
 
 require_once 'conexion.php';
 
@@ -123,7 +131,7 @@ try {
     }
 
     // Validar que el total es un número positivo
-    if ($total <= 0) {
+    if ($total <= 0 && $tipoFactura === 'contado') {
         throw new Exception("El total debe ser un número positivo: " . $total);
     }
 
@@ -139,12 +147,7 @@ try {
             throw new Exception("Cantidad, precio o venta inválidos para el producto ID: " . $producto['id']);
         }
     }
-
-    // Verificar que el monto pagado es un número positivo
-    if ($montoPagado <= 0) {
-        throw new Exception("El monto pagado debe ser un número positivo: " . $montoPagado);
-    }
-
+    
     // Verificar que el monto pagado es mayor o igual al total
     if ($montoPagado < $total && $tipoFactura === 'contado') {
         throw new Exception("El monto pagado es menor que el total: " . $montoPagado . " < " . $total);

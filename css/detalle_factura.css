@@ -287,9 +287,10 @@ body {
 }
 
 .product-card {
-    background: #f9fafb;
+    background: #f6f7f7;
     border-radius: 0.5rem;
     padding: 1rem;
+    margin-bottom: 1rem;
 }
 
 .product-header {

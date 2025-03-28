@@ -83,7 +83,6 @@ try {
     // Validaciones esenciales
     $requiredFields = ['idCliente', 'formaPago', 'montoPagado'];
     $missingFields = [];
-    
     foreach ($requiredFields as $field) {
         if (empty($data[$field])) {
             $missingFields[] = $field;
@@ -99,10 +98,12 @@ try {
         throw new Exception("El ID de cliente debe ser numérico", 1002);
     }
     
+    // Validar monto pagado
     if (!is_numeric($data['montoPagado']) || $data['montoPagado'] <= 0) {
         throw new Exception("El monto pagado debe ser un número positivo", 1003);
     }
-    
+
+    // Validar forma de pago
     if (!in_array($data['formaPago'], ['efectivo', 'tarjeta', 'transferencia'])) {
         throw new Exception("Forma de pago no válida", 1004);
     }
@@ -117,7 +118,29 @@ try {
     $numeroTarjeta = $data['numeroTarjeta'] ?? 'N/A';
     $banco = isset($data['banco']) ? (int)$data['banco'] : 1;
     $destino = isset($data['destino']) ? (int)$data['destino'] : 1;
-    
+
+    // Validar que el cliente existe en la base de datos
+    $stmt = $conn->prepare("SELECT id FROM clientes WHERE id = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de cliente: " . $conn->error);
+    }
+    $stmt->bind_param('i', $idCliente);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        throw new Exception("Cliente no encontrado: " . $idCliente);
+    }
+
+    // Verificar que el monto pagado es un número positivo
+    if ($montoPagado <= 0) {
+        throw new Exception("El monto pagado debe ser un número positivo: " . $montoPagado);
+    }
+
+    // Verificar que la forma de pago es válida
+    $validPayments = ['efectivo', 'tarjeta', 'transferencia'];
+    if (!in_array($formaPago, $validPayments)) {
+        throw new Exception("Forma de pago inválida: " . $formaPago);
+    }
 
     logDebug("Variables procesadas", [
         'idCliente' => $idCliente,

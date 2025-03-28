@@ -175,7 +175,7 @@ if ($_SESSION['idPuesto'] > 2) {
         <input type="text" class="menu-input" id="id-cliente" placeholder="ID del Empleado" readonly>
         <input type="text" class="menu-input" id="nombre-cliente" placeholder="Nombre del Empleado" readonly>
         <div class="menu-footer">
-            <button class="footer-button secundary" id="buscar-cliente">Buscar Cliente</button>
+            <button class="footer-button secundary" id="buscar-cliente">Buscar Empleado</button>
             <button class="footer-button primary" id="btn-generar" onclick="guardarFactura()">Procesar Transaccion</button>
         </div>
 
@@ -279,7 +279,8 @@ function selectCliente(id) {
 
 <script>
 
-let productos = [];
+let productos = []; // Array para almacenar los productos seleccionados
+let idElimination = 0; // Variable para almacenar el ID del producto a eliminar
 
 // Función para agregar productos al carrito
 function addToCart(productId, productName, existenciaGeneral, existenciaInventario) {
@@ -313,6 +314,7 @@ function addToCart(productId, productName, existenciaGeneral, existenciaInventar
     productos.push({
         id: productId,
         cantidad: quantity,
+        idElimination: idElimination
     });
 
     console.log(productos);
@@ -329,7 +331,7 @@ function addToCart(productId, productName, existenciaGeneral, existenciaInventar
         <div class="item-total">
             <span class="item-quantity">Cantidad: ${quantity}</span>
         </div>
-        <button class="delete-item" id-producto="${productId}" onclick="removeFromCart(this)">&times;</button>
+        <button class="delete-item" id-producto="${productId}" id-elimination="${idElimination}" onclick="removeFromCart(this)">&times;</button>
     `;
 
     // Ocultar el mensaje de carrito vacío
@@ -340,16 +342,19 @@ function addToCart(productId, productName, existenciaGeneral, existenciaInventar
 
     // Limpiar el campo de cantidad
     quantityInput.value = '';
+
+    // aumentar el contador de idElimination
+    idElimination++;
 }
 
 // Función para eliminar un producto del carrito
 function removeFromCart(button) {
 
     // Obtener el ID del producto a eliminar
-    const productId = button.getAttribute('id-producto');
+    const idElimination = button.getAttribute('id-elimination');
 
     // Eliminar el producto del array
-    productos = productos.filter(producto => producto.id !== parseInt(productId));
+    productos = productos.filter(producto => producto.idElimination !== parseInt(idElimination));
 
     console.log(productos);
 
@@ -414,7 +419,7 @@ function guardarFactura() {
         productos
     };
 
-    console.log("Enviando datos:", datos);
+    // console.log("Enviando datos:", datos);
 
     fetch("php/inventario_guardarTransaccion.php", {
         method: "POST",
@@ -423,7 +428,7 @@ function guardarFactura() {
     })
     .then(response => response.text())
     .then(text => {
-        console.log("Respuesta completa del servidor:", text);
+        // console.log("Respuesta completa del servidor:", text);
         try {
             let data = JSON.parse(text);
             if (data.success) {
