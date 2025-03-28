@@ -152,6 +152,66 @@ try {
         'destino' => $destino
     ]);
 
+    // Verificar que el número de tarjeta no esté vacío
+    if ($formaPago === 'tarjeta' && empty($numeroTarjeta)) {
+        throw new Exception("El número de tarjeta no puede estar vacío para pagos con tarjeta", 1005);
+    }
+
+    // Verificar que el número de autorización no esté vacío
+    if ($formaPago === 'tarjeta' && empty($numeroAutorizacion)) {
+        throw new Exception("El número de autorización no puede estar vacío para pagos con tarjeta", 1006);
+    }
+
+    // Verificar que el número de autorización tenga un formato válido
+    if ($formaPago === 'tarjeta' && !preg_match('/^[0-9]{4}$/', $numeroAutorizacion)) {
+        throw new Exception("El número de autorización debe ser un número de 4 dígitos", 1007);
+    }
+
+    // Verificar que el número de tarjeta tenga un formato válido
+    if ($formaPago === 'tarjeta' && !preg_match('/^[0-9]{4}$/', $numeroTarjeta)) {
+        throw new Exception("El número de tarjeta debe ser un número de 4 dígitos", 1008);
+    }
+
+    // Verificar longitud de la tarjeta
+    if ($formaPago === 'tarjeta' && strlen($numeroTarjeta) > 4) {
+        throw new Exception("Solo se aceptan los últimos 4 dígitos de la tarjeta", 1005);
+    }
+
+    // Verificar longitud del número de autorización en tarjeta
+    if ($formaPago === 'tarjeta' && strlen($numeroAutorizacion) > 4) {
+        throw new Exception("Solo se aceptan los últimos 4 dígitos del número de autorización", 1009);
+    }
+
+    // Verificar longitud del número de autorización en transferencia
+    if ($formaPago === 'transferencia' && strlen($numeroAutorizacion) > 4) {
+        throw new Exception("Solo se aceptan los últimos 4 dígitos del número de autorización", 1010);
+    }
+
+    // Verificar que el banco es válidos
+    $stmt = $conn->prepare("SELECT id FROM bancos WHERE id = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de banco: " . $conn->error, 2001);
+    }
+    $stmt->bind_param('i', $banco);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        throw new Exception("Banco no encontrado: " . $banco, 2002);
+    }
+    
+    // Verificar que el destino es válidos
+    $stmt = $conn->prepare("SELECT id FROM destinocuentas WHERE id = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de destino: " . $conn->error, 2003);
+    }
+    $stmt->bind_param('i', $destino);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        throw new Exception("Destino no encontrado: " . $destino, 2004);
+    }
+
+
     /**
      *  0. Se inicia la transacción
      */
