@@ -73,7 +73,6 @@ if ($result->num_rows > 0) {
 <body>
 <!-- Contenedor principal -->
 <div class="container">
-
         <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
         <button id="mobileToggle" class="toggle-btn">
             <i class="fas fa-bars"></i>
@@ -86,16 +85,6 @@ if ($result->num_rows > 0) {
 
         <!-- Overlay para dispositivos móviles -->
         <div class="overlay" id="overlay"></div>
-
-        <script>
-            // Toggle del menú
-            const toggleButton = document.getElementById('toggleMenuFacturacion');
-            const orderMenu = document.getElementById('orderMenu');
-
-            toggleButton.addEventListener('click', () => {
-                orderMenu.classList.toggle('active');
-            });
-        </script>
 
     <!-- Contenedor principal -->
     
@@ -188,8 +177,8 @@ if ($result->num_rows > 0) {
         <div class="order-list" id="orderList">
             <h3 class="order-list-title">Productos Agregados</h3>
             <!-- Los productos se agregarán aquí dinámicamente -->
-            <div class="order-list-empty">
-               
+            <div class="order-list-empty" id="orderListEmpty">
+                <span>No hay productos agregados.</span>
             </div>
         </div>
 
@@ -450,7 +439,8 @@ function handleButton2(productId, price2) {
     document.getElementById(`button2-${productId}`).classList.remove("selected");
 }
 
-let productos = [];
+let productos = []; // Array para almacenar los productos seleccionados
+let counter = 0; // Contador para los productos eliminados
 
 // Función para agregar productos al carrito
 function addToCart(productId, productName, venta, precio, existencia) {
@@ -495,13 +485,32 @@ function addToCart(productId, productName, venta, precio, existencia) {
     // Calcular el subtotal del producto
     const subtotal = selectedPrice * quantity;
 
-    // Crear un objeto con los datos del producto
+    /**
+    // Verificar si el producto ya está en el carrito
+    const existingProduct = productos.find(producto => producto.id === productId);
+    if (existingProduct) {
+        // Si el producto ya existe, actualizar la cantidad y subtotal
+        existingProduct.cantidad += parseInt(quantity);
+        existingProduct.subtotal += subtotal;
+    } else {
+        // Si el producto no existe, agregarlo al carrito
+        productos.push({
+            id: productId,
+            venta: selectedPrice,
+            cantidad: parseInt(quantity),
+            precio: precio,
+            subtotal: subtotal
+        });
+    }
+     */
+
     productos.push({
         id: productId,
         venta: selectedPrice,
         cantidad: quantity,
         precio: precio,
-        subtotal: subtotal
+        subtotal: subtotal,
+        idElimination: counter
     });
 
     console.log(productos);
@@ -520,8 +529,11 @@ function addToCart(productId, productName, venta, precio, existencia) {
             <span class="item-quantity">x${quantity}</span>
             <span class="item-total-price">RD$${subtotal.toFixed(2)}</span>
         </div>
-        <button class="delete-item" id-producto="${productId}" onclick="removeFromCart(this, ${subtotal})">&times;</button>
+        <button class="delete-item" id-producto="${productId}" id-elimination="${counter}" onclick="removeFromCart(this, ${subtotal})">&times;</button>
     `;
+
+    // Ocultar el mensaje de carrito vacío
+    document.getElementById('orderListEmpty').style.display = 'none';
 
     // Agregar el producto al carrito
     orderList.appendChild(orderItem);
@@ -532,6 +544,16 @@ function addToCart(productId, productName, venta, precio, existencia) {
 
     // Limpiar el campo de cantidad
     quantityInput.value = '';
+    
+    // Desmarcar los botones de precio
+    document.getElementById(`button1-${productId}`).classList.remove("selected");
+    document.getElementById(`button2-${productId}`).classList.remove("selected");
+
+    // Reiniciar el precio seleccionado
+    selectedPrices[productId] = null;
+
+    // Incrementar el contador de eliminacion para el siguiente producto
+    counter++;
 }
 
 // Función para eliminar un producto del carrito
@@ -541,15 +563,20 @@ function removeFromCart(button, subtotal) {
     updateTotal();
 
     // Obtener el ID del producto a eliminar
-    const productId = button.getAttribute('id-producto');
+    const idElimination = button.getAttribute('id-elimination');
 
     // Eliminar el producto del array
-    productos = productos.filter(producto => producto.id !== parseInt(productId));
+    productos = productos.filter(producto => producto.idElimination !== parseInt(idElimination));
 
     console.log(productos);
 
     // Eliminar el elemento del DOM
     button.parentElement.remove();
+
+    // Mostrar el mensaje de carrito vacío si no hay productos
+    if (productos.length === 0) {
+        document.getElementById('orderListEmpty').style.display = 'block';
+    }
 }
 
 // Función para actualizar el total en el modal
@@ -566,6 +593,15 @@ function updateTotal() {
 <!--------------------------------------------------------------------->
 <!--------------PARA ABRIR EL MENU DESPEJABLE DE FACTURA--------------->
 <!--------------------------------------------------------------------->
+<script>
+       // Toggle del menú
+    const toggleButton = document.getElementById('toggleMenuFacturacion');
+    const orderMenu = document.getElementById('orderMenu');
+
+    toggleButton.addEventListener('click', () => {
+        orderMenu.classList.toggle('active');
+    });
+</script>
 
 <script>
 
@@ -593,6 +629,18 @@ function guardarFactura() {
             icon: 'warning',
             title: 'Validación',
             text: 'Por favor, Seleccione un cliente.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
+        return;
+    }
+
+    // Validar que hallan productos facturados
+    if (productos.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validación',
+            text: 'Ningún producto ha sido agregado a la factura.',
             showConfirmButton: true,
             confirmButtonText: 'Aceptar'
         });
@@ -641,6 +689,29 @@ function guardarFactura() {
             icon: 'error',
             title: 'Error',
             text: 'El total de la factura no es válido.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
+        return;
+    }
+
+    // Validar que el monto pagado sea un número válido
+    if (Number.isNaN(montoPagado)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'El monto pagado no es válido.',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        });
+        return;
+    }
+    // Validar que el monto pagado sea mayor o igual al total
+    if (montoPagado < total && tipoFactura == "contado") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validación',
+            text: 'El monto pagado no puede ser menor que el total de la factura.',
             showConfirmButton: true,
             confirmButtonText: 'Aceptar'
         });

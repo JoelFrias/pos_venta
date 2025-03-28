@@ -43,6 +43,8 @@ $sql = "SELECT
             p.id = i.idProducto
         WHERE
             p.activo = TRUE
+        AND
+            i.existencia > 0
         ORDER BY
             p.descripcion ASC
         ";
@@ -172,16 +174,18 @@ if ($_SESSION['idPuesto'] > 2) {
     <div class="menu-content">
         <input type="text" class="menu-input" id="id-cliente" placeholder="ID del Empleado" readonly>
         <input type="text" class="menu-input" id="nombre-cliente" placeholder="Nombre del Empleado" readonly>
-        <button class="menu-button" id="buscar-cliente">Buscar Empleado</button>
-
-          <!-- Lista de productos agregados -->
-          <div class="order-list" id="orderList">
-            <!-- Los productos se agregarán aquí dinámicamente -->
+        <div class="menu-footer">
+            <button class="footer-button secundary" id="buscar-cliente">Buscar Cliente</button>
+            <button class="footer-button primary" id="btn-generar" onclick="guardarFactura()">Procesar Transaccion</button>
         </div>
-    </div>
-    <!-- Nuevos botones en fila -->
-    <div class="menu-footer">
-        <button class="footer-button primary" id="btn-generar" onclick="guardarFactura()">Procesar Transaccion</button>
+
+        <div class="order-list" id="orderList">
+            <h3 class="order-list-title">Productos Agregados</h3>
+            <!-- Los productos se agregarán aquí dinámicamente -->
+            <div class="order-list-empty" id="orderListEmpty">
+                <span>No hay productos agregados.</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -328,6 +332,9 @@ function addToCart(productId, productName, existenciaGeneral, existenciaInventar
         <button class="delete-item" id-producto="${productId}" onclick="removeFromCart(this)">&times;</button>
     `;
 
+    // Ocultar el mensaje de carrito vacío
+    document.getElementById('orderListEmpty').style.display = 'none';
+
     // Agregar el producto al carrito
     orderList.appendChild(orderItem);
 
@@ -348,6 +355,11 @@ function removeFromCart(button) {
 
     // Eliminar el elemento del DOM
     button.parentElement.remove();
+
+    // Mostrar el mensaje de carrito vacío si no hay productos
+    if (productos.length === 0) {
+        document.getElementById('orderListEmpty').style.display = 'block';
+    }
 }
 
 </script>

@@ -17,6 +17,7 @@
         <li onclick="empleados(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-user"></i>Empleados</li>
         <li onclick="navigateTo('inventario.php')"><i class="fa-solid fa-warehouse"></i>Almacén</li>
         <li onclick="navigateTo('inventario-empleados.php')"><i class="fa-solid fa-boxes-stacked"></i></i>Inventario Empleados</li>
+        <li onclick="navigateTo('factura-registro.php')"><i class="fa-solid fa-file-lines"></i></i>Registro de Facturas</li>
         <li onclick="inventario_transaccion(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-cart-flatbed"></i>Transacción Inventario</li>
         <li onclick="navigateTo('facturacion.php')"><i class="fas fa-cash-register"></i>Facturación</li>
         <li onclick="logout()"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</li>

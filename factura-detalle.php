@@ -80,8 +80,20 @@ $result = $stmt->get_result();
 // Verificar si hay resultados
 if ($result->num_rows > 0) {
     $facturas = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Pasar numeros de factura a moneda
+    foreach ($facturas as &$factura) {
+        $factura['importe'] = "RD$ " . number_format($factura['importe'], 2, '.', '');
+        $factura['descuento'] = "RD$ " . number_format($factura['descuento'], 2, '.', '');
+        $factura['total_ajuste'] = "RD$ " . number_format($factura['total_ajuste'], 2, '.', '');
+        $factura['total'] = "RD$ " . number_format($factura['total'], 2, '.', '');
+        $factura['balance'] = "RD$ " . number_format($factura['balance'], 2, '.', '');
+    }
+
+
+
 } else {
-    $mensaje = "No se encontraron facturas con los filtros seleccionados.";
+    $mensaje = "No se encontraró la factura con los criterios de búsqueda.";
 }
 
 ?>
@@ -140,33 +152,38 @@ if ($result->num_rows > 0) {
                                     <span><?php echo $facturaInfo['idCliente']; ?></span>
                                 </div>
                                 <div class="info-row">
-                                    <label>Nombre del Cliente</label>
+                                    <label>Nombre del Cliente:</label>
                                     <span><?php echo $facturaInfo['NombreCliente']; ?></span>
                                 </div>
                                 <div class="info-row">
-                                    <label>Teléfono</label>
+                                    <label>Teléfono:</label>
                                     <span><?php echo $facturaInfo['telefono']; ?></span>
                                 </div>
                             </div>
                             <div class="info-grid">
                                 <div class="info-item">
-                                    <label>Fecha y Hora</label>
+                                    <label>Fecha y Hora:</label>
                                     <span><?php echo $facturaInfo['fecha']; ?></span>
                                 </div>
                                 <div class="info-item">
-                                    <label>Tipo de Factura</label>
+                                    <label>Tipo de Factura:</label>
                                     <span><?php echo $facturaInfo['tipoFactura']; ?></span>
                                 </div>
                                 <div class="info-item">
-                                    <label>Vendedor</label>
+                                    <label>Vendedor:</label>
                                     <span><?php echo $facturaInfo['NombreEmpleado']; ?></span>
                                 </div>
                                 <div class="info-item">
-                                    <label>Monto Adeudado</label>
-                                    <span class="amount-due">$<?php echo $facturaInfo['balance']; ?></span>
+                                    <label>Monto Adeudado:</label>
+                                    <span class="amount-due"><?php echo $facturaInfo['balance']; ?></span>
                                 </div>
                             </div>
                         </div>
+                    
+                        <div class="search-section">
+                            <h2>Productos Facturados:</h2>
+                        </div>
+
                         <!-- Mostrar detalles de la factura -->
                         <?php
                         // Consulta para obtener los detalles de la factura actual
@@ -182,13 +199,21 @@ if ($result->num_rows > 0) {
                         WHERE fd.numFactura = {$facturaInfo['numFactura']}";
 
                         $resultDetalles = $conn->query($sqlDetalles);
-// obtener los detalles de la factura mientras haya resultados
+
+                        
+
                         if ($resultDetalles->num_rows > 0) {
                             echo "<div class='products-section'>";
                             while ($detalle = $resultDetalles->fetch_assoc()) {
+
+                                // Formatear los números a moneda
+                                $detalle['importeProducto'] = "RD$ " . number_format($detalle['importeProducto'], 2, '.', '');
+                                $detalle['precioVenta'] = "RD$ " . number_format($detalle['precioVenta'], 2, '.', '');
+                                $detalle['cantidad'] = number_format($detalle['cantidad'], 0, '.', ''); // Formatear cantidad a número entero
+
                                 echo "<div class='product-card'>
                                         <div class='product-header'>
-                                            <span class='product-id'>PRD-{$detalle['idProducto']}</span>
+                                            <span class='product-id'>ID - {$detalle['idProducto']}</span>
                                             <span class='product-name'>{$detalle['Producto']}</span>
                                         </div>
                                         <div class='product-details'>
@@ -198,11 +223,11 @@ if ($result->num_rows > 0) {
                                             </div>
                                             <div class='detail-item'>
                                                 <label>Precio</label>
-                                                <span>\${$detalle['precioVenta']}</span>
+                                                <span>{$detalle['precioVenta']}</span>
                                             </div>
                                             <div class='detail-item'>
                                                 <label>Total</label>
-                                                <span>\${$detalle['importeProducto']}</span>
+                                                <span>{$detalle['importeProducto']}</span>
                                             </div>
                                         </div>
                                     </div>";
@@ -214,23 +239,23 @@ if ($result->num_rows > 0) {
                             <div class="totals">
                                 <div class="total-row">
                                     <span>Subtotal</span>
-                                    <span>$<?php echo $facturaInfo['importe']; ?></span>
+                                    <span><?php echo $facturaInfo['importe']; ?></span>
                                 </div>
                                 <div class="total-row">
                                      <span>ITBIS Total</span>
-                                     <span>$0.00</span> <!--no se cobra itebis-->
+                                     <span>RD$ 0.00</span> <!--no se cobra itebis-->
                                 </div>
                                 <div class="total-row">
                                     <span>Descuento</span>
-                                    <span class="discount">-$<?php echo $facturaInfo['descuento']; ?></span>
+                                    <span class="discount"><?php echo $facturaInfo['descuento']; ?></span>
                                 </div>
                                 <div class="total-row">
                                     <span>Total Ajuste</span>
-                                    <span>$<?php echo $facturaInfo['total_ajuste']; ?></span>
+                                    <span><?php echo $facturaInfo['total_ajuste']; ?></span>
                                 </div>
                                 <div class="total-row final-total">
                                     <span>Total a Pagar</span>
-                                    <span>$<?php echo $facturaInfo['total']; ?></span>
+                                    <span><?php echo $facturaInfo['total']; ?></span>
                                 </div>
                             </div>
                             <div class="action-buttons">

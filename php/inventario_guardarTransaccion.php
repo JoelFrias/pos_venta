@@ -93,6 +93,49 @@ try {
         'Productos' => $productos
     ]);
 
+    // Validar que el idEmpleado sea un número entero
+    if (!is_int($idEmpleado) || $idEmpleado <= 0) {
+        throw new Exception("El idEmpleado debe ser un número entero positivo.");
+    }
+
+    // Validar que productos sea un array y contenga al menos un producto
+    if (!is_array($productos) || count($productos) === 0) {
+        throw new Exception("El campo productos debe ser un array no vacío.");
+    }
+
+    // Validar que cada producto tenga id y cantidad
+    foreach ($productos as $producto) {
+        if (!isset($producto['id']) || !isset($producto['cantidad'])) {
+            throw new Exception("Cada producto debe tener un id y una cantidad.");
+        }
+        if (!is_int($producto['id']) || !is_int($producto['cantidad'])) {
+            throw new Exception("El id y la cantidad de cada producto deben ser números enteros.");
+        }
+    }
+
+    // Validar que la cantidad de cada producto sea mayor a 0
+    foreach ($productos as $producto) {
+        if ($producto['cantidad'] <= 0) {
+            throw new Exception("La cantidad de cada producto debe ser mayor a 0.");
+        }
+    }
+
+    // Validar que el idEmpleado exista en la base de datos
+    $stmt = $conn->prepare("SELECT idEmpleado FROM empleados WHERE idEmpleado = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de empleados: " . $conn->error);
+    }
+    $stmt->bind_param("i", $idEmpleado);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        throw new Exception("El idEmpleado no existe en la base de datos.");
+    }
+    
+    // Verificar que el idEmpleado no esté inactivo
+    if ($row['inactivo'] == TRUE) {
+        throw new Exception("El idEmpleado está inactivo.");
+    }
 
     /**
      *      0. Iniciamos la transaccion

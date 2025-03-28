@@ -692,7 +692,7 @@ transform: translateY(0);
 }
 /*-------------------------------*/
 /*---boton de cerrar el modal---*/
-.close-btn-cliente {
+.close-btn-cliente, .close-btn-factura {
 position: absolute;
 top: 1.25rem;
 right: 1.25rem;
@@ -711,7 +711,7 @@ z-index: 2;
 }
 
 /*----------cerrar animacion------------*/
-.close-btn-cliente:hover {
+.close-btn-cliente, .close-btn-factura:hover {
 background-color: #f0f0f0;
 color: #ff4444;
 transform: rotate(90deg);
@@ -898,7 +898,7 @@ border-radius: 8px;
 .titulo-centrado {
 text-align: center;
 }
-.close-btn-cliente {
+.close-btn-cliente, .close-btn-factura {
 top: 0.75rem;
 right: 0.75rem;
 }

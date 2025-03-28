@@ -98,6 +98,59 @@ try {
         'montoPagado' => $montoPagado
     ]);
 
+    // Validar que el cliente existe
+    $stmt = $conn->prepare("SELECT id FROM clientes WHERE id = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de cliente: " . $conn->error);
+    }
+    $stmt->bind_param('i', $idCliente);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        throw new Exception("Cliente no encontrado: " . $idCliente);
+    }
+
+    // Verificar que el tipo de factura es válido
+    $validTypes = ['credito', 'contado'];
+    if (!in_array($tipoFactura, $validTypes)) {
+        throw new Exception("Tipo de factura inválido: " . $tipoFactura);
+    }
+
+    // Verificar que la forma de pago es válida
+    $validPayments = ['efectivo', 'tarjeta', 'transferencia'];
+    if (!in_array($formaPago, $validPayments)) {
+        throw new Exception("Forma de pago inválida: " . $formaPago);
+    }
+
+    // Validar que el total es un número positivo
+    if ($total <= 0) {
+        throw new Exception("El total debe ser un número positivo: " . $total);
+    }
+
+    // Validar que los productos son válidos
+    if (empty($productos) || !is_array($productos)) {
+        throw new Exception("Productos inválidos o vacíos");
+    }
+    foreach ($productos as $producto) {
+        if (empty($producto['id']) || empty($producto['cantidad']) || empty($producto['precio']) || empty($producto['venta'])) {
+            throw new Exception("Producto inválido: " . print_r($producto, true));
+        }
+        if ($producto['cantidad'] <= 0 || $producto['precio'] <= 0 || $producto['venta'] <= 0) {
+            throw new Exception("Cantidad, precio o venta inválidos para el producto ID: " . $producto['id']);
+        }
+    }
+
+    // Verificar que el monto pagado es un número positivo
+    if ($montoPagado <= 0) {
+        throw new Exception("El monto pagado debe ser un número positivo: " . $montoPagado);
+    }
+
+    // Verificar que el monto pagado es mayor o igual al total
+    if ($montoPagado < $total && $tipoFactura === 'contado') {
+        throw new Exception("El monto pagado es menor que el total: " . $montoPagado . " < " . $total);
+    }
+
+    // Verificar que el monto pagado es menor o igual al limite de credito
 
     /**
      *      0. Iniciamos la transaccion
@@ -122,8 +175,8 @@ try {
     $result = $stmt->get_result()->fetch_assoc();
     logDebug("Facturas pendientes: ", $result);
     
-    if ($result['pendientes'] >= 2 && $tipoFactura === 'credito') {
-        throw new Exception("Cliente ID $idCliente tiene dos facturas pendientes, el crédito está cancelado.\nPara desbloquear el crédito se deben de pagar al menos una factura.");
+    if ($result['pendientes'] > 2 && $tipoFactura === 'credito') {
+        throw new Exception("Cliente ID $idCliente tiene dos facturas pendientes, el crédito está cancelado. Para desbloquear el crédito se deben de pagar al menos una factura.");
     }
  
  

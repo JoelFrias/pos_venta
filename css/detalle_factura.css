@@ -206,16 +206,20 @@ body {
 
 /* Verde para facturas pagadas */
 .status.pagada {
-    background: #ecfdf5;
-    color: #065f46;
+    background: #e6ffec;
+    color: #48bb78;
 }
 
 /* Rojo para facturas pendientes */
 .status.pendiente {
-    background: #fef2f2;
-    color: #b91c1c;
+    background: #fff5e6;
+    color: #ed8936;
 }
 
+.status.cancelada {
+    background:rgb(252, 206, 206);
+    color: rgb(252, 85, 85);
+}
 
 /* Información del cliente */
 .client-info {
@@ -277,10 +281,9 @@ body {
 
 /* Sección de productos */
 .products-section {
-    margin: 2rem 0;
-    border-top: 1px solid #e5e7eb;
+    margin: 1rem 0;
     border-bottom: 1px solid #e5e7eb;
-    padding: 2rem 0;
+    padding: 1rem 0;
 }
 
 .product-card {
