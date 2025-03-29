@@ -84,11 +84,208 @@ if (isset($_GET['session_expired']) && $_GET['session_expired'] === 'session_exp
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="css/login.css">
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --primary-hover: #3a56e0;
+            --error-color: #ff4b4b;
+            --text-color: #333;
+            --light-bg: #f7f9ff;
+            --border-color: #e0e4f6;
+            --shadow-color: rgba(74, 107, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #e9f0ff 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            padding: 10px;
+        }
+
+        .login-container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            padding: 30px 25px;
+            width: 100%;
+            max-width: 400px;
+            transition: transform 0.3s ease;
+        }
+
+        .login-container:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 24px;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            max-width: 60px;
+            height: auto;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: var(--error-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--error-color);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.15);
+        }
+
+        .form-group label {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 16px;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            background-color: transparent;
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label {
+            top: 0;
+            left: 10px;
+            font-size: 12px;
+            padding: 0 5px;
+            background-color: white;
+            color: var(--primary-color);
+        }
+
+        input[type="submit"] {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Para que los inputs con placeholder vacío funcionen con las etiquetas flotantes */
+        .form-group input::placeholder {
+            color: transparent;
+        }
+
+        /* Media queries para responsividad */
+        @media screen and (max-width: 480px) {
+            .login-container {
+                padding: 25px 15px;
+                margin: 0 10px;
+            }
+            
+            h2 {
+                font-size: 22px;
+                margin-bottom: 15px;
+            }
+            
+            .logo {
+                max-width: 50px;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group input {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            
+            .form-group label {
+                font-size: 14px;
+            }
+            
+            input[type="submit"] {
+                padding: 10px;
+                font-size: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
-    <h2>Iniciar Sesión</h2>
+        <div class="logo-container">
+            <img class="logo" src="img/logo-negro.png" alt="Logo de la empresa">
+        </div>
+        
+        <h2>Iniciar Sesión</h2>
+        
         <!-- Mensaje de error con botón de cierre -->
         <?php if(isset($error)): ?>
             <div class="error-message" id="error-message">
@@ -97,24 +294,58 @@ if (isset($_GET['session_expired']) && $_GET['session_expired'] === 'session_exp
             </div>
         <?php endif; ?>
 
-        <form action="login.php" method="post">
+        <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
             <div class="form-group">
-                <input type="text" name="username" id="username" autocomplete="off" required>
-                <label for="username">Username</label>
+                <input type="text" name="username" id="username" autocomplete="off" placeholder=" " value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>" required>
+                <label for="username">Usuario</label>
             </div>
             <div class="form-group">
-                <input type="password" name="password" id="password" required>
+                <input type="password" name="password" id="password" placeholder=" " required>
                 <label for="password">Contraseña</label>
             </div>
             <input type="submit" value="Iniciar Sesión">
         </form>
     </div>
+    
     <script>
         // Función para cerrar el mensaje de error
         function closeErrorMessage() {
             const errorMessage = document.getElementById('error-message');
-            errorMessage.style.display = 'none'; // Oculta el mensaje
+            if (errorMessage) {
+                errorMessage.style.display = 'none'; // Oculta el mensaje
+            }
         }
+        
+        // Ajustar las etiquetas si los campos tienen valor
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.form-group input');
+            
+            inputs.forEach(input => {
+                // Verificar si el input tiene valor al cargar la página
+                if (input.value !== '') {
+                    input.classList.add('has-value');
+                    // Asegurarnos que la etiqueta se mueva arriba
+                    const label = input.nextElementSibling;
+                    if (label && label.tagName === 'LABEL') {
+                        label.style.top = '0';
+                        label.style.left = '10px';
+                        label.style.fontSize = '12px';
+                        label.style.padding = '0 5px';
+                        label.style.backgroundColor = 'white';
+                        label.style.color = 'var(--primary-color)';
+                    }
+                }
+                
+                // Escuchar cambios en los inputs
+                input.addEventListener('input', function() {
+                    if (this.value !== '') {
+                        this.classList.add('has-value');
+                    } else {
+                        this.classList.remove('has-value');
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

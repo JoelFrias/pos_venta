@@ -50,7 +50,7 @@ $sql = "SELECT
             ON p.id = i.idProducto
         LEFT JOIN productos_tipo AS pt
             ON p.idTipo = pt.id
-            ";
+        ORDER BY p.descripcion ASC";
 
 $result = $conn->query($sql);
 // aca manejas el limine que quiere que cuente si meno a 5 etc
@@ -69,7 +69,8 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Vista de Inventario</title>
+    <title>Inventario</title>
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <link rel="stylesheet" href="css/menu.css">
     <!-- link de los iconos raro que le puse random -->
     <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet">

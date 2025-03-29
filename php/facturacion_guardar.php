@@ -228,7 +228,7 @@ try {
     logDebug("Facturas pendientes: ", $result);
     
     if ($result['pendientes'] >= 2 && $tipoFactura === 'credito') {
-        throw new Exception("Cliente con el ID $idCliente tiene dos facturas pendientes, el crédito está bloqueado. Para desbloquear el crédito se deben de pagar al menos una factura.");
+        throw new Exception("Cliente con el ID $idCliente tiene dos facturas pendientes, el crédito está bloqueado. Para desbloquear el crédito debe de pagar al menos una factura.");
     }
  
  

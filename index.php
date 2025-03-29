@@ -36,9 +36,10 @@ $_SESSION['last_activity'] = time();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>POS</title>
+    <title>YSAPELLI</title>
     
     <!-- Estilos CSS -->
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/mant_cliente.css">
     <link rel="stylesheet" href="css/modo_oscuro.css">

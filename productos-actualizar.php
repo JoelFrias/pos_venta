@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Document</title>
+    <title>Actualizar Producto</title>
     <link rel="stylesheet" href="css/producto_modal.css">
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
 </head>
 <body>
 <!-- Modal de actualización de producto -->

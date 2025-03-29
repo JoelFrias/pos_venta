@@ -1,10 +1,33 @@
 <?php
-// Iniciar sesión y verificar permisos
+
+/* Verificacion de sesion */
+
+// Iniciar sesión
 session_start();
+
+// Configurar el tiempo de caducidad de la sesión
+$inactivity_limit = 900; // 15 minutos en segundos
+
+// Verificar si el usuario ha iniciado sesión
 if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
-    exit();
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header('Location: login.php'); // Redirigir al login
+    exit(); // Detener la ejecución del script
 }
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Actualizar el tiempo de la última actividad
+$_SESSION['last_activity'] = time();
+
+/* Fin de verificacion de sesion */
 
 // Incluir la conexión a la base de datos
 require 'php/conexion.php';
@@ -36,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_user'])) {
     }
 
     // Redirigir para evitar reenvío del formulario
-    header('Location: usuarios_editar.php');
+    header('Location: usuarios-editar.php');
     exit();
 }
 
@@ -79,6 +102,7 @@ if (isset($_GET['editar'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Editar Usuarios</title>
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <link rel="stylesheet" href="css/menu.css">
     <!-- Importación de iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -464,7 +488,7 @@ if (isset($_GET['editar'])) {
                     <i class="fas fa-search"></i> Buscar
                 </button>
                 <?php if (!empty($busqueda)): ?>
-                <a href="usuarios_editar.php" class="emp_clear-search">
+                <a href="usuarios-editar.php" class="emp_clear-search">
                     <i class="fas fa-times"></i> Limpiar
                 </a>
                 <?php endif; ?>
@@ -500,7 +524,7 @@ if (isset($_GET['editar'])) {
                                 <tr>
                                     <td><?php echo htmlspecialchars($fila['username']); ?></td>
                                     <td>
-                                        <a href="usuarios_editar.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
+                                        <a href="usuarios-editar.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -527,7 +551,7 @@ if (isset($_GET['editar'])) {
                             <div class="emp_mobile-card-title-section">
                                 <h3 class="emp_mobile-card-title"><?php echo htmlspecialchars($fila['username']); ?></h3>
                             </div>
-                            <a href="usuarios_editar.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
+                            <a href="usuarios-editar.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
                         </div>
                     </div>
                 <?php endwhile; ?>
@@ -561,7 +585,7 @@ if (isset($_GET['editar'])) {
                     </div>
                     
                     <div class="emp_form-actions">
-                        <button type="button" onclick="window.location.href='usuarios_editar.php<?php echo !empty($busqueda) ? '?busqueda=' . urlencode($busqueda) : ''; ?>'">Cancelar</button>
+                        <button type="button" onclick="window.location.href='usuarios-editar.php<?php echo !empty($busqueda) ? '?busqueda=' . urlencode($busqueda) : ''; ?>'">Cancelar</button>
                         <button type="submit" name="update_user">Actualizar</button>
                     </div>
                 </form>

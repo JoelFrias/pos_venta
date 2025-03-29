@@ -1,7 +1,7 @@
 <!-- Barra lateral de navegación -->
 <nav class="sidebar" id="sidebar">
     <div class="logo" style="cursor: pointer;" id="dassd">
-        <h2>Pos Venta</h2>
+        <h2>YSAPELLI</h2>
         
         <!-- Botón para alternar el menú -->
         <button id="toggleMenu" class="toggle-btn">

@@ -106,15 +106,12 @@ $resultEmpleados = $stmtEmp->get_result();
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Inventario Personal</title>
     
-    <!-- Precargar CSS crítico -->
+    <!-- Precargar CSS -->
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <link rel="preload" href="css/menu.css" as="style">
     <link rel="preload" href="css/inventario.css" as="style">
-    
-    <!-- Cargar CSS de manera asíncrona -->
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/inventario.css">
-    
-    <!-- Cargar iconos desde CDN de manera optimizada -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
     <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet" media="print" onload="this.media='all'">
     

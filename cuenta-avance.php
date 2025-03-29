@@ -111,6 +111,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Avance de Cuenta</title>
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* Reset and Base Styles */
@@ -429,13 +430,13 @@
                         <div id="num-tarjeta-div" style="display: none">
                             <label>Número de tarjeta:</label>
                             <div style="display: flex; gap: 5px;">
-                                <input type="number" id="num-tarjeta" name="num-tarjeta" min="0" max="9999" minlength="4" maxlength="4" placeholder="Ultimos 4 digitos">
+                                <input type="number" id="num-tarjeta" name="num-tarjeta" maxlength="4" placeholder="Ultimos 4 digitos" autocomplete="off">
                             </div>
                         </div>
                         <div id="num-auto-div" style="display: none;">
                             <label>Número de autorización:</label>
                             <div style="display: flex; gap: 5px;">
-                                <input type="number" id="num-auto" name="num-auto" min="0" max="9999" minlength="4" maxlength="4" placeholder="Ultimos 4 números">
+                                <input type="number" id="num-auto" name="num-auto" maxlength="4" placeholder="Ultimos 4 números" autocomplete="off">
                             </div>
                         </div>
                         <div id="banco-div" style="display: none;">
