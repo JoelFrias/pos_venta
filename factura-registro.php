@@ -101,15 +101,17 @@ $results1 = $stmt1->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Registro de Facturas</title>
+    <link rel="stylesheet" href="css/menu.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-blue: #4285f4;
             --hover-blue: #2b7de9;
-            --background: #f8f9fc;
-            --card-bg: #ffffff;
+            --background:rgb(252, 252, 252);
+            --card-bg::rgb(252, 252, 252);
             --border: #e0e4ec;
-            --text-primary: #2d3748;
+            --text-primary:rgb(0, 0, 0);
             --text-secondary: #718096;
             --success: #48bb78;
             --warning: #ed8936;
@@ -121,32 +123,36 @@ $results1 = $stmt1->get_result();
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         body {
             background-color: var(--background);
             color: var(--text-primary);
             line-height: 1.5;
-            padding: 2rem;
+         
         }
 
-        .container {
+        .contenedor {
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        .header {
+        .cabeza {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
 
-        .header h1 {
-            font-size: 1.75rem;
+        .cabeza h1 {
+            font-size: 24px;
             color: var(--text-primary);
             font-weight: 600;
+            margin-top: 45px;
+            margin-left: 10px; /* Agrega margen a la izquierda */
+           
+   
         }
 
         .card {
@@ -371,11 +377,11 @@ $results1 = $stmt1->get_result();
                 padding: 1rem;
             }
 
-            .header {
+            /* .cabeza {
                 flex-direction: column;
                 gap: 1rem;
                 text-align: center;
-            }
+            } */
 
             .filters {
                 grid-template-columns: 1fr;
@@ -420,11 +426,48 @@ $results1 = $stmt1->get_result();
             }
         }
 
+        /* Estilo específico para el botón en tarjetas móviles */
+        @media (max-width: 768px) {
+            .invoice-card-body > div:last-child {
+                display: flex;
+                justify-content: flex-end;
+                grid-column: 1 / -1; /* Ocupa todo el ancho disponible */
+                margin-top: 4px;
+            }
+            
+            .invoice-card-body > div:last-child .btn {
+                width: auto; /* Ancho automático en lugar de 100% */
+            }
+        }
+
+        /* Ajuste para pantallas muy pequeñas */
+        @media (max-width: 480px) {
+            .invoice-card-body > div:last-child {
+                justify-content: flex-end;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+
+<!-- Contenedor principal -->
+<div class="container">
+        <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
+        <button id="mobileToggle" class="toggle-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Incluir el menú -->
+        <?php require 'menu.php' ?>
+        <script src="js/sidebar_menu.js"></script>
+        
+
+        <!-- Overlay para dispositivos móviles -->
+        <div class="overlay" id="overlay"></div>
+
+    <!-- Contenedor principal -->
+    <div class="contenedor">
+        <div class="cabeza">
             <h1>Registro de Facturas</h1>
         </div>
         
@@ -538,71 +581,74 @@ $results1 = $stmt1->get_result();
         </div>
 
         <!-- Mobile Cards View -->
+       <!-- Mobile Cards View -->
+<div class="mobile-cards">
+    <div class="mobile-cards-grid">
         <?php
+        if ($results1->num_rows > 0) {
+            while ($row1 = $results1->fetch_assoc()) {
+                // FORMATO DE MONEDA
+                $totalf1 = number_format($row1['totalf'], 2, '.', ',');
+                $balancef1 = number_format($row1['balancef'], 2, '.', ',');
 
-            if ($results1->num_rows > 0) {
-                while ($row1 = $results1->fetch_assoc()) {
-
-                    // FORMATO DE MONEDA
-                    $totalf1 = number_format($row1['totalf'], 2, '.', ',');
-                    $balancef1 = number_format($row1['balancef'], 2, '.', ',');
-
-                    // Determinar la clase CSS del estado
-                    $estadoClass1 = "";
-                    if ($row1['estadof'] == "Pagada") {
-                        $estadoClass1 = "paid";
-                    } elseif ($row1['estadof'] == "Pendiente") {
-                        $estadoClass1 = "pending";
-                    } elseif ($row1['estadof'] == "Cancelada") {
-                        $estadoClass1 = "cancel";
-                    }
-
-                    echo "<div class=\"mobile-cards\">
-                            <div class=\"mobile-cards-grid\">
-                                <!-- Factura 1 -->
-                                <div class=\"invoice-card\">
-                                    <div class=\"invoice-card-header\">
-                                        <span class=\"invoice-number\">No. {$row1['numf']}</span>
-                                        <span class=\"status status-{$estadoClass1}\">{$row1['estadof']}</span>
-                                    </div>
-                                    <div class=\"invoice-card-body\">
-                                        <div class=\"invoice-detail\">
-                                            <span class=\"detail-label\">Cliente</span>
-                                            <span class=\"detail-value\">{$row1['nombrec']}</span>
-                                        </div>
-                                        <div class=\"invoice-detail\">
-                                            <span class=\"detail-label\">Tipo</span>
-                                            <span class=\"detail-value\">{$row1['tipof']}</span>
-                                        </div>
-                                        <div class=\"invoice-detail\">
-                                            <span class=\"detail-label\">Fecha y Hora</span>
-                                            <span class=\"detail-value\">{$row1['fechaf']}</span>
-                                        </div>
-                                        <div class=\"invoice-detail\">
-                                            <span class=\"detail-label\">Total</span>
-                                            <span class=\"detail-value\">RD$ {$totalf1}</span>
-                                        </div>
-                                        <div class=\"invoice-detail\">
-                                            <span class=\"detail-label\">Balance</span>
-                                            <span class=\"detail-value\">RD$ {$balancef1}</span>
-                                        </div>
-                                        <div class=\"invoice-detail\">
-                                            <span class=\"detail-label\">Cajero</span>
-                                            <span class=\"detail-value\">{$row1['nombree']}</span>
-                                        </div>
-                                        <div class=\"\">
-                                            <button class='btn btn-secondary' onclick=\"window.location.href='factura-detalle.php?numFactura={$row1['numf']}'\">Ver Detalles</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                        </div>";
+                // Determinar la clase CSS del estado
+                $estadoClass1 = "";
+                if ($row1['estadof'] == "Pagada") {
+                    $estadoClass1 = "paid";
+                } elseif ($row1['estadof'] == "Pendiente") {
+                    $estadoClass1 = "pending";
+                } elseif ($row1['estadof'] == "Cancelada") {
+                    $estadoClass1 = "cancel";
                 }
-            } else {
-                echo "<p class=\"note\">No se encontraron resultados.</p>";
+        ?>
+                <!-- Factura individual -->
+                <div class="invoice-card">
+                    <div class="invoice-card-header">
+                        <span class="invoice-number">No. <?php echo $row1['numf']; ?></span>
+                        <span class="status status-<?php echo $estadoClass1; ?>"><?php echo $row1['estadof']; ?></span>
+                    </div>
+                    <div class="invoice-card-body">
+                        <div class="invoice-detail">
+                            <span class="detail-label">Cliente</span>
+                            <span class="detail-value"><?php echo $row1['nombrec']; ?></span>
+                        </div>
+                        <div class="invoice-detail">
+                            <span class="detail-label">Tipo</span>
+                            <span class="detail-value"><?php echo $row1['tipof']; ?></span>
+                        </div>
+                        <div class="invoice-detail">
+                            <span class="detail-label">Fecha y Hora</span>
+                            <span class="detail-value"><?php echo $row1['fechaf']; ?></span>
+                        </div>
+                        <div class="invoice-detail">
+                            <span class="detail-label">Total</span>
+                            <span class="detail-value">RD$ <?php echo $totalf1; ?></span>
+                        </div>
+                        <div class="invoice-detail">
+                            <span class="detail-label">Balance</span>
+                            <span class="detail-value">RD$ <?php echo $balancef1; ?></span>
+                        </div>
+                        <div class="invoice-detail">
+                            <span class="detail-label">Cajero</span>
+                            <span class="detail-value"><?php echo $row1['nombree']; ?></span>
+                        </div>
+                        <div class="">
+                            <button class='btn btn-secondary' onclick="window.location.href='factura-detalle.php?numFactura=<?php echo $row1['numf']; ?>'">Ver Detalles</button>
+                        </div>
+                    </div>
+                </div>
+        <?php
             }
+        } else {
+            echo "<p class=\"note\">No se encontraron resultados.</p>";
+        }
         ?>
     </div>
+</div>
+
+    
+    <script src="js/menu.js"></script>
+    <script src="js/modo_oscuro.js"></script>
+    <script src="js/oscuro_recargar.js"></script>
 </body>
 </html>

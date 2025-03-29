@@ -153,6 +153,55 @@ try {
         throw new Exception("El monto pagado es menor que el total: " . $montoPagado . " < " . $total);
     }
 
+    // Verificar que el número de autorización tenga un formato válido
+    if ($formaPago === 'tarjeta' && !preg_match('/^[0-9]{4}$/', $numeroAutorizacion)) {
+        throw new Exception("El número de autorización debe ser un número de 4 dígitos", 1007);
+    }
+
+    // Verificar que el número de tarjeta tenga un formato válido
+    if ($formaPago === 'tarjeta' && !preg_match('/^[0-9]{4}$/', $numeroTarjeta)) {
+        throw new Exception("El número de tarjeta debe ser un número de 4 dígitos", 1008);
+    }
+
+    // Verificar longitud de la tarjeta
+    if ($formaPago === 'tarjeta' && strlen($numeroTarjeta) > 4) {
+        throw new Exception("Solo se aceptan los últimos 4 dígitos de la tarjeta", 1005);
+    }
+
+    // Verificar longitud del número de autorización en tarjeta
+    if ($formaPago === 'tarjeta' && strlen($numeroAutorizacion) > 4) {
+        throw new Exception("Solo se aceptan los últimos 4 dígitos del número de autorización", 1009);
+    }
+
+    // Verificar longitud del número de autorización en transferencia
+    if ($formaPago === 'transferencia' && strlen($numeroAutorizacion) > 4) {
+        throw new Exception("Solo se aceptan los últimos 4 dígitos del número de autorización", 1010);
+    }
+
+    // Verificar que el banco es válidos
+    $stmt = $conn->prepare("SELECT id FROM bancos WHERE id = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de banco: " . $conn->error, 2001);
+    }
+    $stmt->bind_param('i', $banco);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        throw new Exception("Banco no encontrado: " . $banco, 2002);
+    }
+    
+    // Verificar que el destino es válidos
+    $stmt = $conn->prepare("SELECT id FROM destinocuentas WHERE id = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de destino: " . $conn->error, 2003);
+    }
+    $stmt->bind_param('i', $destino);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        throw new Exception("Destino no encontrado: " . $destino, 2004);
+    }
+
     // Verificar que el monto pagado es menor o igual al limite de credito
 
     /**
@@ -178,8 +227,8 @@ try {
     $result = $stmt->get_result()->fetch_assoc();
     logDebug("Facturas pendientes: ", $result);
     
-    if ($result['pendientes'] > 2 && $tipoFactura === 'credito') {
-        throw new Exception("Cliente ID $idCliente tiene dos facturas pendientes, el crédito está cancelado. Para desbloquear el crédito se deben de pagar al menos una factura.");
+    if ($result['pendientes'] >= 2 && $tipoFactura === 'credito') {
+        throw new Exception("Cliente con el ID $idCliente tiene dos facturas pendientes, el crédito está bloqueado. Para desbloquear el crédito se deben de pagar al menos una factura.");
     }
  
  

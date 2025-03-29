@@ -1,8 +1,5 @@
 <?php
-
 /* Verificacion de sesion */
-
-// Iniciar sesión
 session_start();
 
 // Configurar el tiempo de caducidad de la sesión
@@ -10,75 +7,96 @@ $inactivity_limit = 900; // 15 minutos en segundos
 
 // Verificar si el usuario ha iniciado sesión
 if (!isset($_SESSION['username'])) {
-    session_unset(); // Eliminar todas las variables de sesión
-    session_destroy(); // Destruir la sesión
-    header('Location: login.php'); // Redirigir al login
-    exit(); // Detener la ejecución del script
+    session_unset();
+    session_destroy();
+    header('Location: login.php');
+    exit();
 }
 
 // Verificar si la sesión ha expirado por inactividad
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
-    session_unset(); // Eliminar todas las variables de sesión
-    session_destroy(); // Destruir la sesión
-    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
-    exit(); // Detener la ejecución del script
+    session_unset();
+    session_destroy();
+    header("Location: login.php?session_expired=session_expired");
+    exit();
 }
 
 // Actualizar el tiempo de la última actividad
 $_SESSION['last_activity'] = time();
 
-/* Fin de verificacion de sesion */
+/* Fin de verificacion de sesion */
 
 require "php/conexion.php";
 
-$sql = "";
+// Inicializar variables
+$result = false;
+$totalProductos = $totalCategorias = $casiAgotados = "N/A";
+$idEmpleado = null;
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    $idEmpleado = $_POST['seleccionar-empleado'];
-
-    $sql = "SELECT
-                p.id,
-                p.descripcion AS producto,
-                pt.descripcion AS tipo_producto,
-                p.existencia AS existencia,
-                ie.cantidad AS existencia_inventario,
-                CONCAT('$', p.precioCompra) AS Costo,
-                CONCAT(
-                    '$',
-                    p.precioVenta1,
-                    ', $',
-                    p.precioVenta2
-                ) AS PreciosVentas,
-                CASE WHEN ie.cantidad = 0 THEN 'Agotado' WHEN ie.cantidad <= p.reorden THEN 'Casi Agotado' ELSE 'Disponible'
-            END AS disponiblidad_inventario
-            FROM
-                productos AS p
-            INNER JOIN inventarioempleados AS ie
-            ON
-                p.id = ie.idProducto
-            LEFT JOIN productos_tipo AS pt
-            ON
-                p.idTipo = pt.id
-            WHERE
-                p.activo = TRUE AND
-                ie.idEmpleado = ".$idEmpleado;
-
-    // Consultas para estadísticas
-    $totalProductos = $conn->query("SELECT COUNT(*) as total FROM inventarioempleados JOIN productos ON inventarioempleados.idProducto = productos.id WHERE productos.activo = TRUE AND inventarioempleados.idEmpleado = ".$idEmpleado)->fetch_assoc()['total'];
-
-    $totalCategorias = $conn->query("SELECT COUNT(DISTINCT idTipo) as total FROM inventarioempleados JOIN productos ON inventarioempleados.idProducto = productos.id WHERE productos.activo = TRUE AND inventarioempleados.idEmpleado = ".$idEmpleado)->fetch_assoc()['total'];
-
-    $casiAgotados = $conn->query("SELECT COUNT(*) as total FROM inventarioempleados JOIN productos ON inventarioempleados.idProducto = productos.id WHERE productos.activo = TRUE AND inventarioempleados.cantidad <= productos.reorden AND inventarioempleados.cantidad > 0 AND inventarioempleados.idEmpleado = ".$idEmpleado)->fetch_assoc()['total'];    
-
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['seleccionar-empleado'])) {
+    $idEmpleado = intval($_POST['seleccionar-empleado']);
+    
+    // Usar consultas preparadas para evitar inyección SQL
+    // Consulta principal
+    $stmt = $conn->prepare("SELECT
+        p.id,
+        p.descripcion AS producto,
+        pt.descripcion AS tipo_producto,
+        p.existencia AS existencia,
+        ie.cantidad AS existencia_inventario,
+        p.precioCompra AS costo,
+        p.precioVenta1,
+        p.precioVenta2,
+        CASE 
+            WHEN ie.cantidad = 0 THEN 'Agotado' 
+            WHEN ie.cantidad <= p.reorden THEN 'Casi Agotado' 
+            ELSE 'Disponible'
+        END AS disponiblidad_inventario
+        FROM productos AS p
+        INNER JOIN inventarioempleados AS ie ON p.id = ie.idProducto
+        LEFT JOIN productos_tipo AS pt ON p.idTipo = pt.id
+        WHERE p.activo = TRUE AND ie.idEmpleado = ?
+        ORDER BY p.descripcion ASC");
+    
+    $stmt->bind_param("i", $idEmpleado);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    // Consultas para estadísticas - usando consultas preparadas
+    $stmtTotal = $conn->prepare("SELECT COUNT(*) as total FROM inventarioempleados 
+                                JOIN productos ON inventarioempleados.idProducto = productos.id 
+                                WHERE productos.activo = TRUE AND inventarioempleados.idEmpleado = ?");
+    $stmtTotal->bind_param("i", $idEmpleado);
+    $stmtTotal->execute();
+    $totalProductos = $stmtTotal->get_result()->fetch_assoc()['total'];
+    
+    $stmtCat = $conn->prepare("SELECT COUNT(DISTINCT idTipo) as total FROM inventarioempleados 
+                              JOIN productos ON inventarioempleados.idProducto = productos.id 
+                              WHERE productos.activo = TRUE AND inventarioempleados.idEmpleado = ?");
+    $stmtCat->bind_param("i", $idEmpleado);
+    $stmtCat->execute();
+    $totalCategorias = $stmtCat->get_result()->fetch_assoc()['total'];
+    
+    $stmtAgot = $conn->prepare("SELECT COUNT(*) as total FROM inventarioempleados 
+                               JOIN productos ON inventarioempleados.idProducto = productos.id 
+                               WHERE productos.activo = TRUE AND inventarioempleados.cantidad <= productos.reorden 
+                               AND inventarioempleados.cantidad > 0 AND inventarioempleados.idEmpleado = ?");
+    $stmtAgot->bind_param("i", $idEmpleado);
+    $stmtAgot->execute();
+    $casiAgotados = $stmtAgot->get_result()->fetch_assoc()['total'];
 }
 
-if (!empty($sql)) {
-    $result = $conn->query($sql);
+// Consulta para el dropdown de empleados
+if (isset($_SESSION['idPuesto']) && $_SESSION['idPuesto'] > 2) {
+    $stmtEmp = $conn->prepare("SELECT id, CONCAT(id,' ',nombre,' ',apellido) AS nombre 
+                             FROM empleados WHERE activo = TRUE AND id = ?");
+    $stmtEmp->bind_param("i", $_SESSION['idEmpleado']);
 } else {
-    $result = false;
+    $stmtEmp = $conn->prepare("SELECT id, CONCAT(id,' ',nombre,' ',apellido) AS nombre 
+                             FROM empleados WHERE activo = TRUE");
 }
-
+$stmtEmp->execute();
+$resultEmpleados = $stmtEmp->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -87,11 +105,24 @@ if (!empty($sql)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Inventario Personal</title>
+    
+    <!-- Precargar CSS crítico -->
+    <link rel="preload" href="css/menu.css" as="style">
+    <link rel="preload" href="css/inventario.css" as="style">
+    
+    <!-- Cargar CSS de manera asíncrona -->
     <link rel="stylesheet" href="css/menu.css">
-    <!-- link de los iconos raro que le puse random -->
-    <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/inventario.css">
+    
+    <!-- Cargar iconos desde CDN de manera optimizada -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
+    <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet" media="print" onload="this.media='all'">
+    
+    <!-- Fallback para navegadores que no soportan onload en link -->
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet">
+    </noscript>
 </head>
 <body>
   <!-- Contenedor principal -->
@@ -103,7 +134,6 @@ if (!empty($sql)) {
 
         <!-- Incluir el menú -->
         <?php require 'menu.php' ?>
-        <script src="js/sidebar_menu.js"></script>
 
         <!-- Overlay para dispositivos móviles -->
         <div class="overlay" id="overlay"></div>
@@ -112,44 +142,33 @@ if (!empty($sql)) {
         <div class="header">
             <h1>Inventario Personal de Productos</h1>
             <div class="header">
-            <form action="" method="post" class="employee-selector-form">
-                <span class="employee-selector-label">Selecciona el Empleado:</span>
-                <div class="employee-selector-controls">
-                    <div class="select-container">
-                        <select name="seleccionar-empleado" id="seleccionar-empleado" class="employee-select">
-                            <option disabled selected>---</option>
-                            <?php
-                            if ($_SESSION['idPuesto'] > 2){
-                                $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE activo = TRUE AND id = ".$_SESSION['idEmpleado'];
-                                $resultado = $conn->query($sql);
-                            } else {
-                                $sql = "SELECT id,CONCAT(id,' ',nombre,' ',apellido) AS nombre FROM empleados WHERE activo = TRUE";
-                                $resultado = $conn->query($sql);
-                            }
-                            if ($resultado->num_rows > 0) {
-                                while ($fila = $resultado->fetch_assoc()) {
-                                    if ($_SERVER['REQUEST_METHOD'] == "POST") {
-                                        echo "<option value='" . $fila['id'] . "'" . 
-                                             ($_POST['seleccionar-empleado'] == $fila['id'] ? " selected" : "") . 
-                                             ">" . $fila['nombre'] . "</option>";
-                                    } else {
-                                        echo "<option value='" . $fila['id'] . "'>" . $fila['nombre'] . "</option>";
-                                    }                                
+                <form action="" method="post" class="employee-selector-form">
+                    <span class="employee-selector-label">Selecciona el Empleado:</span>
+                    <div class="employee-selector-controls">
+                        <div class="select-container">
+                            <select name="seleccionar-empleado" id="seleccionar-empleado" class="employee-select">
+                                <option disabled selected>---</option>
+                                <?php
+                                if ($resultEmpleados && $resultEmpleados->num_rows > 0) {
+                                    while ($fila = $resultEmpleados->fetch_assoc()) {
+                                        $selected = ($_SERVER['REQUEST_METHOD'] == "POST" && 
+                                                    isset($_POST['seleccionar-empleado']) && 
+                                                    $_POST['seleccionar-empleado'] == $fila['id']) ? " selected" : "";
+                                        echo "<option value='" . $fila['id'] . "'" . $selected . ">" . htmlspecialchars($fila['nombre'], ENT_QUOTES, 'UTF-8') . "</option>";
+                                    }
+                                } else {
+                                    echo "<option value='' disabled>No hay opciones</option>";
                                 }
-                            } else {
-                                echo "<option value='' disabled>No hay opciones</option>";
-                            }
-                            ?>
-                        </select>
+                                ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="employee-submit-button">Buscar</button>
                     </div>
-                    <button type="submit" class="employee-submit-button">Buscar</button>
-                </div>
-            </form>
+                </form>
             </div>
             <div class="search-container">
                 <i class="lucide-search"></i>
                 <input type="text" id="searchInput" placeholder="Buscar productos...">
-                <!--<button id="searchButton" class="search-button">Buscar</button>-->
             </div>
         </div>
 
@@ -162,17 +181,9 @@ if (!empty($sql)) {
                 </div>
                 <div class="stat-info">
                     <p>Total Productos</p>
-                    <h2><?php 
-                        if($_SERVER["REQUEST_METHOD"] == "POST"){
-                            echo htmlspecialchars($totalProductos, ENT_QUOTES, 'UTF-8');
-                        }else{
-                            echo "N/A";
-                        }
-                        ?>
-                    </h2>
+                    <h2><?php echo htmlspecialchars($totalProductos, ENT_QUOTES, 'UTF-8'); ?></h2>
                 </div>
-                <div class="stat-footer">
-                </div>
+                <div class="stat-footer"></div>
             </div>
 
             <div class="stat-card">
@@ -183,17 +194,9 @@ if (!empty($sql)) {
                 </div>
                 <div class="stat-info">
                     <p>Total Categorías</p>
-                    <h2><?php 
-                        if($_SERVER["REQUEST_METHOD"] == "POST"){
-                            echo htmlspecialchars($totalCategorias, ENT_QUOTES, 'UTF-8');
-                        }else{
-                            echo "N/A";
-                        }
-                        ?>
-                    </h2>
+                    <h2><?php echo htmlspecialchars($totalCategorias, ENT_QUOTES, 'UTF-8'); ?></h2>
                 </div>
-                <div class="stat-footer">
-                </div>
+                <div class="stat-footer"></div>
             </div>
 
             <div class="stat-card">
@@ -205,20 +208,8 @@ if (!empty($sql)) {
                 </div>
                 <div class="stat-info">
                     <p>Casi Agotados</p>
-                    <h2><?php 
-                        if($_SERVER["REQUEST_METHOD"] == "POST"){
-                            echo htmlspecialchars($casiAgotados, ENT_QUOTES, 'UTF-8');
-                        }else{
-                            echo "N/A";
-                        }
-                        ?>
-                    </h2>
+                    <h2><?php echo htmlspecialchars($casiAgotados, ENT_QUOTES, 'UTF-8'); ?></h2>
                 </div>
-                <!--
-                <div class="stat-footer">
-                    <button class="view-more-button">Ver más</button>
-                </div>
-                -->
             </div>
         </div>
 
@@ -230,7 +221,7 @@ if (!empty($sql)) {
                         <th>ID</th>
                         <th>Producto</th>
                         <th>Tipo de Producto</th>
-                        <th>Existencia en Inventario</th>
+                        <th>Existencia</th>
                         <th>Precios de Venta</th>
                         <th>Disponibilidad</th>
                     </tr>
@@ -244,12 +235,14 @@ if (!empty($sql)) {
                                     <td>" . htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td>" . htmlspecialchars($row["tipo_producto"], ENT_QUOTES, 'UTF-8') . "</td>
                                     <td>" . htmlspecialchars($row["existencia_inventario"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td>" . htmlspecialchars($row["PreciosVentas"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td><span class='status " . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "</span></td>
+                                    <td>$" . htmlspecialchars($row["precioVenta1"], ENT_QUOTES, 'UTF-8') . ", $" . 
+                                       htmlspecialchars($row["precioVenta2"], ENT_QUOTES, 'UTF-8') . "</td>
+                                    <td><span class='status " . htmlspecialchars(strtolower(str_replace(' ', '-', $row["disponiblidad_inventario"])), ENT_QUOTES, 'UTF-8') . "'>" . 
+                                       htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "</span></td>
                                   </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='8'>No se encontraron resultados</td></tr>";
+                        echo "<tr><td colspan='6'>No se encontraron resultados</td></tr>";
                     }
                     ?>
                 </tbody>
@@ -260,66 +253,96 @@ if (!empty($sql)) {
         <div class="mobile-view">
             <?php
             if ($result && $result->num_rows > 0) {
-                $result->data_seek(0); // Reset pointer to start
+                mysqli_data_seek($result, 0); // Reset pointer to start
                 while ($row = $result->fetch_assoc()) {
-                    echo '<div class="mobile-card" data-product="' . htmlspecialchars(strtoupper($row["producto"]), ENT_QUOTES, 'UTF-8') . '">
+                    $productName = htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8');
+                    $productNameUpper = htmlspecialchars(strtoupper($row["producto"]), ENT_QUOTES, 'UTF-8');
+                    $statusClass = htmlspecialchars(strtolower(str_replace(' ', '-', $row["disponiblidad_inventario"])), ENT_QUOTES, 'UTF-8');
+                    
+                    echo <<<HTML
+                    <div class="mobile-card" data-product="{$productNameUpper}">
                         <div class="mobile-card-header">
                             <div class="mobile-card-title-section">
-                                <h3 class="mobile-card-title">' . htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8') . '</h3>
-                                <p class="mobile-card-subtitle">' . htmlspecialchars($row["tipo_producto"], ENT_QUOTES, 'UTF-8') . '</p>
+                                <h3 class="mobile-card-title">{$productName}</h3>
+                                <p class="mobile-card-subtitle">{$row["tipo_producto"]}</p>
                             </div>
-                            <span class="status ' . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . '</span>
+                            <span class="status {$statusClass}">{$row["disponiblidad_inventario"]}</span>
                         </div>
                         <div class="mobile-card-content">
                             <div class="mobile-card-item">
                                 <span class="mobile-card-label">ID:</span>
-                                <span class="mobile-card-value">' . htmlspecialchars($row["id"], ENT_QUOTES, 'UTF-8') . '</span>
+                                <span class="mobile-card-value">{$row["id"]}</span>
                             </div>
                             <div class="mobile-card-item">
                                 <span class="mobile-card-label">Existencia:</span>
-                                <span class="mobile-card-value">' . htmlspecialchars($row["existencia_inventario"], ENT_QUOTES, 'UTF-8') . '</span>
+                                <span class="mobile-card-value">{$row["existencia_inventario"]}</span>
                             </div>
                             <div class="mobile-card-item">
                                 <span class="mobile-card-label">Precio Venta:</span>
-                                <span class="mobile-card-value">' . htmlspecialchars($row["PreciosVentas"], ENT_QUOTES, 'UTF-8') . '</span>
+                                <span class="mobile-card-value">\${$row["precioVenta1"]}, \${$row["precioVenta2"]}</span>
                             </div>
                         </div>
-                    </div>';
+                    </div>
+HTML;
                 }
             }
             ?>
         </div>
     </div>
+    
+    <!-- Cargar JavaScript de manera optimizada -->
+    <script defer src="js/sidebar_menu.js"></script>
+    <script defer src="js/modo_oscuro.js"></script>
+    <script defer src="js/oscuro_recargar.js"></script>
+    
     <script>
-        ///////////////////////////////BUSQUEDA A PONER TIPO JSON///////////////////////////////////////
-        // Función de búsqueda que funciona tanto para la tabla como para las tarjetas móviles
-        document.getElementById('searchInput').addEventListener('keyup', function() {
+    // Esperar a que se cargue el DOM completamente
+    document.addEventListener('DOMContentLoaded', function() {
+        // Función de búsqueda optimizada
+        const searchInput = document.getElementById('searchInput');
+        const inventarioTable = document.getElementById('inventarioTable');
+        const mobileCards = document.querySelectorAll('.mobile-card');
+        
+        searchInput.addEventListener('input', function() {
             const filter = this.value.toUpperCase();
             
             // Búsqueda en la tabla de escritorio
-            const table = document.getElementById('inventarioTable');
-            const trs = table.getElementsByTagName('tr');
-            
-            for (let i = 0; i < trs.length; i++) {
-                const td = trs[i].getElementsByTagName('td')[1]; // Columna del nombre del producto para obtener el nombre a buscar
-                if (td) {
-                    const txtValue = td.textContent || td.innerText;
-                    trs[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
-                }
+            if (inventarioTable) {
+                const trs = inventarioTable.querySelectorAll('tbody tr');
+                
+                trs.forEach(tr => {
+                    const productCell = tr.querySelector('td:nth-child(2)');
+                    if (productCell) {
+                        const txtValue = productCell.textContent || productCell.innerText;
+                        tr.style.display = txtValue.toUpperCase().includes(filter) ? '' : 'none';
+                    }
+                });
             }
             
             // Búsqueda en las tarjetas móviles
-            const cards = document.querySelectorAll('.mobile-card');
-            cards.forEach(card => {
+            mobileCards.forEach(card => {
                 const productName = card.getAttribute('data-product');
-                card.style.display = productName.indexOf(filter) > -1 ? '' : 'none';
+                card.style.display = productName.includes(filter) ? '' : 'none';
             });
         });
         
-</script>
-
-    <script src="js/menu.js"></script>
-    <script src="js/modo_oscuro.js"></script>
-    <script src="js/oscuro_recargar.js"></script>
+        // Manejador del overlay y menú móvil
+        const mobileToggle = document.getElementById('mobileToggle');
+        const overlay = document.getElementById('overlay');
+        
+        if (mobileToggle && overlay) {
+            mobileToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', closeMenu);
+        }
+        
+        function toggleMenu() {
+            document.body.classList.toggle('menu-open');
+        }
+        
+        function closeMenu() {
+            document.body.classList.remove('menu-open');
+        }
+    });
+    </script>
 </body>
 </html>

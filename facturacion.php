@@ -249,6 +249,12 @@ if ($result->num_rows > 0) {
         <label for="monto-pagado">Monto Pagado:</label>
         <input type="number" name="monto-pagado" id="monto-pagado" placeholder="Ingrese la cantidad pagada" step="0.01" min="0" required>
     </div>
+    <div>
+        <div class="order-total">
+            <div class="total-label">Total:</div>
+            <div class="total-amount">RD$ <span id="totalAmount2">0.00</span></div>
+        </div>
+    </div>
     <div id="botones-facturas">
         <button id="guardar-factura" class="footer-button" onclick="guardarFactura()">Guardar Factura</button>
         <button id="guardar-imprimir-factura" class="footer-button">Guardar e Imprimir</button>
@@ -579,11 +585,13 @@ function removeFromCart(button, subtotal) {
 // Función para actualizar el total en el modal
 function updateTotal() {
     document.getElementById('totalAmount').textContent = `${total.toFixed(2)}`;
+    document.getElementById('totalAmount2').textContent = `${total.toFixed(2)}`;
 }
 
 // Función para uso de , ., donde esta minimunfraction y maximumfraction
 function updateTotal() {
     document.getElementById('totalAmount').textContent = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById('totalAmount2').textContent = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 </script>
 
@@ -748,7 +756,7 @@ function guardarFactura() {
                 // Mostrar mensaje de éxito
                 Swal.fire({
                     icon: 'success',
-                    title: 'Éxito',
+                    title: 'Factura #' + data.numFactura,
                     text: 'Factura Guardada Exitosamente',
                     showConfirmButton: true,
                     confirmButtonText: 'Aceptar'
