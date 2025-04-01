@@ -50,6 +50,8 @@ $sql = "SELECT
             ON p.id = i.idProducto
         LEFT JOIN productos_tipo AS pt
             ON p.idTipo = pt.id
+        WHERE
+            p.activo = TRUE
         ORDER BY p.descripcion ASC";
 
 $result = $conn->query($sql);
@@ -72,8 +74,6 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
     <title>Inventario</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <link rel="stylesheet" href="css/menu.css">
-    <!-- link de los iconos raro que le puse random -->
-    <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/inventario.css">
 </head>

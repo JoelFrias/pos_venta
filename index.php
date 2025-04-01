@@ -42,8 +42,6 @@ $_SESSION['last_activity'] = time();
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/mant_cliente.css">
-    <link rel="stylesheet" href="css/modo_oscuro.css">
-    
     <!-- Importación de iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     

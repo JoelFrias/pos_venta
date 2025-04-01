@@ -14,31 +14,21 @@
         <li onclick="navigateTo('index.php')"><i class="fas fa-home"></i>Inicio</li>
         <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i>Clientes</li>
         <li onclick="navigateTo('productos.php')"><i class="fas fa-box"></i> Productos</li>
-        <li onclick="empleados(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-user"></i>Empleados</li>
         <li onclick="navigateTo('factura-registro.php')"><i class="fa-solid fa-file-lines"></i></i>Registro de Facturas</li>
         <li onclick="navigateTo('inventario.php')"><i class="fa-solid fa-warehouse"></i>Almacén</li>
         <li onclick="navigateTo('inventario-empleados.php')"><i class="fa-solid fa-boxes-stacked"></i></i>Inventario Empleados</li>
-        <li onclick="inventario_transaccion(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-cart-flatbed"></i>Transacción Inventario</li>
+        <li onclick="inventario_transaccion()"><i class="fa-solid fa-cart-flatbed"></i>Transacción Inventario</li>
         <li onclick="navigateTo('facturacion.php')"><i class="fas fa-cash-register"></i>Facturación</li>
+        <li onclick="panelAdministrativo()"><i class="fa-solid fa-screwdriver-wrench"></i>Panel Administrativo</li>
         <li onclick="logout()"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</li>
     </ul>
 </nav>
 
 <script>
 
-    function empleados(idPuesto) {
-        if (idPuesto > 2) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Acceso denegado',
-                text: 'No tienes permisos para acceder a esta página.'
-            });
-        } else {
-            navigateTo('empleados.php');
-        }
-    }
+    idPuesto = <?php echo $_SESSION['idPuesto'] ?>;
 
-    function inventario_transaccion(idPuesto) {
+    function inventario_transaccion() {
         if (idPuesto > 2) {
             Swal.fire({
                 icon: 'error',
@@ -47,6 +37,18 @@
             });
         } else {
             navigateTo('inventario-transaccion.php');
+        }
+    }
+
+    function panelAdministrativo() {
+        if (idPuesto > 2) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acceso denegado',
+                text: 'No tienes permisos para acceder a esta página.'
+            });
+        } else {
+            navigateTo('panel-administrativo.php');
         }
     }
 

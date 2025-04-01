@@ -113,7 +113,8 @@ $resultEmpleados = $stmtEmp->get_result();
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/inventario.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
-    <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet" media="print" onload="this.media='all'"> -->
     
     <!-- Fallback para navegadores que no soportan onload en link -->
     <noscript>
@@ -280,7 +281,7 @@ $resultEmpleados = $stmtEmp->get_result();
                             </div>
                         </div>
                     </div>
-HTML;
+            HTML;
                 }
             }
             ?>
@@ -341,5 +342,10 @@ HTML;
         }
     });
     </script>
+
+</div>
+
+<script src="js/menu.js"></script>
+
 </body>
 </html>

@@ -1,13 +1,51 @@
 <?php
-// Iniciar sesión y verificar permisos
+
+/* Verificacion de sesion */
+
+// Iniciar sesión
 session_start();
+
+// Configurar el tiempo de caducidad de la sesión
+$inactivity_limit = 9000; // 15 minutos en segundos
+
+// Verificar si el usuario ha iniciado sesión
 if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
-    exit();
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header('Location: login.php'); // Redirigir al login
+    exit(); // Detener la ejecución del script
 }
 
-// Incluir la conexión a la base de datos
-require 'php/conexion.php';
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Actualizar el tiempo de la última actividad
+$_SESSION['last_activity'] = time();
+
+require_once 'php/conexion.php';
+
+/* Fin de verificacion de sesion */
+
+// Verificar si el usuario tiene permisos de administrador
+if ($_SESSION['idPuesto'] > 2) {
+    echo "<script>
+            Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso Prohibido',
+                    text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    window.location.href = './';
+                });
+          </script>";
+    exit();
+}
 
 // Procesar la actualización si se envió el formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -572,7 +610,6 @@ if (isset($_GET['editar'])) {
             color: #64748b;
         }
     </style>
-
 </head>
 <body>
 
@@ -596,16 +633,28 @@ if ($_SESSION['idPuesto'] > 2) {
 ?>
     
 <div class="container">
-    <!-- Botón de menú móvil -->
-    <button id="mobileToggle" class="toggle-btn" onclick="toggleNav()">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- Requerimiento de Menú -->
-    <?php require 'menu.php' ?>
-
-    <!-- Overlay para móviles -->
-    <div class="overlay" id="overlay" onclick="toggleNav()"></div>
+    <!-- Barra de navegación -->
+    <button id="mobileToggle" class="toggle-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Inclusión del menú de navegación -->
+        <?php require 'menu.php' ?>
+        
+        <!-- Script para navegación interna -->
+        <script>
+            function navigateTo(page) {
+                window.location.href = page;
+            }
+            
+            function toggleNav() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('active');
+            }
+        </script>
+        
+        <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
+        <div class="overlay" id="overlay"></div>
     
     <div class="emp_general-container">
     <div class="emp_header">
@@ -623,29 +672,13 @@ if ($_SESSION['idPuesto'] > 2) {
                     name="busqueda" 
                     placeholder="Buscar por nombre o identificación..." 
                     class="emp_search-input"
-                    value="<?php echo htmlspecialchars($busqueda ?? ''); ?>"
+                    value="<?php echo htmlspecialchars($_GET['busqueda'] ?? ''); ?>"
                 >
                 <button type="submit" class="emp_search-button">
                     <i class="fas fa-search"></i> Buscar
                 </button>
                
             </form>
-             
-               
-        
-
-            <!-- Contador de resultados -->
-            <?php if ($resultado): ?>
-            <div class="emp_results-count">
-                <?php 
-                $num_resultados = $resultado->num_rows;
-                echo "Se encontraron $num_resultados " . ($num_resultados == 1 ? "empleado" : "empleados");
-                if (!empty($busqueda)) {
-                    echo " para la búsqueda: \"" . htmlspecialchars(trim($_GET['busqueda'])) . "\"";
-                }
-                ?>
-            </div>
-            <?php endif; ?>
         </div>
         
         <!-- Vista de Escritorio -->
@@ -819,28 +852,7 @@ if ($_SESSION['idPuesto'] > 2) {
     </script>
     <?php endif; ?>
 
-    <!-- Script para manejar la navegación y el menú móvil -->
-    <script>
-        function navigateTo(page) {
-            window.location.href = page; // Cambia la URL en la misma pestaña
-        }
-    
-        function toggleNav() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            
-            sidebar.classList.toggle('active'); // Añade o quita la clase active para mostrar/ocultar el menú
-            overlay.classList.toggle('active'); // Muestra u oculta el overlay
-        }
-
-        // Asegurarse de que el botón de menú móvil funcione
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileToggle = document.getElementById('mobileToggle');
-            if (mobileToggle) {
-                mobileToggle.addEventListener('click', toggleNav);
-            }
-        });
-    </script>
+    <script src="js/menu.js"></script>
 
 </div>
 </body>

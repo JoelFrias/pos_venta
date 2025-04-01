@@ -239,5 +239,7 @@ if ($_SESSION['idPuesto'] > 2) {
             this.value = value;
         });
     </script>
+    <!-- Script para manejar el menú móvil -->
+    <script src="js/menu.js"></script>
 </body>
 </html>
