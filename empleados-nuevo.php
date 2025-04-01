@@ -48,8 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->begin_transaction();
     try {
         // Insertar empleado
-        $queryEmpleado = "INSERT INTO empleados (nombre, apellido, tipo_identificacion, identificacion, telefono, idPuesto, fechaIngreso, activo) 
-                          VALUES (?, ?, ?, ?, ?, ?, NOW(), TRUE)";
+        $queryEmpleado = "INSERT INTO empleados (nombre, apellido, tipo_identificacion, identificacion, telefono, idPuesto, fechaIngreso, activo) VALUES (?, ?, ?, ?, ?, ?, NOW(), TRUE)";
         $stmt = $conn->prepare($queryEmpleado);
         $stmt->bind_param("sssssi", $nombre, $apellido, $tipo_identificacion, $identificacion, $telefono, $idPuesto);
         $stmt->execute();

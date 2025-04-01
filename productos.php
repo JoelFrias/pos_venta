@@ -183,15 +183,22 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($row = $result->fetch_assoc()): ?>
+                            <?php while ($row = $result->fetch_assoc()):                           
+
+                            // formatear existencia y reorden
+                            $row['existencia'] = number_format($row['existencia'], 0);
+                            $row['reorden'] = number_format($row['reorden'], 0);
+
+                            // fomateo de monedas se realizo directamente en la tabla
+                            ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['idProducto']); ?></td>
                                 <td><?php echo htmlspecialchars($row['descripcion']); ?></td>
                                 <td><?php echo htmlspecialchars($row['tipo']); ?></td>
                                 <td><?php echo htmlspecialchars($row['existencia']); ?></td>
-                                <td><?php echo htmlspecialchars($row['precioCompra']); ?></td>
-                                <td><?php echo htmlspecialchars($row['precioVenta1']); ?></td>
-                                <td><?php echo htmlspecialchars($row['precioVenta2']); ?></td>
+                                <td><?php echo htmlspecialchars("RD$ " . number_format($row['precioCompra'], 2)); ?></td>
+                                <td><?php echo htmlspecialchars("RD$ " . number_format($row['precioVenta1'], 2));?></td>
+                                <td><?php echo htmlspecialchars("RD$ " . number_format($row['precioVenta2'], 2)); ?></td>
                                 <td><?php echo htmlspecialchars($row['reorden']); ?></td>
                                 <td>
                                     <span class="status <?php echo $row['activo'] ? 'status-active' : 'status-inactive'; ?>">
@@ -229,6 +236,13 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                 <?php 
                 $result->data_seek(0);
                 while ($row = $result->fetch_assoc()): 
+
+                // formatear existencia y reorden
+                $row['existencia'] = number_format($row['existencia'], 0);
+                $row['reorden'] = number_format($row['reorden'], 0);
+
+                // fomateo de monedas se realizo directamente en la tabla
+
                 ?>
                 <div class="mobile-record">
                     <div class="mobile-record-header">
@@ -252,15 +266,15 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                             </div>
                             <div class="mobile-info-item">
                                 <div class="mobile-label">Precio Compra:</div>
-                                <div class="mobile-value"><?php echo htmlspecialchars($row['precioCompra']); ?></div>
+                                <div class="mobile-value"><?php echo htmlspecialchars("RD$ " . number_format($row['precioCompra'], 2)); ?></div>
                             </div>
                             <div class="mobile-info-item">
                                 <div class="mobile-label">Precio Venta 1:</div>
-                                <div class="mobile-value"><?php echo htmlspecialchars($row['precioVenta1']); ?></div>
+                                <div class="mobile-value"><?php echo htmlspecialchars("RD$ " . number_format($row['precioVenta1'], 2)); ?></div>
                             </div>
                             <div class="mobile-info-item">
                                 <div class="mobile-label">Precio Venta 2:</div>
-                                <div class="mobile-value"><?php echo htmlspecialchars($row['precioVenta2']); ?></div>
+                                <div class="mobile-value"><?php echo htmlspecialchars("RD$ " . number_format($row['precioVenta2'], 2)); ?></div>
                             </div>
                             <div class="mobile-info-item">
                                 <div class="mobile-label">Reorden:</div>

@@ -186,7 +186,14 @@ $result = $conn->query($query);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($row = $result->fetch_assoc()): ?>
+                            <?php while ($row = $result->fetch_assoc()): 
+                                
+                                // pasar numeros a formato de moneda
+                                $row['limite_credito'] = number_format($row['limite_credito'], 2, '.', ',');
+                                $row['balance'] = number_format($row['balance'], 2, '.', ',');
+                                
+                            ?>
+                                
                             <tr>
                                 <td><?php echo htmlspecialchars($row['id']); ?></td>
                                 <td><?php echo htmlspecialchars($row['nombreCompleto']); ?></td>
@@ -195,8 +202,8 @@ $result = $conn->query($query);
                                 <td><?php echo htmlspecialchars($row['identificacion']); ?></td>
                                 <td><?php echo htmlspecialchars($row['telefono']); ?></td>
                                 <td><?php echo htmlspecialchars($row['notas']); ?></td>
-                                <td><?php echo htmlspecialchars($row['limite_credito']); ?></td>
-                                <td><?php echo htmlspecialchars($row['balance']); ?></td>
+                                <td><?php echo htmlspecialchars("RD$ " . $row['limite_credito']); ?></td>
+                                <td><?php echo htmlspecialchars("RD$ " . $row['balance']); ?></td>
                                 <td><?php echo htmlspecialchars($row['direccion']); ?></td>
                                 <td>
                                     <!-- Estado del cliente -->
@@ -230,6 +237,11 @@ $result = $conn->query($query);
                 // Reiniciar el puntero del resultado para reutilizarlo
                 $result->data_seek(0);
                 while ($row = $result->fetch_assoc()): 
+
+                // pasar numeros a formato de moneda
+                $row['limite_credito'] = number_format($row['limite_credito'], 2, '.', ',');
+                $row['balance'] = number_format($row['balance'], 2, '.', ',');
+
                 ?>
                 <div class="mobile-record">
                     <div class="mobile-record-header">
@@ -263,11 +275,11 @@ $result = $conn->query($query);
                             </div>
                             <div class="mobile-info-item">
                                 <div class="mobile-label">Límite Crédito:</div>
-                                <div class="mobile-value"><?php echo htmlspecialchars($row['limite_credito']); ?></div>
+                                <div class="mobile-value"><?php echo htmlspecialchars("RD$ " . $row['limite_credito']); ?></div>
                             </div>
                             <div class="mobile-info-item">
                                 <div class="mobile-label">Balance:</div>
-                                <div class="mobile-value"><?php echo htmlspecialchars($row['balance']); ?></div>
+                                <div class="mobile-value"><?php echo htmlspecialchars("RD$ " . $row['balance']); ?></div>
                             </div>
                             <div class="mobile-info-item notes-field">
                                 <div class="mobile-label">Notas:</div>

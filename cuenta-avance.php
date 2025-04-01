@@ -6,7 +6,7 @@
     session_start();
 
     // Configurar el tiempo de caducidad de la sesión
-    $inactivity_limit = 900; // 15 minutos en segundos
+    $inactivity_limit = 9000; // 15 minutos en segundos
 
     // Verificar si el usuario ha iniciado sesión
     if (!isset($_SESSION['username'])) {
@@ -97,6 +97,8 @@
     $resultsc = $stmtc->get_result();
     $rowc = $resultsc->fetch_assoc();
 
+    $montodeuda = $rowc['adeudadoc']; // Variable almacenada para calculos
+
     // FORMATO DE MONEDA
     $limitec = number_format($rowc['limitec'], 2, '.', ',');
     $balancec = number_format($rowc['balancec'], 2, '.', ',');
@@ -104,287 +106,83 @@
 
 
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Avance de Cuenta</title>
-    <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f4f4f4;
-            color: #333;
-            padding: 15px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-radius: 8px;
-        }
-
-        /* Header Styles */
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #007bff;
-        }
-
-        .header h2 {
-            color: #007bff;
-        }
-
-        /* Flex Container Responsive Layout */
-        .flex-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .client-data, .payment-section {
-            flex: 1;
-            min-width: 300px;
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .form-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 5px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .form-row label {
-            font-weight: bold;
-            color: #555;
-        }
-
-        /* Payment Input Styles */
-        .payment-input {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .payment-input > div {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .payment-input label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .payment-input input,
-        .payment-input select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        /* Button Styles */
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        /* History Tables */
-        .history-tables {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .history-table {
-            flex: 1;
-            min-width: 300px;
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .table-container {
-            max-width: 100%;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table th, table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        table th {
-            background-color: #007bff;
-            color: white;
-        }
-
-        /* Estilos para el modal de historial de pagos */
-        .modal-history-payment {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content-history-payments {
-            background-color: #fefefe;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 1200px;
-            max-height: 90%;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .close-modal-history-payments {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-        }
-
-        .close-modal-history-payments:hover,
-        .close-modal-history-payments:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 15px;
-        }
-
-        .pagination a, 
-        .pagination .current {
-            color: #007bff;
-            padding: 8px 16px;
-            text-decoration: none;
-            border: 1px solid #ddd;
-            margin: 0 4px;
-            border-radius: 4px;
-        }
-
-        .pagination a:hover {
-            background-color: #f1f1f1;
-        }
-
-        .pagination .current {
-            background-color: #007bff;
-            color: white;
-        }
-
-        /* Responsive Adjustments */
-        @media screen and (max-width: 768px) {
-            .flex-container,
-            .history-tables {
-                flex-direction: column;
-            }
-
-            .client-data,
-            .payment-section,
-            .history-table {
-                width: 100%;
-                min-width: 100%;
-            }
-
-            .payment-input > div {
-                min-width: 100%;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-
-        /* Mobile Specific Adjustments */
-        @media screen and (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-
-            .form-row {
-                flex-direction: column;
-            }
-
-            .form-row label {
-                margin-bottom: 5px;
-            }
-        }
-    </style>
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
+    <link rel="stylesheet" href="css/avance-cuenta.css">
+    <link rel="stylesheet" href="css/menu.css">   <!-- no acercamiento -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
+<!----------------------------------------->
+  <!-- Contenedor principal -->
+  <div class="container">
+        <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
+        <button id="mobileToggle" class="toggle-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Incluir el menú -->
+        <?php require 'menu.php' ?>
+        <!-- Script para navegación interna -->
+        <script>
+            /**
+             * Redirige a la página especificada dentro de la misma pestaña.
+             * @param {string} page - URL de la página a la que se desea navegar.
+             */
+            function navigateTo(page) {
+                window.location.href = page;
+            }
+            
+            /**
+             * Alterna la visibilidad del menú lateral.
+             */
+            function toggleNav() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('active');
+            }
+        </script>
+        
+        <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
+        <div class="overlay" id="overlay"></div>
+<!------------------------------------------------------------>
+
+    <div class="contenedor">
+        <!-- Your existing header and client data sections remain unchanged -->
         <div class="header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+            </svg>
             <h2>Avance de Cuenta</h2>
         </div>
         
         <div class="flex-container">
+            <!-- Client Data Section -->
             <div class="client-data">
-                <h3>Datos del Cliente</h3>
+                <!-- Your existing client data content -->
+                <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                        <rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect>
+                        <path d="M9 22v-4h6v4"></path>
+                        <path d="M8 6h.01"></path>
+                        <path d="M16 6h.01"></path>
+                        <path d="M12 6h.01"></path>
+                        <path d="M12 10h.01"></path>
+                        <path d="M12 14h.01"></path>
+                        <path d="M16 10h.01"></path>
+                        <path d="M16 14h.01"></path>
+                        <path d="M8 10h.01"></path>
+                        <path d="M8 14h.01"></path>
+                    </svg>
+                    Datos del Cliente
+                </h3>
                 <div class="form-row">
                     <label>ID:</label>
                     <div><?php echo $rowc['idc'] ?></div>
@@ -401,25 +199,27 @@
                     <label>Teléfono:</label>
                     <div><?php echo $rowc['telefonoc'] ?></div>
                 </div>
-                <div class="form-row">
+                <div class="form-row credit-limit">
                     <label>Límite de Crédito:</label>
                     <div><?php echo "RD$ " .$limitec ?></div>
                 </div>
-                <div class="form-row">
+                <div class="form-row balance-available">
                     <label>Balance Disponible:</label>
                     <div><?php echo "RD$ " .$balancec ?></div>
                 </div>
-                <div class="form-row">
+                <div class="form-row amount-due">
                     <label>Monto Total Adeudado:</label>
                     <div><?php echo "RD$ " .$adeudadoc ?></div>
                 </div>
             </div>
             
+            <!-- Payment Section -->
             <div class="payment-section">
-                <h3>Avance a Cuenta de Cliente</h3> <br>
-                <div class="section">
-                    <div class="payment-input">
-                        <div style="flex: 1;">
+                
+                <div class="payment-input">
+                    <div class="column-left">
+                        <!-- Elementos de la columna izquierda -->
+                        <div class="form-field">
                             <label>Método de Pago:</label>
                             <select id="forma-pago" name="forma-pago">
                                 <option value="efectivo">Efectivo</option>
@@ -427,40 +227,44 @@
                                 <option value="tarjeta">Tarjeta</option>
                             </select>
                         </div>
-                        <div id="num-tarjeta-div" style="display: none">
-                            <label>Número de tarjeta:</label>
-                            <div style="display: flex; gap: 5px;">
-                                <input type="number" id="num-tarjeta" name="num-tarjeta" maxlength="4" placeholder="Ultimos 4 digitos" autocomplete="off">
-                            </div>
-                        </div>
-                        <div id="num-auto-div" style="display: none;">
-                            <label>Número de autorización:</label>
-                            <div style="display: flex; gap: 5px;">
-                                <input type="number" id="num-auto" name="num-auto" maxlength="4" placeholder="Ultimos 4 números" autocomplete="off">
-                            </div>
-                        </div>
-                        <div id="banco-div" style="display: none;">
+
+                        <div id="banco-div" class="form-field" style="display: none;">
                             <label>Banco:</label>
-                            <div style="display: flex; gap: 5px;">
-                                <select name="banco" id="banco">
-                                    <option value="1" disabled selected>Seleccionar</option>
-                                    <?php
-                                        $sql = "SELECT * FROM bancos WHERE id <> 1 ORDER BY id ASC";
-                                        $resultado = $conn->query($sql);
-                                        if ($resultado->num_rows > 0) {
-                                            while ($fila = $resultado->fetch_assoc()) {
-                                            echo "<option value='" . $fila['id'] . "'>" . $fila['nombreBanco'] . "</option>";
-                                            }
-                                        } else {
-                                            echo "<option value='' disabled>No hay opciones</option>";
+                            <select name="banco" id="banco">
+                                <option value="1" disabled selected>Seleccionar</option>
+                                <?php
+                                    $sql = "SELECT * FROM bancos WHERE id <> 1 ORDER BY id ASC";
+                                    $resultado = $conn->query($sql);
+                                    if ($resultado->num_rows > 0) {
+                                        while ($fila = $resultado->fetch_assoc()) {
+                                        echo "<option value='" . $fila['id'] . "'>" . $fila['nombreBanco'] . "</option>";
                                         }
-                                    ?>
-                                </select>
+                                    } else {
+                                        echo "<option value='' disabled>No hay opciones</option>";
+                                    }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div id="num-auto-div" class="form-field" style="display: none;">
+                            <label>Número de autorización:</label>
+                            <input type="number" id="num-auto" name="num-auto" min="0" max="9999" minlength="4" maxlength="4" placeholder="Ultimos 4 números">
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="column-right">
+                        <!-- Elementos de la columna derecha -->
+                        
+                        <div id="monto-div" class="form-field">
+                            <label>Monto Pagado:</label>
+                            <div class="input-group">
+                                <input type="number" id="monto-pagado" name="monto-pagado" min="0" placeholder="Monto Pagado" autocomplete="off">
                             </div>
                         </div>
-                        <div id="destino-div" style="display: none;">
+
+                        <div id="destino-div" class="form-field" style="display: none;">
                             <label>Destino:</label>
-                            <div style="display: flex; gap: 5px;">
                             <select name="destino" id="destino">
                                 <option value="1" disabled selected>Seleccionar</option>
                                 <?php
@@ -475,244 +279,227 @@
                                     }
                                 ?>
                             </select>
-                            </div>
                         </div>
-                        <div style="flex: 1;" id="monto-div">
-                            <label>Monto Pagado:</label>
-                            <div style="display: flex; gap: 5px;">
-                                <input type="numer" id="monto-pagado" name="monto-pagado" min="0" placeholder="Monto Pagado" autocomplete="off">
-                            </div>
+
+                        <div id="num-tarjeta-div" class="form-field" style="display: none">
+                            <label>Número de tarjeta:</label>
+                            <input type="number" id="num-tarjeta" name="num-tarjeta" min="0" max="9999" minlength="4" maxlength="4" placeholder="Ultimos 4 digitos">
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <label>Devuelta:</label>
-                        <div id="devuelta" name="devuelta">RD$ .00</div>
+                        
                     </div>
                     
-                    <div class="button-group">
-                        <button class="btn btn-primary" onclick="procesarPago()">Procesar Pago</button>
-                        <button class="btn btn-primary">Procesar e Imprimir</button>
-                    </div>
+                </div>
+                <div id="devuelta-div">
+                    <label for="devuelta">Devuelta:</label>
+                    <span id="devuelta">RD$ .00</span>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="procesarPago()">Procesar Pago</button>
+                    <button class="btn btn-secondary">Procesar e Imprimir</button>
                 </div>
             </div>
         </div>
         
-        <div class="section">
-            <div class="history-tables">
-                <div class="history-table">
-                    <h3>Historial de Pagos:</h3>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Fecha y Hora</th>
-                                    <th>Método</th>
-                                    <th>Monto</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                
-                                <?php
-                                    if($resultsph->num_rows > 0){
-                                        while ($rowph = $resultsph->fetch_assoc()) {
-                                            // FORMATO DE MONEDA
-                                            $montoph = number_format($rowph['montoph'], 2, '.', ',');
-
-                                            echo "
-                                                <tr>
-                                                    <td>{$rowph['fechaph']}</td>
-                                                    <td>{$rowph['metodoph']}</td>
-                                                    <td>RD$ {$montoph}</td>
-                                                </tr>
-                                            ";
-                                        }
-                                    } else {
-                                        echo "<tr>
-                                                <td colspan='3'>No se encontraron resultados.</td>
-                                            </tr>";
+        <!-- History Tables Section -->
+        <div class="history-tables">
+            <div class="history-table">
+                <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Historial de Pagos
+                </h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>Método</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                if($resultsph->num_rows > 0){
+                                    while ($rowph = $resultsph->fetch_assoc()) {
+                                        $montoph = number_format($rowph['montoph'], 2, '.', ',');
+                                        echo "
+                                            <tr>
+                                                <td>{$rowph['fechaph']}</td>
+                                                <td>{$rowph['metodoph']}</td>
+                                                <td>RD$ {$montoph}</td>
+                                            </tr>
+                                        ";
                                     }
-                                ?>
-
-                            </tbody>
-                        </table>
-                    </div> <br>
-                    <a class="btn" id="show-more-modal">Ver mas</a>
+                                } else {
+                                    echo "<tr><td colspan='3'>No se encontraron resultados.</td></tr>";
+                                }
+                            ?>
+                        </tbody>
+                    </table>
                 </div>
+                <div style="margin-top: 1rem">
+                    <button class="btn btn-secondary" id="show-more-modal">Ver más</button>
+                </div>
+            </div>
 
-                <div class="history-table">
-                    <h3>Facturas Pendientes:</h3>
-                    <div class="table-container">
-                        <table>
-                            <thead>
+            <!-- Modal for Payment History -->
+            <div class="modal-history-payment">
+                <div class="modal-content-history-payments">
+                    <span class="close-modal-history-payments">&times;</span>
+
+                    <?php 
+                        // Your existing PHP code for pagination
+                        $registrosPorPagina = 10;
+                        $paginaActual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+                        $offset = ($paginaActual - 1) * $registrosPorPagina;
+
+                        $sqlTotal = "SELECT COUNT(*) AS total FROM clientes_historialpagos WHERE idCliente = ?";
+                        $stmtTotal = $conn->prepare($sqlTotal);
+                        $stmtTotal->bind_param("i", $idCliente);
+                        $stmtTotal->execute();
+                        $resultTotal = $stmtTotal->get_result();
+                        $totalRegistros = $resultTotal->fetch_assoc()['total'];
+
+                        $totalPaginas = ceil($totalRegistros / $registrosPorPagina);
+
+                        $sql = "SELECT
+                                    DATE_FORMAT(chp.fecha, '%d/%m/%Y %l:%i %p') AS fechachp,
+                                    chp.metodo AS metodochp,
+                                    chp.monto AS montochp,
+                                    chp.numAutorizacion AS autorizacionchp,
+                                    chp.referencia AS tarjetachp,
+                                    b.nombreBanco AS bancochp,
+                                    d.descripcion AS destinochp,
+                                    CONCAT(e.nombre, ' ', e.apellido) AS nombree
+                                FROM
+                                    clientes_historialpagos AS chp
+                                JOIN bancos AS b ON chp.idBanco = b.id
+                                JOIN destinocuentas AS d ON chp.idDestino = d.id
+                                JOIN empleados AS e ON e.id = chp.idEmpleado
+                                WHERE
+                                    chp.idCliente = ?
+                                ORDER BY
+                                    chp.fecha DESC
+                                LIMIT ? OFFSET ?";
+
+                        $stmt = $conn->prepare($sql);
+                        if (!$stmt) {
+                            die("Error en la preparación de la consulta: " . $conn->error);
+                        }
+
+                        $stmt->bind_param("iii", $idCliente, $registrosPorPagina, $offset);
+                        if (!$stmt->execute()) {
+                            die("Error al ejecutar la consulta: " . $stmt->error);
+                        }
+                        $result = $stmt->get_result();
+                    ?>
+
+                    <table class="payment-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Método</th>
+                                <th>Monto</th>
+                                <th>Autorización</th>
+                                <th>Referencia</th>
+                                <th>Banco</th>
+                                <th>Destino</th>
+                                <th>Empleado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while($row = $result->fetch_assoc()): ?>
                                 <tr>
-                                    <th>No. Fact</th>
-                                    <th>Fecha</th>
-                                    <th>Total</th>
-                                    <th>Pendiente</th>
+                                    <td><?php echo htmlspecialchars($row['fechachp']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['metodochp']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['montochp']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['autorizacionchp']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['tarjetachp']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['bancochp']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['destinochp']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['nombree']); ?></td>
                                 </tr>
-                            </thead>
-                            <tbody>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
 
-                                <?php
-                                    if ($resultsf->num_rows > 0) {
-                                        while ($rowf = $resultsf->fetch_assoc()) {
-                                            // FORMATO DE MONEDA
-                                            $totalf = number_format($rowf['totalf'], 2, '.', ',');
-                                            $balancef = number_format($rowf['balancef'], 2, '.', ',');
+                    <div class="pagination">
+                        <?php
+                        // Botón Anterior
+                        if ($paginaActual > 1) {
+                            echo "<a href='?idCliente=".($idCliente)."&pagina=" . ($paginaActual - 1) . "&modal=true" . "'>Anterior</a>";
+                        }
 
-                                            echo "
-                                                <tr>
-                                                    <td>{$rowf['nf']}</td>
-                                                    <td>{$rowf['fechaf']}</td>
-                                                    <td>RD$ {$totalf}</td>
-                                                    <td>RD$ {$balancef}</td>
-                                                </tr>
-                                            ";
-                                        }
-                                    } else {
-                                        echo "<tr>
-                                                <td colspan='4'>No se encontraron resultados.</td>
-                                            </tr>";
-                                    }
-                                ?>
+                        // Números de página
+                        for ($i = 1; $i <= $totalPaginas; $i++) {
+                            if ($i == $paginaActual) {
+                                echo "<span class='current'> $i</span>";
+                            } else {
+                                echo "<a href='?idCliente=".($idCliente)."&pagina=$i&modal=true'>$i</a>";
+                            }
+                        }
 
-                            </tbody>
-                        </table>
+                        // Botón Siguiente
+                        if ($paginaActual < $totalPaginas) {
+                            echo "<a href='?idCliente=".($idCliente)."&pagina=" . ($paginaActual + 1) . "&modal=true" . "'> Siguiente</a>";
+                        }
+                        ?>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="modal-history-payment">
-        <div class="modal-content-history-payments">
-            <span class="close-modal-history-payments">&times;</span>
-
-            <?php 
-
-                // Número de registros por página
-                $registrosPorPagina = 10;
-
-                // Página actual (por defecto 1)
-                $paginaActual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
-
-                // Calcular el offset
-                $offset = ($paginaActual - 1) * $registrosPorPagina;
-
-                // Consulta para obtener el total de registros
-                $sqlTotal = "SELECT COUNT(*) AS total FROM clientes_historialpagos WHERE idCliente = ?";
-                $stmtTotal = $conn->prepare($sqlTotal);
-                $stmtTotal->bind_param("i", $idCliente);
-                $stmtTotal->execute();
-                $resultTotal = $stmtTotal->get_result();
-                $totalRegistros = $resultTotal->fetch_assoc()['total'];
-
-                // Calcular total de páginas
-                $totalPaginas = ceil($totalRegistros / $registrosPorPagina);
-
-                // Modificar la consulta original para incluir LIMIT y OFFSET
-                $sql = "SELECT
-                            DATE_FORMAT(chp.fecha, '%d/%m/%Y %l:%i %p') AS fechachp,
-                            chp.metodo AS metodochp,
-                            chp.monto AS montochp,
-                            chp.numAutorizacion AS autorizacionchp,
-                            chp.referencia AS tarjetachp,
-                            b.nombreBanco AS bancochp,
-                            d.descripcion AS destinochp,
-                            CONCAT(e.nombre, ' ', e.apellido) AS nombree
-                        FROM
-                            clientes_historialpagos AS chp
-                        JOIN bancos AS b ON chp.idBanco = b.id
-                        JOIN destinocuentas AS d ON chp.idDestino = d.id
-                        JOIN empleados AS e ON e.id = chp.idEmpleado
-                        WHERE
-                            chp.idCliente = ?
-                        ORDER BY
-                            chp.fecha DESC
-                        LIMIT ? OFFSET ?;";
-
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iii", $idCliente, $registrosPorPagina, $offset);
-                $stmt->execute();
-                $result = $stmt->get_result();
-            ?>
-
-            <h3>Historial de Pagos</h3>
-            <p>Pagos realizados por el cliente.</p>
-
-            <div class="payments-history-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Método</th>
-                            <th>Monto</th>
-                            <th>No. Autorización</th>
-                            <th>No. Tarjeta</th>    
-                            <th>Banco</th>
-                            <th>Destino</th>
-                            <th>Empleado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
-                                    // FORMATO DE MONEDA
-                                    $montochp = number_format($row['montochp'], 2, '.', ',');
-
-                                    echo "
-                                        <tr>
-                                            <td>{$row['fechachp']}</td>
-                                            <td>{$row['metodochp']}</td>
-                                            <td>RD$ {$montochp}</td>
-                                            <td>{$row['autorizacionchp']}</td>
-                                            <td>{$row['tarjetachp']}</td>
-                                            <td>{$row['bancochp']}</td>
-                                            <td>{$row['destinochp']}</td>
-                                            <td>{$row['nombree']}</td>
-                                        </tr>
-                                    ";
+            <!-- Pending Invoices Table -->
+            <div class="history-table">
+                <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                        <line x1="16" x2="16" y1="2" y2="6"></line>
+                        <line x1="8" x2="8" y1="2" y2="6"></line>
+                        <line x1="3" x2="21" y1="10" y2="10"></line>
+                    </svg>
+                    Facturas Pendientes
+                </h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No. Fact</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Pendiente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                if ($resultsf->num_rows > 0) {
+                                    while ($rowf = $resultsf->fetch_assoc()) {
+                                        $totalf = number_format($rowf['totalf'], 2, '.', ',');
+                                        $balancef = number_format($rowf['balancef'], 2, '.', ',');
+                                        echo "
+                                            <tr>
+                                                <td>{$rowf['nf']}</td>
+                                                <td>{$rowf['fechaf']}</td>
+                                                <td>RD$ {$totalf}</td>
+                                                <td class='amount-due'>RD$ {$balancef}</td>
+                                            </tr>
+                                        ";
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='4'>No se encontraron resultados.</td></tr>";
                                 }
-                            } else {
-                                echo "<tr>
-                                        <td colspan='8'>No se encontraron resultados.</td>
-                                    </tr>";
-                            }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Paginación -->
-            <div class="pagination">
-                <?php
-                // Botón Anterior
-                if ($paginaActual > 1) {
-                    echo "<a href='?idCliente=".($idCliente)."&pagina=" . ($paginaActual - 1) . "&modal=true" . "'>Anterior</a>";
-                }
-
-                // Números de página
-                for ($i = 1; $i <= $totalPaginas; $i++) {
-                    if ($i == $paginaActual) {
-                        echo "<span class='current'> $i</span>";
-                    } else {
-                        echo "<a href='?idCliente=".($idCliente)."&pagina=$i&modal=true'>$i</a>";
-                    }
-                }
-
-                // Botón Siguiente
-                if ($paginaActual < $totalPaginas) {
-                    echo "<a href='?idCliente=".($idCliente)."&pagina=" . ($paginaActual + 1) . "&modal=true" . "'> Siguiente</a>";
-                }
-                ?>
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <?php
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            if(isset($_GET['modal']) == "true") {
+            if(isset($_GET['modal']) && $_GET['modal'] == "true") {
                 echo "<script>document.querySelector('.modal-history-payment').style.display = 'flex';</script>";
             } else {
                 echo "<script>document.querySelector('.modal-history-payment').style.display = 'none';</script>";
@@ -721,10 +508,32 @@
     ?>
 
     <script>
+        // Script para mostrar y ocultar el modal de historial de pagos
+        const modal = document.querySelector('.modal-history-payment');
+        const showModalBtn = document.getElementById('show-more-modal');
+        const closeModalBtn = document.querySelector('.close-modal-history-payments');
+
+        showModalBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+
+
+    <script>
 
         // Variables globales
         let totalpagado = 0;
-        let deuda = <?php echo $rowc['adeudadoc'] ?>;
+        let deuda = <?php echo $montodeuda ?>;
 
         // Script para mostrar el modal de historial de pagos
         const openBtn = document.getElementById("show-more-modal");
@@ -792,6 +601,19 @@
                 return;
             }
 
+            // Validar si el cliente tiene deuda
+            if (deuda <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validación',
+                    text: 'El cliente no tiene deuda pendiente.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
+
+            
             // Validar que el total pagado sea un número válido
             if (Number.isNaN(totalpagado) || totalpagado <= 0) {
                 Swal.fire({
@@ -813,8 +635,6 @@
                 banco: banco || null,
                 destino: destino || null,
             };
-
-            console.log("Enviando datos:", datos);
 
             fetch("php/cuentas_avance.php", {
                 method: "POST",
@@ -876,7 +696,7 @@
 
             // Variables
             const montoPagado = parseFloat(document.getElementById("monto-pagado").value);
-            let deuda = <?php echo $rowc['adeudadoc'] ?>;
+            let deuda = <?php echo $montodeuda ?>;
 
             // Calcular total ingresado
             let totaldevuelta = montoPagado - deuda;
@@ -886,8 +706,12 @@
                 document.getElementById("devuelta").textContent = "RD$ .00";
                 totalpagado = montoPagado;
             } else {
-                document.getElementById("devuelta").textContent = "RD$ " + totaldevuelta.toFixed(2);
-                totalpagado = montoPagado - totaldevuelta;
+                if (Number.isNaN(totaldevuelta)){
+                    document.getElementById("devuelta").textContent = "RD$ .00";
+                } else {
+                    document.getElementById("devuelta").textContent = "RD$ " + totaldevuelta.toFixed(2);
+                    totalpagado = montoPagado - totaldevuelta;
+                }
             }
 
         });
@@ -940,5 +764,9 @@
         });
     </script>
 
+    
+<script src="js/menu.js"></script>
+    <script src="js/modo_oscuro.js"></script>
+    <script src="js/oscuro_recargar.js"></script>
 </body>
 </html>
