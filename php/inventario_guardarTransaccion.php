@@ -121,7 +121,7 @@ try {
     }
 
     // Validar que el idEmpleado exista en la base de datos
-    $stmt = $conn->prepare("SELECT idEmpleado FROM empleados WHERE idEmpleado = ?");
+    $stmt = $conn->prepare("SELECT id FROM empleados WHERE id = ? AND activo = TRUE");
     if (!$stmt) {
         throw new Exception("Error preparando consulta de empleados: " . $conn->error);
     }
@@ -129,12 +129,7 @@ try {
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows === 0) {
-        throw new Exception("El idEmpleado no existe en la base de datos.");
-    }
-    
-    // Verificar que el idEmpleado no esté inactivo
-    if ($row['inactivo'] == TRUE) {
-        throw new Exception("El idEmpleado está inactivo.");
+        throw new Exception("El idEmpleado no existe en la base de datos o esta desactivado.");
     }
 
     /**

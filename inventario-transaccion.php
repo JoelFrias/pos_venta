@@ -287,7 +287,7 @@ let idElimination = 0; // Variable para almacenar el ID del producto a eliminar
 function addToCart(productId, productName, existenciaGeneral, existenciaInventario) {
 
     const quantityInput = document.getElementById(`quantity-${productId}`);
-    const quantity = quantityInput.value;
+    const quantity = parseInt(quantityInput.value);
 
     if (quantity <= 0) {
         Swal.fire({
@@ -429,7 +429,7 @@ function guardarFactura() {
     })
     .then(response => response.text())
     .then(text => {
-        // console.log("Respuesta completa del servidor:", text);
+        console.log("Respuesta completa del servidor:", text);
         try {
             let data = JSON.parse(text);
             if (data.success) {

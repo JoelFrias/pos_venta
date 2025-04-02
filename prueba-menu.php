@@ -29,3 +29,4 @@
 </nav>
 
 <script src="js/prueba-menu.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

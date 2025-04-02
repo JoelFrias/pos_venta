@@ -462,6 +462,7 @@ if (isset($_GET['editar'])) {
             }
         }
     </style>
+
 </head>
 <body>
     
@@ -618,28 +619,9 @@ if (isset($_GET['editar'])) {
     </script>
     <?php endif; ?>
 
-    <!-- Script para manejar la navegación y el menú móvil -->
-    <script>
-        function navigateTo(page) {
-            window.location.href = page; // Cambia la URL en la misma pestaña
-        }
+    <script src="js/menu.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-        function toggleNav() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            
-            sidebar.classList.toggle('active'); // Añade o quita la clase active para mostrar/ocultar el menú
-            overlay.classList.toggle('active'); // Muestra u oculta el overlay
-        }
-
-        // Asegurarse de que el botón de menú móvil funcione
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileToggle = document.getElementById('mobileToggle');
-            if (mobileToggle) {
-                mobileToggle.addEventListener('click', toggleNav);
-            }
-        });
-    </script>
 </div>
 </body>
 </html>

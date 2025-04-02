@@ -122,12 +122,12 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
             <div class="header-section">
                 <div class="title-container">
                     <h1>Lista de Productos</h1>
-                    <a href="productos-nuevo.php" class="btn btn-new ">
+                    <button class="btn btn-new" id="btnNew" onclick="validation()">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 5v14m-7-7h14"></path>
                         </svg>
                         <span>Nuevo</span>
-                    </a>
+                    </button>
                 </div>
                 
                 <!-- Sección de búsqueda -->
@@ -346,6 +346,22 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
 
             <!-- Scripts -->
             <script>
+
+                // Funcion de validacion de usuario
+                function validation() {
+                    idPuesto = <?php echo $_SESSION['idPuesto']; ?>;
+                    if (idPuesto > 2) {
+                        Swal.fire({
+                            title: 'Acceso bloqueado',
+                            text: 'No tienes permiso para realizar esta acción.',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    } else {
+                        window.location.href = "productos-nuevo.php";
+                    }
+                }
+
                 function mostrarModal(button) {
                     if (!button) return;  // Evita ejecutar si no hay un botón específico
 

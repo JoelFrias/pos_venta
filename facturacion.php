@@ -217,7 +217,7 @@ if ($result->num_rows > 0) {
         <select name="banco" id="banco">
             <option value="1" disabled selected>Seleccionar</option>
             <?php
-                $sql = "SELECT * FROM bancos WHERE id <> 1 ORDER BY id ASC";
+                $sql = "SELECT * FROM bancos WHERE id <> 1 AND enable = TRUE ORDER BY id ASC";
                 $resultado = $conn->query($sql);
                 if ($resultado->num_rows > 0) {
                     while ($fila = $resultado->fetch_assoc()) {
@@ -234,7 +234,7 @@ if ($result->num_rows > 0) {
         <select name="destino-cuenta" id="destino-cuenta">
             <option value="1" disabled selected>Seleccionar</option>
             <?php
-                $sql = "SELECT * FROM destinoCuentas WHERE id <> 1 ORDER BY id ASC";
+                $sql = "SELECT * FROM destinoCuentas WHERE id <> 1 AND enable = TRUE ORDER BY id ASC";
                 $resultado = $conn->query($sql);
                 if ($resultado->num_rows > 0) {
                     while ($fila = $resultado->fetch_assoc()) {

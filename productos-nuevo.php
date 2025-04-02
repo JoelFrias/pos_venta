@@ -65,6 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 VALUES (?, ?, NOW())");
         $stmt->bind_param("id", $idProducto, $cantidad);
         $stmt->execute();
+
+        // Insertar en la tabla 'inventariotransacciones'
+        $stmt = $conn->prepare("INSERT INTO `inventariotransacciones`(`tipo`, `idProducto`, `cantidad`, `fecha`, `descripcion`) VALUES (?,?,?,NOW(),?)");
+        $tipo = "ingreso";
+        $descripcionTransaccion = "Ingreso por nuevo producto: ";
+        $stmt->bind_param("siis", $tipo, $idProducto, $cantidad, $descripcionTransaccion);
+        $stmt->execute();
     
         // Confirmar la transacción
         $conn->commit();

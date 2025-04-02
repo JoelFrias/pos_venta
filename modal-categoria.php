@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validar que la descripción no esté vacía
     if (empty($descripcion)) {
         $_SESSION['error'] = "La descripción no puede estar vacía.";
-        header("Location: productos_nuevo.php"); // Redirigir de vuelta al formulario
+        header("Location: productos-nuevo.php"); // Redirigir de vuelta al formulario
         exit;
     }
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->close();
 
     // Redirigir de vuelta al formulario
-    header("Location: productos_nuevo.php");
+    header("Location: productos-nuevo.php");
     exit;
 }
 ?>

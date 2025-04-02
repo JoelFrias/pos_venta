@@ -31,32 +31,8 @@
 
     /* Fin de verificacion de sesion */
 
-    // Verificar si el usuario tiene permisos de administrador
-    if ($_SESSION['idPuesto'] > 2) {
-        echo "<script>
-                Swal.fire({
-                        icon: 'error',
-                        title: 'Acceso Prohibido',
-                        text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
-                        showConfirmButton: true,
-                        confirmButtonText: 'Aceptar'
-                    }).then(() => {
-                        window.location.href = './';
-                    });
-            </script>";
-        exit();
-    }
-                            
-    /**
-     * 
-     *  IMPORTANT:
-     *  AQUI DEBE DE IR LA VALIDACION DE PERMISOS DE USUARIO
-     *  PARA ACCEDER A LA PAGINA, DE LO CONTRARIO REDIRIGIR A LA PAGINA DE LOGIN
-     * 
-     */
-
     // Tabla Bancos
-    $stmtb = $conn->prepare("SELECT id AS idBank, nombreBanco AS namebanks FROM bancos WHERE id <> 1");
+    $stmtb = $conn->prepare("SELECT id AS idBank, nombreBanco AS namebanks FROM bancos WHERE id <> 1 AND enable = 1");
     $stmtb->execute();
     $resultsb = $stmtb->get_result();
 
@@ -72,11 +48,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <title>Panel Administrativo</title>
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <link rel="stylesheet" href="css/prueba-css.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Libreria de alertas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Libreria de graficos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* Estilos generales */
         * {
@@ -89,6 +66,28 @@
         body {
             background-color: #f5f5f5;
             color: #333;
+        }
+
+        .tittle h1 {
+            text-align: center;
+            margin: 5px 0 30px;
+            color: #2c3e50;
+            font-size: 32px;
+            font-weight: 700;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .tittle h1:after {
+            content: '';
+            position: absolute;
+            width: 30%;
+            height: 3px;
+            background-color: #e74c3c;
+            bottom: -3px;
+            left: 35%;
         }
 
         .conteiner {
@@ -131,6 +130,66 @@
 
         #buttons button:active {
             transform: translateY(0);
+        }
+
+        /* Estilos para el contenedor de filtros */
+        #filters {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        /* Estilos para el select */
+        #filters select {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #333;
+            transition: border-color 0.3s ease;
+            font-weight: 600;
+        }
+
+        #filters select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        /* Estilos para el botón de aplicar */
+        #btn-filters {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #btn-filters:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        #btn-filters:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #filters {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #filters select, #btn-filters {
+                width: 100%;
+            }
         }
 
         /* Estilos para modales */
@@ -319,16 +378,99 @@
                 font-size: 18px;
             }
         }
+
+        /* Estilos para el dashboard de gráficos */
+        #dashboard {
+            padding: 20px 0;
+        }
+        
+        #dashboard h2 {
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                margin-bottom: 15px;
+            }
+        }
     </style>
 </head>
 <body>
 
+    <!-- Autenticacion de usuario -->
+    <?php
+        if ($_SESSION['idPuesto'] > 2) {
+            echo "<script>
+                    Swal.fire({
+                            icon: 'error',
+                            title: 'Acceso Prohibido',
+                            text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        }).then(() => {
+                            window.location.href = './';
+                        });
+                </script>";
+            exit();
+        }
+    ?>
+
     <div class="navegator-nav">
 
+        <!-- Menu-->
         <?php include 'prueba-menu.php'; ?>
 
         <div class="page-content">
 
+            <!-- TODO EL CONTENIDO DE LA PAGINA VA AQUI DEBAJO -->
+
+            <div class="tittle">
+                <h1>Panel Administrativo</h1>
+            </div>
+
+            <!-- Botones principales -->
             <div id="buttons">
                 <div id="div-banks">
                     <button id="manager-banks">Administrar Bancos</button>
@@ -337,13 +479,83 @@
                     <button id="manager-destinations">Administrar Destinos</button>
                 </div>
                 <div id="div-users">
-                    <button id="manager-users">Administrar Usuarios</button>
+                    <button id="manager-users" onclick="redirectUsers()">Administrar Usuarios</button>
                 </div>
                 <div id="div-employees">
                     <button id="manager-employees" onclick="redirectEmployee()">Administrar Empleados</button>
                 </div>
+                <div id="div-transactions">
+                    <button id="manager-transactions">Transacciones de Productos</button>
+                </div>
                 <div id="div-cashiers">
                     <button id="manager-cashiers">Cuadres de Caja</button>
+                </div>
+                <div id="div-inventory">
+                    <button id="manager-inventory">Administrar Inventario</button>
+                </div>
+            </div>
+
+            <!-- Dashboard de estadisticas -->
+            <div id="dashboard">
+                <h2>Dashboard de Estadísticas Administrativas</h2>
+
+                <div id="filters">
+                    <select name="months" id="months">
+                        <option value="current">Mes Actual</option>
+                        <option value="previous">Mes Anterior</option>
+                    </select>
+
+                    <button id="btn-filters" name="btn-filters"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- Gráfico 1: Ventas Totales -->
+                    <div class="chart-container">
+                        <div class="chart-title">Ventas Totales</div>
+                        <div class="chart-wrapper">
+                            <canvas id="ventas-totales"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráfico 2: Ganancias Totales -->
+                    <div class="chart-container">
+                        <div class="chart-title">Ganancias Totales</div>
+                        <div class="chart-wrapper">
+                            <canvas id="ganancias-totales"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráfico 3: Ventas por Empleado -->
+                    <div class="chart-container">
+                        <div class="chart-title">Ventas por Empleado</div>
+                        <div class="chart-wrapper">
+                            <canvas id="ventas-empleados"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráfico 4: Número de Ventas por Empleado -->
+                    <div class="chart-container">
+                        <div class="chart-title">Número de Ventas por Empleado</div>
+                        <div class="chart-wrapper">
+                            <canvas id="num-ventas-empleado"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráfico 5: Productos más Vendidos -->
+                    <div class="chart-container">
+                        <div class="chart-title">Productos más Vendidos</div>
+                        <div class="chart-wrapper">
+                            <canvas id="productos-vendidos"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráfico 6: Productos en Reorden -->
+                    <div class="chart-container">
+                        <div class="chart-title">Productos en Punto de Reorden</div>
+                        <div class="chart-wrapper">
+                            <canvas id="productos-reorden"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -354,7 +566,7 @@
 
                 <h3>Agregar Banco</h3>
                 <label for="bank-name">Nombre del Banco:</label>
-                <input type="text" id="bank-name" name="bank-name">
+                <input type="text" id="bank-name" name="bank-name" autocomplete="off">
                 <button type="submit">Agregar</button>
 
                 <div id="bank-list">
@@ -375,7 +587,7 @@
                                             <tr data-id='{$rowb['idBank']}' data-name='{$rowb['namebanks']}'>
                                                 <td>{$rowb['namebanks']}</td>
                                                 <td>
-                                                    <button class='delete-bank'><i class=\"fa-solid fa-trash\"></i></button>
+                                                    <button class='delete-bank' onclick=\"deleteBank({$rowb['idBank']})\"><i class=\"fa-solid fa-trash\"></i></button>
                                                     <button class='edit-bank'><i class=\"fa-regular fa-pen-to-square\"></i></button>
                                                 </td>
                                             </tr>
@@ -399,8 +611,8 @@
                 <h3>Editar Banco</h3>
                 <label for="edit-bank-name">Nombre del Banco:</label>
                 <input type="hidden" id="edit-bank-id" name="edit-bank-id"> <!-- ID oculto para el banco -->
-                <input type="text" id="edit-bank-name" name="edit-bank-name">
-                <button id="update-edit-bank">Actualizar</button>
+                <input type="text" id="edit-bank-name" name="edit-bank-name"  autocomplete="off">
+                <button id="update-edit-bank" onclick="updateBank()">Actualizar</button>
                 <button id="cancel-edit-bank">Cancelar</button>
 
             </div>
@@ -412,7 +624,7 @@
 
                 <h3>Agregar Destino</h3>
                 <label for="destination-name">Nombre del Destino:</label>
-                <input type="text" id="destination-name" name="destination-name">
+                <input type="text" id="destination-name" name="destination-name" autocomplete="off">
                 <button type="submit">Agregar</button>
 
                 <div id="destination-list">
@@ -433,7 +645,7 @@
                                             <tr data-id='{$rowd['idDestination']}' data-name='{$rowd['namedestinations']}'>
                                                 <td>{$rowd['namedestinations']}</td>
                                                 <td>
-                                                    <button class='delete-destination'><i class=\"fa-solid fa-trash\"></i></button>
+                                                    <button class='delete-destination' onclick=\"deleteDestination({$rowd['idDestination']})\"><i class=\"fa-solid fa-trash\"></i></button>
                                                     <button class='edit-destination'><i class=\"fa-regular fa-pen-to-square\"></i></button>
                                                 </td>
                                             </tr>
@@ -457,23 +669,612 @@
                 <h3>Editar Destino</h3>
                 <label for="edit-destination-name">Nombre del Destino:</label>
                 <input type="hidden" id="edit-destination-id" name="edit-destination-id"> <!-- ID oculto para el destino -->
-                <input type="text" id="edit-destination-name" name="edit-destination-name">
-                <button id="update-edit-destination">Actualizar</button>
+                <input type="text" id="edit-destination-name" name="edit-destination-name" autocomplete="off" autocomplete="off">
+                <button id="update-edit-destination" onclick="updateDestination()">Actualizar</button>
                 <button id="cancel-edit-destination">Cancelar</button>
 
             </div>
 
+            <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR POR ENCIMA DE ESTA LINEA -->
         </div>
     </div>
-
-    <!-- Overlay para móviles -->
-    <div class="overlay" id="overlay"></div>
-
+    
+    <!-- Script para manipular los bancos y destinos -->
     <script>
 
-        function redirectEmployee() {
-            window.location.href = "empleados.php";
+        function deleteBank(id){
+
+            const datos = {
+                idBank: id
+            };
+
+            // console.log("Enviando datos:", datos);
+            // return;
+
+            fetch("php/admin-delete-bank.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.text())
+            .then(text => {
+                // console.log("Respuesta completa del servidor:", text);
+                try {
+                    let data = JSON.parse(text);
+                    if (data.success) {
+
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: 'Banco eliminado correctamente.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+
+                        // Eliminar la fila de la tabla
+                        const row = document.querySelector(`tr[data-id='${id}']`);
+                        if (row) {
+                            row.remove();
+                        }
+
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error,
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+                        console.log("Error al borrar el banco:", data.error);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Se produjo un error inesperado en el servidor.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                    console.error("Error: Respuesta no es JSON válido:", text);
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Se produjo un error de red o en el servidor. Por favor, inténtelo de nuevo.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                console.error("Error de red o servidor:", error);
+            });
         }
+
+        function updateBank(){
+
+            const datos = {
+                idBank: document.getElementById('edit-bank-id').value,
+                nombre: document.getElementById('edit-bank-name').value
+            };
+
+            // console.log("Enviando datos:", datos);
+            // return;
+
+            fetch("php/admin-update-bank.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.text())
+            .then(text => {
+                // console.log("Respuesta completa del servidor:", text);
+                try {
+                    let data = JSON.parse(text);
+                    if (data.success) {
+
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: 'Banco actualizado correctamente.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+
+                        // Actualizar la fila de la tabla
+                        const row = document.querySelector(`tr[data-id='${datos.idBank}']`);
+                        if (row) {
+                            row.dataset.name = datos.nombre;
+                            row.querySelector('td').textContent = datos.nombre;
+                        }
+
+                        // Cerrar el modal de edición
+                        const editModal = document.getElementById('edit-banks');
+                        editModal.style.display = 'none';
+                        const overlay = document.querySelector('.modal-overlay');
+                        if (overlay) {
+                            overlay.remove();
+                        }
+
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error,
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+                        console.log("Error al actualizar el banco:", data.error);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Se produjo un error inesperado en el servidor.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                    console.error("Error: Respuesta no es JSON válido:", text);
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Se produjo un error de red o en el servidor. Por favor, inténtelo de nuevo.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                console.error("Error de red o servidor:", error);
+            });
+        }
+
+        function deleteDestination(id){
+            const datos = {
+                idDestination: id
+            };
+
+            fetch("php/admin-delete-destination.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    let data = JSON.parse(text);
+                    if (data.success) {
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: 'Destino eliminado correctamente.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+
+                        // Eliminar la fila de la tabla - FIXED SELECTOR
+                        const row = document.querySelector(`#destination-table-body tr[data-id='${id}']`);
+                        if (row) {
+                            row.remove();
+                        } else {
+                            console.log("No se encontró la fila a eliminar con id:", id);
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error,
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+                        console.log("Error al borrar el destino:", data.error);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Se produjo un error inesperado en el servidor.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                    console.error("Error: Respuesta no es JSON válido:", text);
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Se produjo un error de red o en el servidor. Por favor, inténtelo de nuevo.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                console.error("Error de red o servidor:", error);
+            });
+        }
+
+        function updateDestination(){
+            const idDestino = document.getElementById('edit-destination-id').value;
+            const nombreDestino = document.getElementById('edit-destination-name').value;
+            
+            const datos = {
+                idDestino: idDestino,
+                nombre: nombreDestino
+            };
+
+            fetch("php/admin-update-destination.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    let data = JSON.parse(text);
+                    if (data.success) {
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: 'Destino actualizado correctamente.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+
+                        // Actualizar la fila de la tabla - FIXED SELECTOR
+                        const row = document.querySelector(`#destination-table-body tr[data-id='${idDestino}']`);
+                        if (row) {
+                            row.dataset.name = nombreDestino;
+                            row.querySelector('td').textContent = nombreDestino;
+                        } else {
+                            console.log("No se encontró la fila a actualizar con id:", idDestino);
+                        }
+
+                        // Cerrar el modal de edición
+                        const editModal = document.getElementById('edit-destinations');
+                        editModal.style.display = 'none';
+                        const overlay = document.querySelector('.modal-overlay');
+                        if (overlay) {
+                            overlay.remove();
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error,
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+                        console.log("Error al actualizar destino:", data.error);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Se produjo un error inesperado en el servidor.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                    console.error("Error: Respuesta no es JSON válido:", text);
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Se produjo un error de red o en el servidor. Por favor, inténtelo de nuevo.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                console.error("Error de red o servidor:", error);
+            });
+        }
+
+    </script>
+
+    <!-- Script para manipular las funciones de redireccionamiento -->
+    <script>
+
+        idPuesto = <?php echo $_SESSION['idPuesto']; ?>;
+
+        function redirectEmployee() {
+            
+            if (idPuesto > 2) {
+                Swal.fire({
+                    title: 'Acceso bloqueado',
+                    text: 'No tienes permiso para realizar esta acción.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            } else {
+                window.location.href = "empleados.php";
+            }
+        }
+
+        function redirectUsers() {
+            if (idPuesto > 2) {
+                Swal.fire({
+                    title: 'Acceso bloqueado',
+                    text: 'No tienes permiso para realizar esta acción.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            } else {
+                window.location.href = "usuarios-editar.php";
+            }
+        }
+
+    </script>
+
+    <!-- Script para graficos -->
+    <script>
+
+        // Gráficos de ventas totales por día
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('graphics/admin/ventas-totales.php')
+                .then(response => response.json())
+                .then(data => {
+                    const dias = data.map(item => item.dia);
+                    const ventas = data.map(item => item.ventas);
+
+                    const ctx = document.getElementById('ventas-totales').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: dias,
+                            datasets: [{
+                                label: 'Ventas Totales ($)',
+                                data: ventas,
+                                backgroundColor: 'rgba(54, 150, 214, 0.92)',
+                                borderColor: 'rgba(62, 101, 127, 0.92)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error cargando los datos:', error));
+        });
+
+        // Gráfico para ganancias totales
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('graphics/admin/ganancias-totales.php')
+                .then(response => response.json())
+                .then(data => {
+                    const dias = data.map(item => item.dia);
+                    const ganancias = data.map(item => item.ganancias);
+
+                    const ctx = document.getElementById('ganancias-totales').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: dias,
+                            datasets: [{
+                                label: 'Ganancias Totales ($)',
+                                data: ganancias,
+                                backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                                borderColor: 'rgba(39, 174, 96, 1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error cargando los datos:', error));
+        });
+
+        // Gráfico para ventas por empleado
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('graphics/admin/ventas-empleados.php')
+                .then(response => response.json())
+                .then(data => {
+                    const empleados = data.map(item => item.empleado);
+                    const ventas = data.map(item => item.ventas);
+
+                    const ctx = document.getElementById('ventas-empleados').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: empleados,
+                            datasets: [{
+                                label: 'Ventas Totales ($)',
+                                data: ventas,
+                                backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                                borderColor: 'rgba(142, 68, 173, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error cargando los datos:', error));
+        });
+
+        // Número de ventas por empleado
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('graphics/admin/numero-ventas-e.php')
+                .then(response => response.json())
+                .then(data => {
+                    const empleados = data.map(item => item.empleado);
+                    const ventas = data.map(item => item.numero_ventas);
+
+                    const ctx = document.getElementById('num-ventas-empleado').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: empleados,
+                            datasets: [{
+                                label: 'Número de Ventas',
+                                data: ventas,
+                                backgroundColor: [
+                                    'rgba(255, 183, 77, 0.7)',  // Naranja suave pero vibrante
+                                    'rgba(129, 199, 132, 0.7)', // Verde menta elegante
+                                    'rgba(100, 181, 246, 0.7)', // Azul cielo armónico
+                                    'rgba(244, 143, 177, 0.7)', // Rosa coral sutil
+                                    'rgba(77, 182, 172, 0.7)',  // Verde azulado moderno
+                                    'rgba(171, 71, 188, 0.7)'   // Morado pastel sofisticado
+                                ],
+                                borderColor: [
+                                    'rgba(255, 183, 77, 1)',
+                                    'rgba(129, 199, 132, 1)',
+                                    'rgba(100, 181, 246, 1)',
+                                    'rgba(244, 143, 177, 1)',
+                                    'rgba(77, 182, 172, 1)',
+                                    'rgba(171, 71, 188, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'right'
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error cargando los datos:', error));
+        });
+
+        // Gráfico de productos más vendidos
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('graphics/admin/productos-vendidos.php')
+                .then(response => response.json())
+                .then(data => {
+                    const productos = data.map(item => item.producto);
+                    const ventas = data.map(item => item.total_vendido);
+
+                    const ctx = document.getElementById('productos-vendidos').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: productos,
+                            datasets: [{
+                                label: 'Cantidad Vendida',
+                                data: ventas,
+                                backgroundColor: 'rgba(230, 126, 34, 0.7)',
+                                borderColor: 'rgba(211, 84, 0, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error cargando los datos:', error));
+        });
+
+        // Gráfico para productos en reorden
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('graphics/admin/producto-reorden.php')
+                .then(response => response.json())
+                .then(data => {
+                    const productos = data.map(item => item.producto);
+                    const stock = data.map(item => item.stock);
+                    const stockMinimo = data.map(item => item.stock_minimo);
+
+                    const ctx = document.getElementById('productos-reorden').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: productos,
+                            datasets: [{
+                                label: 'Stock Actual',
+                                data: stock,
+                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                                borderColor: 'rgba(192, 57, 43, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Stock Mínimo',
+                                data: stockMinimo,
+                                backgroundColor: 'rgba(241, 196, 15, 0.7)',
+                                borderColor: 'rgba(243, 156, 18, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error cargando los datos:', error));
+        });
+
+    </script>
+
+    <!-- Script para manipular los modales -->
+    <script>
         
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos de los modales
