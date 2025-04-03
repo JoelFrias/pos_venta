@@ -35,6 +35,10 @@ $idEmpleado = null;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['seleccionar-empleado'])) {
     $idEmpleado = intval($_POST['seleccionar-empleado']);
+
+    if ($_SESSION['idPuesto'] > 2){
+        $idEmpleado = intval($_SESSION['idPuesto']);
+    }
     
     // Usar consultas preparadas para evitar inyección SQL
     // Consulta principal
@@ -136,7 +140,7 @@ $resultEmpleados = $stmtEmp->get_result();
                                             while ($fila = $resultEmpleados->fetch_assoc()) {
                                                 $selected = ($_SERVER['REQUEST_METHOD'] == "POST" && 
                                                             isset($_POST['seleccionar-empleado']) && 
-                                                            $_POST['seleccionar-empleado'] == $fila['id']) ? " selected" : "";
+                                                            $idEmpleado == $fila['id']) ? " selected" : "";
                                                 echo "<option value='" . $fila['id'] . "'" . $selected . ">" . htmlspecialchars($fila['nombre'], ENT_QUOTES, 'UTF-8') . "</option>";
                                             }
                                         } else {
