@@ -772,7 +772,7 @@ if ($result->num_rows > 0) {
                                             <span><?php echo $facturaInfo['total_ajuste']; ?></span>
                                         </div>
                                         <div class="total-row final-total">
-                                            <span>Total a Pagar</span>
+                                            <span>Total:</span>
                                             <span><?php echo $facturaInfo['total']; ?></span>
                                         </div>
                                     </div>

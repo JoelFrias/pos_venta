@@ -25,6 +25,12 @@
         <li onclick="panelAdministrativo(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-screwdriver-wrench"></i><span>Panel Administrativo</span></li>
         <li onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></li>
     </ul>
+
+    <div id="bienvenida">
+        <span>Bienvenido:</span>
+        <span><?php echo $_SESSION['nombre'] ?></span>
+    </div>
+
 </nav>
 
 <script src="js/menu.js"></script>
