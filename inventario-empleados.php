@@ -105,247 +105,227 @@ $resultEmpleados = $stmtEmp->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Inventario Personal</title>
-    
-    <!-- Precargar CSS -->
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="preload" href="css/menu.css" as="style">
-    <link rel="preload" href="css/inventario.css" as="style">
-    <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/inventario.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet" media="print" onload="this.media='all'"> -->
-    
-    <!-- Fallback para navegadores que no soportan onload en link -->
-    <noscript>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <link href="https://unpkg.com/lucide-static/font/lucide.css" rel="stylesheet">
-    </noscript>
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
 </head>
 <body>
-  <!-- Contenedor principal -->
-  <div class="container">
-        <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
-        <button id="mobileToggle" class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
 
-        <!-- Incluir el menú -->
-        <?php require 'menu.php' ?>
+    <div class="navegator-nav">
 
-        <!-- Overlay para dispositivos móviles -->
-        <div class="overlay" id="overlay"></div>
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
 
-    <div class="general-container">
-        <div class="header">
-            <h1>Inventario Personal de Productos</h1>
-            <div class="header">
-                <form action="" method="post" class="employee-selector-form">
-                    <span class="employee-selector-label">Selecciona el Empleado:</span>
-                    <div class="employee-selector-controls">
-                        <div class="select-container">
-                            <select name="seleccionar-empleado" id="seleccionar-empleado" class="employee-select">
-                                <option disabled selected>---</option>
-                                <?php
-                                if ($resultEmpleados && $resultEmpleados->num_rows > 0) {
-                                    while ($fila = $resultEmpleados->fetch_assoc()) {
-                                        $selected = ($_SERVER['REQUEST_METHOD'] == "POST" && 
-                                                    isset($_POST['seleccionar-empleado']) && 
-                                                    $_POST['seleccionar-empleado'] == $fila['id']) ? " selected" : "";
-                                        echo "<option value='" . $fila['id'] . "'" . $selected . ">" . htmlspecialchars($fila['nombre'], ENT_QUOTES, 'UTF-8') . "</option>";
-                                    }
-                                } else {
-                                    echo "<option value='' disabled>No hay opciones</option>";
-                                }
-                                ?>
-                            </select>
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
+
+            <div class="general-container">
+                <div class="header">
+                    <h1>Inventario Personal de Productos</h1>
+                    <div class="header">
+                        <form action="" method="post" class="employee-selector-form">
+                            <span class="employee-selector-label">Selecciona el Empleado:</span>
+                            <div class="employee-selector-controls">
+                                <div class="select-container">
+                                    <select name="seleccionar-empleado" id="seleccionar-empleado" class="employee-select">
+                                        <option disabled selected>---</option>
+                                        <?php
+                                        if ($resultEmpleados && $resultEmpleados->num_rows > 0) {
+                                            while ($fila = $resultEmpleados->fetch_assoc()) {
+                                                $selected = ($_SERVER['REQUEST_METHOD'] == "POST" && 
+                                                            isset($_POST['seleccionar-empleado']) && 
+                                                            $_POST['seleccionar-empleado'] == $fila['id']) ? " selected" : "";
+                                                echo "<option value='" . $fila['id'] . "'" . $selected . ">" . htmlspecialchars($fila['nombre'], ENT_QUOTES, 'UTF-8') . "</option>";
+                                            }
+                                        } else {
+                                            echo "<option value='' disabled>No hay opciones</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <button type="submit" class="employee-submit-button">Buscar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="search-container">
+                        <i class="lucide-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar productos...">
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="icon-container orange">
+                                <i class="lucide-package"></i>
+                            </div>
                         </div>
-                        <button type="submit" class="employee-submit-button">Buscar</button>
+                        <div class="stat-info">
+                            <p>Total Productos</p>
+                            <h2><?php echo htmlspecialchars($totalProductos, ENT_QUOTES, 'UTF-8'); ?></h2>
+                        </div>
+                        <div class="stat-footer"></div>
                     </div>
-                </form>
-            </div>
-            <div class="search-container">
-                <i class="lucide-search"></i>
-                <input type="text" id="searchInput" placeholder="Buscar productos...">
-            </div>
-        </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="icon-container orange">
-                        <i class="lucide-package"></i>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="icon-container green">
+                                <i class="lucide-list"></i>
+                            </div>
+                        </div>
+                        <div class="stat-info">
+                            <p>Total Categorías</p>
+                            <h2><?php echo htmlspecialchars($totalCategorias, ENT_QUOTES, 'UTF-8'); ?></h2>
+                        </div>
+                        <div class="stat-footer"></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="icon-container blue">
+                                <i class="lucide-alert-triangle"></i>
+                            </div>
+                            <button class="filter-button"><i class="lucide-filter"></i></button>
+                        </div>
+                        <div class="stat-info">
+                            <p>Casi Agotados</p>
+                            <h2><?php echo htmlspecialchars($casiAgotados, ENT_QUOTES, 'UTF-8'); ?></h2>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-info">
-                    <p>Total Productos</p>
-                    <h2><?php echo htmlspecialchars($totalProductos, ENT_QUOTES, 'UTF-8'); ?></h2>
-                </div>
-                <div class="stat-footer"></div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="icon-container green">
-                        <i class="lucide-list"></i>
-                    </div>
+                <!-- Vista de escritorio -->
+                <div class="table-card desktop-view">
+                    <table id="inventarioTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Producto</th>
+                                <th>Tipo de Producto</th>
+                                <th>Existencia</th>
+                                <th>Precios de Venta</th>
+                                <th>Disponibilidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            if ($result && $result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<tr>
+                                            <td>" . htmlspecialchars($row["id"], ENT_QUOTES, 'UTF-8') . "</td>
+                                            <td>" . htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8') . "</td>
+                                            <td>" . htmlspecialchars($row["tipo_producto"], ENT_QUOTES, 'UTF-8') . "</td>
+                                            <td>" . htmlspecialchars($row["existencia_inventario"], ENT_QUOTES, 'UTF-8') . "</td>
+                                            <td>$" . htmlspecialchars($row["precioVenta1"], ENT_QUOTES, 'UTF-8') . ", $" . 
+                                            htmlspecialchars($row["precioVenta2"], ENT_QUOTES, 'UTF-8') . "</td>
+                                            <td><span class='status " . htmlspecialchars(strtolower(str_replace(' ', '-', $row["disponiblidad_inventario"])), ENT_QUOTES, 'UTF-8') . "'>" . 
+                                            htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "</span></td>
+                                        </tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='6'>No se encontraron resultados</td></tr>";
+                            }
+                            ?>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="stat-info">
-                    <p>Total Categorías</p>
-                    <h2><?php echo htmlspecialchars($totalCategorias, ENT_QUOTES, 'UTF-8'); ?></h2>
-                </div>
-                <div class="stat-footer"></div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="icon-container blue">
-                        <i class="lucide-alert-triangle"></i>
-                    </div>
-                    <button class="filter-button"><i class="lucide-filter"></i></button>
-                </div>
-                <div class="stat-info">
-                    <p>Casi Agotados</p>
-                    <h2><?php echo htmlspecialchars($casiAgotados, ENT_QUOTES, 'UTF-8'); ?></h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- Vista de escritorio -->
-        <div class="table-card desktop-view">
-            <table id="inventarioTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Producto</th>
-                        <th>Tipo de Producto</th>
-                        <th>Existencia</th>
-                        <th>Precios de Venta</th>
-                        <th>Disponibilidad</th>
-                    </tr>
-                </thead>
-                <tbody>
+                <!-- Vista móvil -->
+                <div class="mobile-view">
                     <?php
                     if ($result && $result->num_rows > 0) {
+                        mysqli_data_seek($result, 0); // Reset pointer to start
                         while ($row = $result->fetch_assoc()) {
-                            echo "<tr>
-                                    <td>" . htmlspecialchars($row["id"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td>" . htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td>" . htmlspecialchars($row["tipo_producto"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td>" . htmlspecialchars($row["existencia_inventario"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td>$" . htmlspecialchars($row["precioVenta1"], ENT_QUOTES, 'UTF-8') . ", $" . 
-                                       htmlspecialchars($row["precioVenta2"], ENT_QUOTES, 'UTF-8') . "</td>
-                                    <td><span class='status " . htmlspecialchars(strtolower(str_replace(' ', '-', $row["disponiblidad_inventario"])), ENT_QUOTES, 'UTF-8') . "'>" . 
-                                       htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "</span></td>
-                                  </tr>";
+                            $productName = htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8');
+                            $productNameUpper = htmlspecialchars(strtoupper($row["producto"]), ENT_QUOTES, 'UTF-8');
+                            $statusClass = htmlspecialchars(strtolower(str_replace(' ', '-', $row["disponiblidad_inventario"])), ENT_QUOTES, 'UTF-8');
+                            
+                            echo <<<HTML
+                            <div class="mobile-card" data-product="{$productNameUpper}">
+                                <div class="mobile-card-header">
+                                    <div class="mobile-card-title-section">
+                                        <h3 class="mobile-card-title">{$productName}</h3>
+                                        <p class="mobile-card-subtitle">{$row["tipo_producto"]}</p>
+                                    </div>
+                                    <span class="status {$statusClass}">{$row["disponiblidad_inventario"]}</span>
+                                </div>
+                                <div class="mobile-card-content">
+                                    <div class="mobile-card-item">
+                                        <span class="mobile-card-label">ID:</span>
+                                        <span class="mobile-card-value">{$row["id"]}</span>
+                                    </div>
+                                    <div class="mobile-card-item">
+                                        <span class="mobile-card-label">Existencia:</span>
+                                        <span class="mobile-card-value">{$row["existencia_inventario"]}</span>
+                                    </div>
+                                    <div class="mobile-card-item">
+                                        <span class="mobile-card-label">Precio Venta:</span>
+                                        <span class="mobile-card-value">\${$row["precioVenta1"]}, \${$row["precioVenta2"]}</span>
+                                    </div>
+                                </div>
+                            </div>
+                    HTML;
                         }
-                    } else {
-                        echo "<tr><td colspan='6'>No se encontraron resultados</td></tr>";
                     }
                     ?>
-                </tbody>
-            </table>
-        </div>
+                </div>
+            </div>
 
-        <!-- Vista móvil -->
-        <div class="mobile-view">
-            <?php
-            if ($result && $result->num_rows > 0) {
-                mysqli_data_seek($result, 0); // Reset pointer to start
-                while ($row = $result->fetch_assoc()) {
-                    $productName = htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8');
-                    $productNameUpper = htmlspecialchars(strtoupper($row["producto"]), ENT_QUOTES, 'UTF-8');
-                    $statusClass = htmlspecialchars(strtolower(str_replace(' ', '-', $row["disponiblidad_inventario"])), ENT_QUOTES, 'UTF-8');
-                    
-                    echo <<<HTML
-                    <div class="mobile-card" data-product="{$productNameUpper}">
-                        <div class="mobile-card-header">
-                            <div class="mobile-card-title-section">
-                                <h3 class="mobile-card-title">{$productName}</h3>
-                                <p class="mobile-card-subtitle">{$row["tipo_producto"]}</p>
-                            </div>
-                            <span class="status {$statusClass}">{$row["disponiblidad_inventario"]}</span>
-                        </div>
-                        <div class="mobile-card-content">
-                            <div class="mobile-card-item">
-                                <span class="mobile-card-label">ID:</span>
-                                <span class="mobile-card-value">{$row["id"]}</span>
-                            </div>
-                            <div class="mobile-card-item">
-                                <span class="mobile-card-label">Existencia:</span>
-                                <span class="mobile-card-value">{$row["existencia_inventario"]}</span>
-                            </div>
-                            <div class="mobile-card-item">
-                                <span class="mobile-card-label">Precio Venta:</span>
-                                <span class="mobile-card-value">\${$row["precioVenta1"]}, \${$row["precioVenta2"]}</span>
-                            </div>
-                        </div>
-                    </div>
-            HTML;
-                }
-            }
-            ?>
+        <!-- TODO EL CONTENIDO DE LA PAGINA ENCIMA DE ESTA LINEA -->
         </div>
     </div>
     
-    <!-- Cargar JavaScript de manera optimizada -->
-    <script defer src="js/sidebar_menu.js"></script>
-    <script defer src="js/modo_oscuro.js"></script>
-    <script defer src="js/oscuro_recargar.js"></script>
-    
     <script>
-    // Esperar a que se cargue el DOM completamente
-    document.addEventListener('DOMContentLoaded', function() {
-        // Función de búsqueda optimizada
-        const searchInput = document.getElementById('searchInput');
-        const inventarioTable = document.getElementById('inventarioTable');
-        const mobileCards = document.querySelectorAll('.mobile-card');
-        
-        searchInput.addEventListener('input', function() {
-            const filter = this.value.toUpperCase();
+        // Esperar a que se cargue el DOM completamente
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función de búsqueda optimizada
+            const searchInput = document.getElementById('searchInput');
+            const inventarioTable = document.getElementById('inventarioTable');
+            const mobileCards = document.querySelectorAll('.mobile-card');
             
-            // Búsqueda en la tabla de escritorio
-            if (inventarioTable) {
-                const trs = inventarioTable.querySelectorAll('tbody tr');
+            searchInput.addEventListener('input', function() {
+                const filter = this.value.toUpperCase();
                 
-                trs.forEach(tr => {
-                    const productCell = tr.querySelector('td:nth-child(2)');
-                    if (productCell) {
-                        const txtValue = productCell.textContent || productCell.innerText;
-                        tr.style.display = txtValue.toUpperCase().includes(filter) ? '' : 'none';
-                    }
+                // Búsqueda en la tabla de escritorio
+                if (inventarioTable) {
+                    const trs = inventarioTable.querySelectorAll('tbody tr');
+                    
+                    trs.forEach(tr => {
+                        const productCell = tr.querySelector('td:nth-child(2)');
+                        if (productCell) {
+                            const txtValue = productCell.textContent || productCell.innerText;
+                            tr.style.display = txtValue.toUpperCase().includes(filter) ? '' : 'none';
+                        }
+                    });
+                }
+                
+                // Búsqueda en las tarjetas móviles
+                mobileCards.forEach(card => {
+                    const productName = card.getAttribute('data-product');
+                    card.style.display = productName.includes(filter) ? '' : 'none';
                 });
+            });
+            
+            // Manejador del overlay y menú móvil
+            const mobileToggle = document.getElementById('mobileToggle');
+            const overlay = document.getElementById('overlay');
+            
+            if (mobileToggle && overlay) {
+                mobileToggle.addEventListener('click', toggleMenu);
+                overlay.addEventListener('click', closeMenu);
             }
             
-            // Búsqueda en las tarjetas móviles
-            mobileCards.forEach(card => {
-                const productName = card.getAttribute('data-product');
-                card.style.display = productName.includes(filter) ? '' : 'none';
-            });
+            function toggleMenu() {
+                document.body.classList.toggle('menu-open');
+            }
+            
+            function closeMenu() {
+                document.body.classList.remove('menu-open');
+            }
         });
-        
-        // Manejador del overlay y menú móvil
-        const mobileToggle = document.getElementById('mobileToggle');
-        const overlay = document.getElementById('overlay');
-        
-        if (mobileToggle && overlay) {
-            mobileToggle.addEventListener('click', toggleMenu);
-            overlay.addEventListener('click', closeMenu);
-        }
-        
-        function toggleMenu() {
-            document.body.classList.toggle('menu-open');
-        }
-        
-        function closeMenu() {
-            document.body.classList.remove('menu-open');
-        }
-    });
     </script>
-
-</div>
-
-<script src="js/menu.js"></script>
 
 </body>
 </html>

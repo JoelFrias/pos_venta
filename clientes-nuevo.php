@@ -112,127 +112,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Nuevo Cliente</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css">
-    <link rel="stylesheet" href="css/mant_cliente.css">
-    <link rel="stylesheet" href="css/modo_oscuro.css">
-    <!-- Importar estilos para iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="css/actualizar_cliente.css">
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
 </head>
 <body>
-    <div class="container">
-        <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
-        <button id="mobileToggle" class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
 
-        <!-- Incluir el menú -->
-        <?php require 'menu.php' ?>
+    <div class="navegator-nav">
 
-        <!-- Script para navegar entre páginas y mostrar/ocultar el menú -->
-        <script>
-            function navigateTo(page) {
-                window.location.href = page; // Cambia la URL en la misma pestaña
-            }
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
 
-            function toggleNav() {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('active'); // Añade o quita la clase active para mostrar/ocultar el menú
-            }
-        </script>
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
+        
+            <!-- Contenedor del formulario -->
+            <div class="form-container">
+                <h1 class="form-title">Registro de Cliente</h1>
+                <form class="registration-form" action="" method="POST">
+                    <!-- Sección de Datos del Cliente -->
+                    <fieldset>
+                        <legend>Datos del Cliente</legend>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nombre">Nombre:</label>
+                                <input type="text" id="nombre" name="nombre" autocomplete="off" placeholder="Ingrese el nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="apellido">Apellido:</label>
+                                <input type="text" id="apellido" name="apellido" autocomplete="off" placeholder="Ingrese el apellido" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="empresa">Empresa:</label>
+                                <input type="text" id="empresa" name="empresa" autocomplete="off" placeholder="Ingrese la empresa" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tipo_identificacion">Tipo de Identificación:</label>
+                                <select id="tipo_identificacion" name="tipo_identificacion" required>
+                                    <option value="" disabled selected>Seleccionar</option>
+                                    <option value="cedula">Cédula</option>
+                                    <option value="rnc">RNC</option>
+                                    <option value="pasaporte">Pasaporte</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="identificacion">Número de Identificación:</label>
+                                <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="Ingrese la identificación" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="telefono">Teléfono:</label>
+                                <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" maxlength="12" minlength="12" required>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="notas">Notas:</label>
+                            <textarea id="notas" name="notas" placeholder="Notas del cliente" required></textarea>
+                        </div>
+                    </fieldset>
 
-        <!-- Overlay para dispositivos móviles -->
-        <div class="overlay" id="overlay"></div>
+                    <!-- Sección de Datos de la Cuenta -->
+                    <fieldset>
+                        <legend>Datos de la Cuenta</legend>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="limite_credito">Límite de Crédito:</label>
+                                <input type="number" id="limite_credito" name="limite_credito" min="0" step="0.01" autocomplete="off" placeholder="Ingrese un límite de crédito" required>
+                            </div>
+                        </div>
+                    </fieldset>
 
-        <!-- Contenedor del formulario -->
-        <div class="form-container">
-            <h1 class="form-title">Registro de Cliente</h1>
-            <form class="registration-form" action="" method="POST">
-                <!-- Sección de Datos del Cliente -->
-                <fieldset>
-                    <legend>Datos del Cliente</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="nombre">Nombre:</label>
-                            <input type="text" id="nombre" name="nombre" autocomplete="off" placeholder="Ingrese el nombre" required>
+                    <!-- Sección de Dirección -->
+                    <fieldset>
+                        <legend>Dirección</legend>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="no">Número:</label>
+                                <input type="text" id="no" name="no" autocomplete="off" placeholder="Ingrese el número de local" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="calle">Calle:</label>
+                                <input type="text" id="calle" name="calle" autocomplete="off" placeholder="Ingrese la calle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sector">Sector:</label>
+                                <input type="text" id="sector" name="sector" autocomplete="off" placeholder="Ingrese el sector" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ciudad">Ciudad:</label>
+                                <input type="text" id="ciudad" name="ciudad" autocomplete="off" placeholder="Ingrese la ciudad" required>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="apellido">Apellido:</label>
-                            <input type="text" id="apellido" name="apellido" autocomplete="off" placeholder="Ingrese el apellido" required>
+                        <div class="form-group full-width">
+                            <label for="referencia">Referencia:</label>
+                            <textarea id="referencia" name="referencia" placeholder="Indique referencias del local (Ej: Al lado de la farmacia)" required></textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="empresa">Empresa:</label>
-                            <input type="text" id="empresa" name="empresa" autocomplete="off" placeholder="Ingrese la empresa" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="tipo_identificacion">Tipo de Identificación:</label>
-                            <select id="tipo_identificacion" name="tipo_identificacion" required>
-                                <option value="" disabled selected>Seleccionar</option>
-                                <option value="cedula">Cédula</option>
-                                <option value="rnc">RNC</option>
-                                <option value="pasaporte">Pasaporte</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="identificacion">Número de Identificación:</label>
-                            <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="Ingrese la identificación" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="telefono">Teléfono:</label>
-                            <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" maxlength="12" minlength="12" required>
-                        </div>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="notas">Notas:</label>
-                        <textarea id="notas" name="notas" placeholder="Notas del cliente" required></textarea>
-                    </div>
-                </fieldset>
+                    </fieldset>
 
-                <!-- Sección de Datos de la Cuenta -->
-                <fieldset>
-                    <legend>Datos de la Cuenta</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="limite_credito">Límite de Crédito:</label>
-                            <input type="number" id="limite_credito" name="limite_credito" min="0" step="0.01" autocomplete="off" placeholder="Ingrese un límite de crédito" required>
-                        </div>
-                    </div>
-                </fieldset>
+                    <!-- Botón para enviar el formulario -->
+                    <button type="submit" class="btn-submit">Registrar Cliente</button>
+                </form>
+            </div>
 
-                <!-- Sección de Dirección -->
-                <fieldset>
-                    <legend>Dirección</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="no">Número:</label>
-                            <input type="text" id="no" name="no" autocomplete="off" placeholder="Ingrese el número de local" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="calle">Calle:</label>
-                            <input type="text" id="calle" name="calle" autocomplete="off" placeholder="Ingrese la calle" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="sector">Sector:</label>
-                            <input type="text" id="sector" name="sector" autocomplete="off" placeholder="Ingrese el sector" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="ciudad">Ciudad:</label>
-                            <input type="text" id="ciudad" name="ciudad" autocomplete="off" placeholder="Ingrese la ciudad" required>
-                        </div>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="referencia">Referencia:</label>
-                        <textarea id="referencia" name="referencia" placeholder="Indique referencias del local (Ej: Al lado de la farmacia)" required></textarea>
-                    </div>
-                </fieldset>
-
-                <!-- Botón para enviar el formulario -->
-                <button type="submit" class="btn-submit">Registrar Cliente</button>
-            </form>
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR POR ENCIMA DE ESTA LINEA -->
         </div>
+    </div>
 
-        <!-- Mostrar mensajes de éxito o error -->
-        <?php
+    <!-- Mostrar mensajes de éxito o error -->
+    <?php
         if (isset($_SESSION['status']) && $_SESSION['status'] === 'success') {
             echo "
                 <script>
@@ -263,8 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             unset($_SESSION['errors']); // Limpiar los errores después de mostrarlos
         }
-        ?>
-    </div>
+    ?>
 
     <!-- Script para formatear el número de teléfono -->
     <script>
@@ -287,9 +273,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 
-    <!-- Scripts adicionales -->
-    <script src="js/menu.js"></script>
-    <script src="js/modo_oscuro.js"></script>
-    <script src="js/oscuro_recargar.js"></script>
 </body>
 </html>

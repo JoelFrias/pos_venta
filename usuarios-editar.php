@@ -103,12 +103,15 @@ if (isset($_GET['editar'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Editar Usuarios</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css">
-    <!-- Importación de iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
     <style>
+
+        *{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
         /* Estilos para el formulario de búsqueda */
         .emp_search-form {
             display: flex;
@@ -409,21 +412,6 @@ if (isset($_GET['editar'])) {
             background-color: #e2e8f0;
         }
 
-        /* Estilos para el menú móvil */
-        .toggle-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 12px;
-            cursor: pointer;
-            z-index: 999;
-            display: none;
-        }
-
         @media (max-width: 768px) {
             .toggle-btn {
                 display: block;
@@ -466,162 +454,157 @@ if (isset($_GET['editar'])) {
 </head>
 <body>
     
-<div class="container">
-    <!-- Botón de menú móvil -->
-    <button id="mobileToggle" class="toggle-btn" onclick="toggleNav()">
-        <i class="fas fa-bars"></i>
-    </button>
+    <div class="navegator-nav">
 
-    <!-- Requerimiento de Menú -->
-    <?php require 'menu.php' ?>
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
 
-    <!-- Overlay para móviles -->
-    <div class="overlay" id="overlay" onclick="toggleNav()"></div>
-    
-    <div class="emp_general-container">
-        <div class="emp_header">
-            <h1>Lista de Usuarios</h1>
-            
-            <!-- Formulario de búsqueda -->
-            <form action="" method="GET" class="emp_search-form">
-                <input type="text" name="busqueda" placeholder="Buscar por nombre de usuario..." class="emp_search-input" value="<?php echo htmlspecialchars($busqueda ?? ''); ?>">
-                <button type="submit" class="emp_search-button">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-                <?php if (!empty($busqueda)): ?>
-                <a href="usuarios-editar.php" class="emp_clear-search">
-                    <i class="fas fa-times"></i> Limpiar
-                </a>
-                <?php endif; ?>
-            </form>
-            
-            <!-- Contador de resultados -->
-            <?php if ($resultado): ?>
-            <div class="emp_results-count">
-                <?php 
-                $num_resultados = $resultado->num_rows;
-                echo "Se encontraron $num_resultados " . ($num_resultados == 1 ? "usuario" : "usuarios");
-                if (!empty($busqueda)) {
-                    echo " para la búsqueda: \"" . htmlspecialchars(trim($_GET['busqueda'])) . "\"";
-                }
-                ?>
-            </div>
-            <?php endif; ?>
-        </div>
-        
-        <!-- Vista de Escritorio -->
-        <div class="emp_desktop-view">
-            <div class="emp_table-card">
-                <table class="emp_table">
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if ($resultado && $resultado->num_rows > 0): ?>
-                            <?php while ($fila = $resultado->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($fila['username']); ?></td>
-                                    <td>
-                                        <a href="usuarios-editar.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="2">No hay usuarios registrados<?php echo !empty($busqueda) ? ' que coincidan con la búsqueda.' : '.'; ?></td>
-                            </tr>
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
+            <div class="emp_general-container">
+                <div class="emp_header">
+                    <h1>Lista de Usuarios</h1>
+                    
+                    <!-- Formulario de búsqueda -->
+                    <form action="" method="GET" class="emp_search-form">
+                        <input type="text" name="busqueda" placeholder="Buscar por nombre de usuario..." class="emp_search-input" value="<?php echo htmlspecialchars($busqueda ?? ''); ?>">
+                        <button type="submit" class="emp_search-button">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <?php if (!empty($busqueda)): ?>
+                        <a href="usuarios-editar.php" class="emp_clear-search">
+                            <i class="fas fa-times"></i> Limpiar
+                        </a>
                         <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Vista Móvil -->
-        <div class="emp_mobile-view">
-            <?php if ($resultado && $resultado->num_rows > 0): ?>
-                <?php 
-                // Reiniciar el puntero del resultado para la vista móvil
-                $resultado->data_seek(0);
-                while ($fila = $resultado->fetch_assoc()): 
-                ?>
-                    <div class="emp_mobile-card">
-                        <div class="emp_mobile-card-header">
-                            <div class="emp_mobile-card-title-section">
-                                <h3 class="emp_mobile-card-title"><?php echo htmlspecialchars($fila['username']); ?></h3>
-                            </div>
-                            <a href="usuarios-editar.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
-                        </div>
+                    </form>
+                    
+                    <!-- Contador de resultados -->
+                    <?php if ($resultado): ?>
+                    <div class="emp_results-count">
+                        <?php 
+                        $num_resultados = $resultado->num_rows;
+                        echo "Se encontraron $num_resultados " . ($num_resultados == 1 ? "usuario" : "usuarios");
+                        if (!empty($busqueda)) {
+                            echo " para la búsqueda: \"" . htmlspecialchars(trim($_GET['busqueda'])) . "\"";
+                        }
+                        ?>
                     </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <div class="emp_mobile-card">
-                    <p>No hay usuarios registrados<?php echo !empty($busqueda) ? ' que coincidan con la búsqueda.' : '.'; ?></p>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Vista de Escritorio -->
+                <div class="emp_desktop-view">
+                    <div class="emp_table-card">
+                        <table class="emp_table">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if ($resultado && $resultado->num_rows > 0): ?>
+                                    <?php while ($fila = $resultado->fetch_assoc()): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($fila['username']); ?></td>
+                                            <td>
+                                                <a href="usuarios-editar.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="2">No hay usuarios registrados<?php echo !empty($busqueda) ? ' que coincidan con la búsqueda.' : '.'; ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Vista Móvil -->
+                <div class="emp_mobile-view">
+                    <?php if ($resultado && $resultado->num_rows > 0): ?>
+                        <?php 
+                        // Reiniciar el puntero del resultado para la vista móvil
+                        $resultado->data_seek(0);
+                        while ($fila = $resultado->fetch_assoc()): 
+                        ?>
+                            <div class="emp_mobile-card">
+                                <div class="emp_mobile-card-header">
+                                    <div class="emp_mobile-card-title-section">
+                                        <h3 class="emp_mobile-card-title"><?php echo htmlspecialchars($fila['username']); ?></h3>
+                                    </div>
+                                    <a href="usuarios-editar.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <div class="emp_mobile-card">
+                            <p>No hay usuarios registrados<?php echo !empty($busqueda) ? ' que coincidan con la búsqueda.' : '.'; ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Modal de edición -->
+            <?php if ($usuario_editar): ?>
+                <div class="emp_modal">
+                    <div class="emp_modal-content">
+                        <h2>Modificar Usuario</h2>
+                        <form action="" method="post">
+                            <input type="hidden" name="id" value="<?php echo $usuario_editar['id']; ?>">
+                            <?php if (!empty($busqueda)): ?>
+                            <input type="hidden" name="busqueda" value="<?php echo htmlspecialchars($busqueda); ?>">
+                            <?php endif; ?>
+                            
+                            <div class="emp_form-group">
+                                <label for="new_username">Nuevo Usuario:</label>
+                                <input type="text" id="new_username" name="new_username" value="<?php echo htmlspecialchars($usuario_editar['username']); ?>" required>
+                            </div>
+                            
+                            <div class="emp_form-group">
+                                <label for="new_password">Nueva Contraseña:</label>
+                                <input type="password" id="new_password" name="new_password" minlength="4" required>
+                            </div>
+                            
+                            <div class="emp_form-actions">
+                                <button type="button" onclick="window.location.href='usuarios-editar.php<?php echo !empty($busqueda) ? '?busqueda=' . urlencode($busqueda) : ''; ?>'">Cancelar</button>
+                                <button type="submit" name="update_user">Actualizar</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             <?php endif; ?>
+        
+        <!-- TODO EL CONTENIDO ANTES DE ESTA LINEA -->
         </div>
     </div>
 
-    <!-- Modal de edición -->
-    <?php if ($usuario_editar): ?>
-        <div class="emp_modal">
-            <div class="emp_modal-content">
-                <h2>Modificar Usuario</h2>
-                <form action="" method="post">
-                    <input type="hidden" name="id" value="<?php echo $usuario_editar['id']; ?>">
-                    <?php if (!empty($busqueda)): ?>
-                    <input type="hidden" name="busqueda" value="<?php echo htmlspecialchars($busqueda); ?>">
-                    <?php endif; ?>
-                    
-                    <div class="emp_form-group">
-                        <label for="new_username">Nuevo Usuario:</label>
-                        <input type="text" id="new_username" name="new_username" value="<?php echo htmlspecialchars($usuario_editar['username']); ?>" required>
-                    </div>
-                    
-                    <div class="emp_form-group">
-                        <label for="new_password">Nueva Contraseña:</label>
-                        <input type="password" id="new_password" name="new_password" minlength="4" required>
-                    </div>
-                    
-                    <div class="emp_form-actions">
-                        <button type="button" onclick="window.location.href='usuarios-editar.php<?php echo !empty($busqueda) ? '?busqueda=' . urlencode($busqueda) : ''; ?>'">Cancelar</button>
-                        <button type="submit" name="update_user">Actualizar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    <?php endif; ?>
-
     <!-- Script para mostrar mensajes de éxito o error -->
     <?php if (isset($_SESSION['success_message'])): ?>
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Éxito',
-            text: '<?php echo $_SESSION['success_message']; ?>',
-            confirmButtonColor: '#3b82f6'
-        });
-        <?php unset($_SESSION['success_message']); ?>
-    </script>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: '<?php echo $_SESSION['success_message']; ?>',
+                confirmButtonColor: '#3b82f6'
+            });
+            <?php unset($_SESSION['success_message']); ?>
+        </script>
     <?php endif; ?>
 
     <?php if (isset($_SESSION['error_message'])): ?>
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: '<?php echo $_SESSION['error_message']; ?>',
-            confirmButtonColor: '#ef4444'
-        });
-        <?php unset($_SESSION['error_message']); ?>
-    </script>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '<?php echo $_SESSION['error_message']; ?>',
+                confirmButtonColor: '#ef4444'
+            });
+            <?php unset($_SESSION['error_message']); ?>
+        </script>
     <?php endif; ?>
 
-    <script src="js/menu.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-</div>
 </body>
 </html>

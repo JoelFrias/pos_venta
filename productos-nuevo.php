@@ -101,160 +101,145 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Nuevo Producto</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/mant_producto.css">
-    <link rel="stylesheet" href="css/modo_oscuro.css">
-    <!-- Estilos para el modal -->
     <link rel="stylesheet" href="css/producto_modal.css">
-    <!-- Importación de iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
 </head>
 <body>
 
-<?php
+    <?php
 
-if ($_SESSION['idPuesto'] > 2) {
-    echo "<script>
-            Swal.fire({
-                    icon: 'error',
-                    title: 'Acceso Prohibido',
-                    text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
-                    showConfirmButton: true,
-                    confirmButtonText: 'Aceptar'
-                }).then(() => {
-                    window.location.href = './';
+        if ($_SESSION['idPuesto'] > 2) {
+            echo "<script>
+                    Swal.fire({
+                            icon: 'error',
+                            title: 'Acceso Prohibido',
+                            text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        }).then(() => {
+                            window.location.href = './';
+                        });
+                </script>";
+            exit();
+        }
+
+    ?>
+
+    <div class="navegator-nav">
+
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
+
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
+
+            <!-- Modal para registrar categorías -->
+            <div id="myModal" class="MODAL2">
+                <div class="modal-contenedor">
+                    <span onclick="document.getElementById('myModal').style.display='none'" class="close">&times;</span>
+                    <h4>Registrar Categoría</h4>
+                    <form action="modal-categoria.php" method="POST">
+                        <input type="text" name="descripcion" placeholder="Tipo de Producto" class="input-fila" required>
+                        <button id="submitBtn" type="submit" class="btn-subir">Registrar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Script para manejar el modal -->
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const modal = document.getElementById("myModal");
+                    const input = modal.querySelector("input[name='descripcion']");
+                    const btnAbrir = document.querySelector(".btn-abrir");
+
+                    btnAbrir.addEventListener("click", function () {
+                        modal.style.display = "flex"; // Muestra el modal
+                        setTimeout(() => input.focus(), 100); // Agrega un pequeño retraso para asegurar el enfoque
+                    });
+
+                    // Cierra el modal cuando se hace clic en la "x"
+                    modal.querySelector(".close").addEventListener("click", function () {
+                        modal.style.display = "none";
+                    });
                 });
-          </script>";
-    exit();
-}
+            </script>
 
-?>
+            <!-- Contenedor del formulario de registro de productos -->
+            <div class="form-container">
+                <h1 class="form-title">Registro de Productos</h1>
+                
+                <form class="registration-form" action="" method="POST">
+                    <fieldset>
+                        <legend>Datos del Producto</legend>
+                        <div class="form-grid-producto">
+                            <div class="form-group">
+                                <label for="descripcion">Descripción:</label>
+                                <input type="text" id="descripcion" name="descripcion" autocomplete="off" placeholder="Nombre del producto" required>   
+                            </div>
 
-    <div class="container">
-        <!-- Botón de menú móvil -->
-        <button id="mobileToggle" class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
+                            <div class="form-group">
+                                <label for="tipo_identificacion">Tipo de Producto:</label>
+                                <div class="input-button-container">
+                                    <select id="tipo" name="tipo" required>
+                                        <option value="" disabled selected>Seleccionar</option>
+                                        <?php
+                                        // Obtener el id y la descripción de los tipos de producto
+                                        $sql = "SELECT id, descripcion FROM productos_tipo ORDER BY descripcion ASC";
+                                        $resultado = $conn->query($sql);
 
-        <!-- Requerimiento de Menú -->
-        <?php require 'menu.php' ?>
+                                        if ($resultado->num_rows > 0) {
+                                            while ($fila = $resultado->fetch_assoc()) {
+                                                echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
+                                            }
+                                        } else {
+                                            echo "<option value='' disabled>No hay opciones</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <!-- Botón para abrir el modal -->
+                                    <button id="openModalBtn" onclick="document.getElementById('myModal').style.display='flex'" class="btn-abrir">Tipo Producto</button>
+                                </div>
+                            </div>    
+                            <div class="form-group">
+                                <label for="precioCompra">Precio de Compra:</label>
+                                <input type="number" id="precioCompra" name="precioCompra" step="0.01" autocomplete="off" placeholder="Precio de Compra" min="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="precio1">Precio de Venta 1:</label>
+                                <input type="number" id="precio1" name="precio1" step="0.01" autocomplete="off" placeholder="Precio de venta 1" min="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="precio2">Precio de Venta 2:</label>
+                                <input type="number" id="precio2" name="precio2" step="0.01" autocomplete="off" placeholder="Precio de venta 2" min="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cantidad">Cantidad Existente:</label>
+                                <input type="number" id="cantidad" name="cantidad" step="0.01" autocomplete="off" placeholder="Cantidad existente" min="1" required>
+                            </div>
 
-        <!-- Script para manejar la navegación y el menú móvil -->
-        <script>
-            function navigateTo(page) {
-                window.location.href = page; // Cambia la URL en la misma pestaña
-            }
-        
-            function toggleNav() {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('active'); // Añade o quita la clase active para mostrar/ocultar el menú
-            }
-        </script>
+                            <div class="form-group">
+                                <label for="telefono">Reorden:</label>
+                                <input type="number" id="reorden" name="reorden" step="0.01" autocomplete="off" placeholder="Reorden de producto" min="0" required>
+                            </div>
+                        </div>
+                    </fieldset>
 
-        <!-- Modal para registrar categorías -->
-        <div id="myModal" class="MODAL2">
-            <div class="modal-contenedor">
-                <span onclick="document.getElementById('myModal').style.display='none'" class="close">&times;</span>
-                <h4>Registrar Categoría</h4>
-                <form action="modal-categoria.php" method="POST">
-                    <input type="text" name="descripcion" placeholder="Tipo de Producto" class="input-fila" required>
-                    <button id="submitBtn" type="submit" class="btn-subir">Registrar</button>
+                    <button type="submit" class="btn-submit1">Registrar Producto</button>
                 </form>
             </div>
+        
+        <!-- TODO EL CONTENIDO DE ESTA PAGINA ENCIMA DE ESTA LINEA -->
         </div>
+    </div>
 
-        <!-- Script para manejar el modal -->
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const modal = document.getElementById("myModal");
-                const input = modal.querySelector("input[name='descripcion']");
-                const btnAbrir = document.querySelector(".btn-abrir");
-
-                btnAbrir.addEventListener("click", function () {
-                    modal.style.display = "flex"; // Muestra el modal
-                    setTimeout(() => input.focus(), 100); // Agrega un pequeño retraso para asegurar el enfoque
-                });
-
-                // Cierra el modal cuando se hace clic en la "x"
-                modal.querySelector(".close").addEventListener("click", function () {
-                    modal.style.display = "none";
-                });
-            });
-        </script>
-
-        <!-- Overlay para móviles -->
-        <div class="overlay" id="overlay"></div>
-
-        <!-- Contenedor del formulario de registro de productos -->
-        <div class="form-container">
-            <h1 class="form-title">Registro de Productos</h1>
-            
-            <form class="registration-form" action="" method="POST">
-                <fieldset>
-                    <legend>Datos del Producto</legend>
-                    <div class="form-grid-producto">
-                        <div class="form-group">
-                            <label for="descripcion">Descripción:</label>
-                            <input type="text" id="descripcion" name="descripcion" autocomplete="off" placeholder="Nombre del producto" required>   
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tipo_identificacion">Tipo de Producto:</label>
-                            <div class="input-button-container">
-                                <select id="tipo" name="tipo" required>
-                                    <option value="" disabled selected>Seleccionar</option>
-                                    <?php
-                                    // Obtener el id y la descripción de los tipos de producto
-                                    $sql = "SELECT id, descripcion FROM productos_tipo ORDER BY descripcion ASC";
-                                    $resultado = $conn->query($sql);
-
-                                    if ($resultado->num_rows > 0) {
-                                        while ($fila = $resultado->fetch_assoc()) {
-                                            echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
-                                        }
-                                    } else {
-                                        echo "<option value='' disabled>No hay opciones</option>";
-                                    }
-                                    ?>
-                                </select>
-                                <!-- Botón para abrir el modal -->
-                                <button id="openModalBtn" onclick="document.getElementById('myModal').style.display='flex'" class="btn-abrir">Tipo Producto</button>
-                            </div>
-                        </div>    
-                        <div class="form-group">
-                            <label for="precioCompra">Precio de Compra:</label>
-                            <input type="number" id="precioCompra" name="precioCompra" step="0.01" autocomplete="off" placeholder="Precio de Compra" min="1" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="precio1">Precio de Venta 1:</label>
-                            <input type="number" id="precio1" name="precio1" step="0.01" autocomplete="off" placeholder="Precio de venta 1" min="1" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="precio2">Precio de Venta 2:</label>
-                            <input type="number" id="precio2" name="precio2" step="0.01" autocomplete="off" placeholder="Precio de venta 2" min="1" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="cantidad">Cantidad Existente:</label>
-                            <input type="number" id="cantidad" name="cantidad" step="0.01" autocomplete="off" placeholder="Cantidad existente" min="1" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="telefono">Reorden:</label>
-                            <input type="number" id="reorden" name="reorden" step="0.01" autocomplete="off" placeholder="Reorden de producto" min="0" required>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <button type="submit" class="btn-submit1">Registrar Producto</button>
-            </form>
-        </div>
-
-        <!-- Mostrar mensajes de éxito o error -->
-        <?php 
+    <!-- Mostrar mensajes de éxito o error -->
+    <?php 
         if (isset($_SESSION['status']) && $_SESSION['status'] === 'success') {
             echo "
                 <script>
@@ -283,13 +268,10 @@ if ($_SESSION['idPuesto'] > 2) {
             }
             unset($_SESSION['errors']); // Limpiar los errores después de mostrarlos
         }
-        ?>
-    </div>
+    ?>
 
     <!-- Scripts adicionales -->
     <script src="js/producto_modal.js"></script>
-    <script src="js/menu.js"></script>
-    <script src="js/modo_oscuro.js"></script>
-    <script src="js/oscuro_recargar.js"></script>
+
 </body>
 </html>

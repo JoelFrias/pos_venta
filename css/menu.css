@@ -1,4 +1,8 @@
-/* CODIGO SOLO PARA EL MENU DE OPCIONES */
+*{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* CSS AISLADO PARA EL MENÚ DE NAVEGACIÓN */
 :root {
     --sidebar-width: 250px; 
     --sidebar-collapsed-width: 60px;
@@ -13,32 +17,29 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-/* .main-content {
-    margin-left: var(--sidebar-width); 
-    transition: margin-left 0.3s ease;
 }
 
-.sidebar.collapsed + .main-content {
-    margin-left: var(--sidebar-collapsed-width); 
-} */
-.container {
-    display: flex;
-    min-height: 100vh;
+/* Contenedor principal */
+.navegator-nav {
     position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
 }
 
-/* Sidebar diseno de el menu */
+/* Sidebar diseño del menú */
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--primary-color);
     color: var(--text-color);
     transition: all 0.3s ease;
-    height: 100vh;
-    position: sticky;
+    min-height: 100vh;
+    height: 100%;
+    position: fixed;
     top: 0;
+    left: 0;
     z-index: 1000;
+    overflow-y: auto;
 }
 
 .sidebar.collapsed {
@@ -63,6 +64,8 @@
 .logo h2 {
     transition: opacity 0.3s ease;
     white-space: nowrap;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
 }
 
 .toggle-btn {
@@ -81,20 +84,22 @@
 .menu {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .menu li {
-    padding: 10px 20px; /*se me mejor mas pequeno no muy grande */
+    padding: 10px 20px;
     display: flex;
     align-items: center;
     cursor: pointer;
     transition: background-color 0.3s;
     white-space: nowrap;
     overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .menu li:hover {
-    background-color: var(--text-primary); /*color al pasar el boton*/
+    background-color: var(--text-primary);
 }
 
 .menu li i {
@@ -108,14 +113,22 @@
     transition: opacity 0.3s ease;
 }
 
-.main-content {
-    flex: 1;
+/* Contenido principal */
+.page-content {
     padding: 20px;
-    background-color: #f5f6fa;
-    transition: margin-left 0.3s ease;
+    min-height: calc(100vh - var(--header-height));
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
 }
 
-/* Overlay para los moviles */
+.sidebar.collapsed ~ .page-content {
+    margin-left: var(--sidebar-collapsed-width);
+    width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+/* Overlay para los móviles */
 .overlay {
     display: none;
     position: fixed;
@@ -131,9 +144,10 @@
 
 .overlay.active {
     opacity: 1;
+    display: block;
 }
 
-/* menu personalizado para moviles */
+/* Menú personalizado para móviles */
 #mobileToggle {
     display: none;
     position: fixed;
@@ -150,33 +164,32 @@
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
-        position: fixed;
-        left: 0;
         transform: translateX(-100%);
         height: 100%;
         width: var(--sidebar-width) !important;
     }
 
-    .sidebar.collapsed {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.active {
+    /* Clase para activar el menú en móvil */
+    .sidebar.mobile-active {
         transform: translateX(0);
     }
-
-    .sidebar.active + .overlay {
+    
+    /* Importante: desactivar el modo collapsed en móvil */
+    .sidebar.collapsed.mobile-active {
+        width: var(--sidebar-width) !important;
+        transform: translateX(0);
+    }
+    
+    /* Mostrar los elementos que se ocultan en modo collapsed cuando está activo en móvil */
+    .sidebar.collapsed.mobile-active .logo h2,
+    .sidebar.collapsed.mobile-active .menu span {
         display: block;
     }
 
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-        padding-top: 60px;
-    }
-
-    .charts-section {
-        grid-template-columns: 1fr;
+    .page-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 50px;
     }
 
     #mobileToggle {
@@ -198,7 +211,7 @@
     }
 }
 
-/* ajusyes para las tables  */
+/* Ajustes para las tablets */
 @media (min-width: 769px) and (max-width: 1024px) {
     .charts-section {
         grid-template-columns: 1fr;

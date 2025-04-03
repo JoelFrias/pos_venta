@@ -19,7 +19,6 @@ body {
     max-width: 1600px;
     margin: 0 auto;
     padding: 1rem;
-    margin-top: 10px;
 }
 
 .form-title {
@@ -141,15 +140,12 @@ textarea {
 @media (max-width: 767px) {
     .form-container {
         padding: 0.5rem;
-        margin-top: 30px;
     }
 
     .form-grid {
         grid-template-columns: 1fr;
     }
-    .form-title {
-        margin-top: 30px;  /* Agregadoooooo */
-    }
+    
     input[type="text"],
     input[type="number"],
     input[type="password"], /* Agregado */

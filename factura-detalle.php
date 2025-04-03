@@ -113,14 +113,13 @@ if ($result->num_rows > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Detalle Factura</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+    
     <style>
         /* Variables globales */
         :root {
-            --sidebar-width: 250px; 
             --sidebar-collapsed-width: 60px;
             --header-height: 60px;
             --primary-color: #2c3e50;
@@ -134,7 +133,7 @@ if ($result->num_rows > 0) {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
@@ -143,95 +142,13 @@ if ($result->num_rows > 0) {
             min-height: 100vh;
             overflow-x: hidden;
         }
-
-        /* Sidebar y Menú */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--primary-color);
-            color: var(--text-color);
-            transition: all 0.3s ease;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-        }
-
-        .sidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
-        }
-
-        .sidebar.collapsed .logo h2,
-        .sidebar.collapsed .menu span {
-            display: none;
-        }
-
-        .logo {
-            height: var(--header-height);
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--secondary-color);
-            overflow: hidden;
-        }
-
-        .logo h2 {
-            transition: opacity 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .toggle-btn {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            cursor: pointer;
-            font-size: 1.2rem;
-            min-width: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-        }
-
-        .menu {
-            list-style: none;
-            padding: 0;
-        }
-
-        .menu li {
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        .menu li:hover {
-            background-color: var(--text-primary);
-        }
-
-        .menu li i {
-            margin-right: 15px;
-            width: 20px;
-            text-align: center;
-            font-size: 1.1rem;
-        }
-
-        .menu span {
-            transition: opacity 0.3s ease;
-        }
-
+        
         /* Contenedor principal */
         .container {
             display: flex;
             min-height: 100vh; /* para evitar el desborde hacia abajo*/
             position: relative;
-            margin-left: var(--sidebar-width);
             transition: margin-left 0.3s ease;
-            width: calc(100% - var(--sidebar-width));
             
         }
 
@@ -557,25 +474,6 @@ if ($result->num_rows > 0) {
 
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: var(--sidebar-width) !important;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .container {
-                margin-left: 0;
-                width: 100%;
-                margin-top: 60px;
-            }
-
-            .sidebar.collapsed ~ .container {
-                margin-left: 0;
-                width: 100%;
-            }
 
             .invoice-container {
                 padding: 0.5rem;
@@ -712,199 +610,193 @@ if ($result->num_rows > 0) {
     </style>
 </head>
 <body>
-<!--  -->
 
-    <?php include "menu.php"; ?>
+    <div class="navegator-nav">
 
-    
-    <script src="js/sidebar_menu.js"></script>
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
 
-        <!-- Overlay para dispositivos móviles -->
-    <div class="overlay" id="overlay"></div>
-    
-    <button id="mobileToggle" class="toggle-btn">
-        <i class="fas fa-bars"></i>
-    </button>
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
 
-
-
-   
-<!--  -->
-    <div class="container">
-        <div class="invoice-container">
-            <div class="search-section">
-                <h2>Detalle de Factura</h2>
-            </div>
-            <?php if (isset($mensaje)): ?>
-                <!-- Mostrar mensaje si no se encontraron facturas -->
-                <p><?php echo $mensaje; ?></p>
-            <?php elseif (!empty($facturas)): ?>
-                <!-- Mostrar todas las facturas que coinciden con el filtro -->
-                <?php foreach ($facturas as $facturaInfo): ?>
-                    <div class="invoice-card">
-                        <div class="invoice-header">
-                            <h1>Factura #<?php echo $facturaInfo['numFactura']; ?></h1>
-                            <span class="status <?php echo strtolower($facturaInfo['estado']); ?>">
-                                 <?php echo $facturaInfo['estado']; ?>
-                            </span>
-                        </div>
-                        <div class="client-info">
-                            <div class="info-column">
-                                <div class="info-row">
-                                    <label>ID Cliente</label>
-                                    <span><?php echo $facturaInfo['idCliente']; ?></span>
-                                </div>
-                                <div class="info-row">
-                                    <label>Nombre del Cliente:</label>
-                                    <span><?php echo $facturaInfo['NombreCliente']; ?></span>
-                                </div>
-                                <div class="info-row">
-                                    <label>Teléfono:</label>
-                                    <span><?php echo $facturaInfo['telefono']; ?></span>
-                                </div>
-                            </div>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <label>Fecha y Hora:</label>
-                                    <span><?php echo $facturaInfo['fecha']; ?></span>
-                                </div>
-                                <div class="info-item">
-                                    <label>Tipo de Factura:</label>
-                                    <span><?php echo $facturaInfo['tipoFactura']; ?></span>
-                                </div>
-                                <div class="info-item">
-                                    <label>Vendedor:</label>
-                                    <span><?php echo $facturaInfo['NombreEmpleado']; ?></span>
-                                </div>
-                                <div class="info-item">
-                                    <label>Monto Adeudado:</label>
-                                    <span class="amount-due"><?php echo $facturaInfo['balance']; ?></span>
-                                </div>
-                            </div>
-                        </div>
-                    
-                        <div class="search-section">
-                            <h2>Productos Facturados:</h2>
-                        </div>
-
-                        <!-- Mostrar detalles de la factura -->
-                        <?php
-                        // Consulta para obtener los detalles de la factura actual
-                        $sqlDetalles = "
-                        SELECT 
-                            p.id AS idProducto, 
-                            p.descripcion AS Producto, 
-                            fd.cantidad, 
-                            fd.precioVenta, 
-                            fd.importe AS importeProducto
-                        FROM facturas_detalles AS fd
-                        LEFT JOIN productos AS p ON fd.idProducto = p.id
-                        WHERE fd.numFactura = {$facturaInfo['numFactura']}";
-
-                        $resultDetalles = $conn->query($sqlDetalles);
-
-                        
-
-                        if ($resultDetalles->num_rows > 0) {
-                            echo "<div class='products-section'>";
-                            while ($detalle = $resultDetalles->fetch_assoc()) {
-
-                                // Formatear los números a moneda
-                                $detalle['importeProducto'] = "RD$ " . number_format($detalle['importeProducto'], 2, '.', '');
-                                $detalle['precioVenta'] = "RD$ " . number_format($detalle['precioVenta'], 2, '.', '');
-                                $detalle['cantidad'] = number_format($detalle['cantidad'], 0, '.', ''); // Formatear cantidad a número entero
-
-                                echo "<div class='product-card'>
-                                        <div class='product-header'>
-                                            <span class='product-id'>ID - {$detalle['idProducto']}</span>
-                                            <span class='product-name'>{$detalle['Producto']}</span>
-                                        </div>
-                                        <div class='product-details'>
-                                            <div class='detail-item'>
-                                                <label>Cantidad</label>
-                                                <span>{$detalle['cantidad']}</span>
-                                            </div>
-                                            <div class='detail-item'>
-                                                <label>Precio</label>
-                                                <span>{$detalle['precioVenta']}</span>
-                                            </div>
-                                            <div class='detail-item'>
-                                                <label>Total</label>
-                                                <span>{$detalle['importeProducto']}</span>
-                                            </div>
-                                        </div>
-                                    </div>";
-                            }
-                            echo "</div>";
-                        }
-                        ?>
-                        <div class="invoice-summary">
-                            <div class="totals">
-                                <div class="total-row">
-                                    <span>Método:</span>
-                                    <span><?php echo $factura['metodofm']; ?></span>
-                                </div>
-                                <div class="total-row">
-                                    <span>Monto:</span>
-                                    <span><?php echo $factura['montofm']; ?></span>
-                                </div>
-                                <div class="total-row">
-                                    <span>No. Autorización:</span>
-                                    <span>#<?php echo $factura['noautofm']; ?></span>
-                                </div>
-                                <div class="total-row">
-                                    <span>No. Tarjeta:</span>
-                                    <span>#<?php echo $factura['refm']; ?></span>
-                                </div>
-                                <div class="total-row">
-                                    <span>Banco:</span>
-                                    <span><?php echo $factura['bancofm']; ?></span>
-                                </div>
-                                <div class="total-row">
-                                    <span>Destino:</span>
-                                    <span><?php echo $factura['destinofm']; ?></span>
-                                </div>
-                            </div>
-                            <div class="totals">
-                                <div class="total-row">
-                                    <span>Subtotal</span>
-                                    <span><?php echo $facturaInfo['importe']; ?></span>
-                                </div>
-                                <div class="total-row">
-                                     <span>ITBIS Total</span>
-                                     <span>RD$ 0.00</span> <!--no se cobra itebis-->
-                                </div>
-                                <div class="total-row">
-                                    <span>Descuento</span>
-                                    <span class="discount"><?php echo $facturaInfo['descuento']; ?></span>
-                                </div>
-                                <div class="total-row">
-                                    <span>Total Ajuste</span>
-                                    <span><?php echo $facturaInfo['total_ajuste']; ?></span>
-                                </div>
-                                <div class="total-row final-total">
-                                    <span>Total a Pagar</span>
-                                    <span><?php echo $facturaInfo['total']; ?></span>
-                                </div>
-                            </div>
-                            <div class="action-buttons">
-                                <button class="btn-primary" onclick="navigateTo('cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
-                                <button class="btn-secondary">
-                                    <span class="printer-icon">🖨️</span>
-                                    Reimprimir
-                                </button>
-                            </div>
-                        </div>
+            <div class="container">
+                <div class="invoice-container">
+                    <div class="search-section">
+                        <h2>Detalle de Factura</h2>
                     </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+                    <?php if (isset($mensaje)): ?>
+                        <!-- Mostrar mensaje si no se encontraron facturas -->
+                        <p><?php echo $mensaje; ?></p>
+                    <?php elseif (!empty($facturas)): ?>
+                        <!-- Mostrar todas las facturas que coinciden con el filtro -->
+                        <?php foreach ($facturas as $facturaInfo): ?>
+                            <div class="invoice-card">
+                                <div class="invoice-header">
+                                    <h1>Factura #<?php echo $facturaInfo['numFactura']; ?></h1>
+                                    <span class="status <?php echo strtolower($facturaInfo['estado']); ?>">
+                                        <?php echo $facturaInfo['estado']; ?>
+                                    </span>
+                                </div>
+                                <div class="client-info">
+                                    <div class="info-column">
+                                        <div class="info-row">
+                                            <label>ID Cliente</label>
+                                            <span><?php echo $facturaInfo['idCliente']; ?></span>
+                                        </div>
+                                        <div class="info-row">
+                                            <label>Nombre del Cliente:</label>
+                                            <span><?php echo $facturaInfo['NombreCliente']; ?></span>
+                                        </div>
+                                        <div class="info-row">
+                                            <label>Teléfono:</label>
+                                            <span><?php echo $facturaInfo['telefono']; ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <label>Fecha y Hora:</label>
+                                            <span><?php echo $facturaInfo['fecha']; ?></span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Tipo de Factura:</label>
+                                            <span><?php echo $facturaInfo['tipoFactura']; ?></span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Vendedor:</label>
+                                            <span><?php echo $facturaInfo['NombreEmpleado']; ?></span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Monto Adeudado:</label>
+                                            <span class="amount-due"><?php echo $facturaInfo['balance']; ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <div class="search-section">
+                                    <h2>Productos Facturados:</h2>
+                                </div>
+
+                                <!-- Mostrar detalles de la factura -->
+                                <?php
+                                // Consulta para obtener los detalles de la factura actual
+                                $sqlDetalles = "
+                                SELECT 
+                                    p.id AS idProducto, 
+                                    p.descripcion AS Producto, 
+                                    fd.cantidad, 
+                                    fd.precioVenta, 
+                                    fd.importe AS importeProducto
+                                FROM facturas_detalles AS fd
+                                LEFT JOIN productos AS p ON fd.idProducto = p.id
+                                WHERE fd.numFactura = {$facturaInfo['numFactura']}";
+
+                                $resultDetalles = $conn->query($sqlDetalles);
+
+                                
+
+                                if ($resultDetalles->num_rows > 0) {
+                                    echo "<div class='products-section'>";
+                                    while ($detalle = $resultDetalles->fetch_assoc()) {
+
+                                        // Formatear los números a moneda
+                                        $detalle['importeProducto'] = "RD$ " . number_format($detalle['importeProducto'], 2, '.', '');
+                                        $detalle['precioVenta'] = "RD$ " . number_format($detalle['precioVenta'], 2, '.', '');
+                                        $detalle['cantidad'] = number_format($detalle['cantidad'], 0, '.', ''); // Formatear cantidad a número entero
+
+                                        echo "<div class='product-card'>
+                                                <div class='product-header'>
+                                                    <span class='product-id'>ID - {$detalle['idProducto']}</span>
+                                                    <span class='product-name'>{$detalle['Producto']}</span>
+                                                </div>
+                                                <div class='product-details'>
+                                                    <div class='detail-item'>
+                                                        <label>Cantidad</label>
+                                                        <span>{$detalle['cantidad']}</span>
+                                                    </div>
+                                                    <div class='detail-item'>
+                                                        <label>Precio</label>
+                                                        <span>{$detalle['precioVenta']}</span>
+                                                    </div>
+                                                    <div class='detail-item'>
+                                                        <label>Total</label>
+                                                        <span>{$detalle['importeProducto']}</span>
+                                                    </div>
+                                                </div>
+                                            </div>";
+                                    }
+                                    echo "</div>";
+                                }
+                                ?>
+                                <div class="invoice-summary">
+                                    <div class="totals">
+                                        <div class="total-row">
+                                            <span>Método:</span>
+                                            <span><?php echo $factura['metodofm']; ?></span>
+                                        </div>
+                                        <div class="total-row">
+                                            <span>Monto:</span>
+                                            <span><?php echo $factura['montofm']; ?></span>
+                                        </div>
+                                        <div class="total-row">
+                                            <span>No. Autorización:</span>
+                                            <span>#<?php echo $factura['noautofm']; ?></span>
+                                        </div>
+                                        <div class="total-row">
+                                            <span>No. Tarjeta:</span>
+                                            <span>#<?php echo $factura['refm']; ?></span>
+                                        </div>
+                                        <div class="total-row">
+                                            <span>Banco:</span>
+                                            <span><?php echo $factura['bancofm']; ?></span>
+                                        </div>
+                                        <div class="total-row">
+                                            <span>Destino:</span>
+                                            <span><?php echo $factura['destinofm']; ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="totals">
+                                        <div class="total-row">
+                                            <span>Subtotal</span>
+                                            <span><?php echo $facturaInfo['importe']; ?></span>
+                                        </div>
+                                        <div class="total-row">
+                                            <span>ITBIS Total</span>
+                                            <span>RD$ 0.00</span> <!--no se cobra itebis-->
+                                        </div>
+                                        <div class="total-row">
+                                            <span>Descuento</span>
+                                            <span class="discount"><?php echo $facturaInfo['descuento']; ?></span>
+                                        </div>
+                                        <div class="total-row">
+                                            <span>Total Ajuste</span>
+                                            <span><?php echo $facturaInfo['total_ajuste']; ?></span>
+                                        </div>
+                                        <div class="total-row final-total">
+                                            <span>Total a Pagar</span>
+                                            <span><?php echo $facturaInfo['total']; ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="btn-primary" onclick="navigateTo('cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
+                                        <button class="btn-secondary">
+                                            <span class="printer-icon">🖨️</span>
+                                            Reimprimir
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+        <!-- TODO EL CONTENIDO DE LA PAGINA ENCIMA DE ESTA LINEA -->
         </div>
     </div>
-    <script src="js/menu.js"></script>
-    <script src="js/sidebar_menu.js"></script>
+    
+    <?php
+        // Cerrar conexión
+        $conn->close();
+    ?>
 </body>
 </html>
-<?php
-// Cerrar conexión
-$conn->close();
-?>

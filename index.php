@@ -37,57 +37,35 @@ $_SESSION['last_activity'] = time();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>YSAPELLI</title>
-    
-    <!-- Estilos CSS -->
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css">
-    <link rel="stylesheet" href="css/mant_cliente.css">
-    <!-- Importación de iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Librería para alertas -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
 </head>
 <body>
-    <div class="container">
-        <!-- Barra de navegación -->
-        <button id="mobileToggle" class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
-        
-        <!-- Inclusión del menú de navegación -->
-        <?php require 'menu.php' ?>
-        
-        <!-- Script para navegación interna -->
-        <script>
-            function navigateTo(page) {
-                window.location.href = page;
-            }
-            
-            function toggleNav() {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('active');
-            }
-        </script>
-        
-        <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
-        <div class="overlay" id="overlay"></div>
+    
+    <div class="navegator-nav">
 
-        <!-- Contenido de la página -->
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
+
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
 
 
         
-        <!-- Switch para modo oscuro 
-        <label class="switch">
-            <input id="toggleDarkMode" type="checkbox" />
-            <span class="slider"></span>
-        </label>
-        -->
+            <!-- Switch para modo oscuro 
+            <label class="switch">
+                <input id="toggleDarkMode" type="checkbox" />
+                <span class="slider"></span>
+            </label>
+            -->
 
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR ENCIMA DE ESTA LINEA -->
+        </div>
     </div>
     
     <!-- Scripts JS -->
-    <script src="js/menu.js"></script>
     <script src="js/modo_oscuro.js"></script>
     <script src="js/oscuro_recargar.js"></script>
 </body>

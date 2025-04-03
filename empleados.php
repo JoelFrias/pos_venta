@@ -126,11 +126,14 @@ if (isset($_GET['editar'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Empleados</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css">
-    <!-- Importación de iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
     <style>
+
+        body{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
 
         /* Estilos para el formulario de búsqueda */
         .emp_search-form {
@@ -139,13 +142,15 @@ if (isset($_GET['editar'])) {
             margin-bottom: 1rem;
             flex-wrap: wrap;
         }
-            .emp_search-input-container {
-            display: flex;
-            flex: 1;
-            min-width: 0; /* Permite que el contenedor se encoja si es necesario */
+
+        .emp_search-input-container {
+        display: flex;
+        flex: 1;
+        min-width: 0; /* Permite que el contenedor se encoja si es necesario */
         }
-            .emp_search-input {
-                flex-grow: 1;
+
+        .emp_search-input {
+            flex-grow: 1;
         padding: 0.5rem;
         border: 1px solid #e2e8f0;
         border-radius: 0.375rem 0 0 0.375rem;
@@ -549,27 +554,6 @@ if (isset($_GET['editar'])) {
             }
         }
 
-        /* Estilos para el menú móvil */
-        .toggle-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 12px;
-            cursor: pointer;
-            z-index: 999;
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .toggle-btn {
-                display: block;
-            }
-        }
-
         /* Estilos para el overlay */
         .overlay {
             position: fixed;
@@ -613,247 +597,230 @@ if (isset($_GET['editar'])) {
 </head>
 <body>
 
-<?php
+    <?php
 
-if ($_SESSION['idPuesto'] > 2) {
-    echo "<script>
-            Swal.fire({
-                    icon: 'error',
-                    title: 'Acceso Prohibido',
-                    text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
-                    showConfirmButton: true,
-                    confirmButtonText: 'Aceptar'
-                }).then(() => {
-                    window.location.href = './';
-                });
-          </script>";
-    exit();
-}
+        if ($_SESSION['idPuesto'] > 2) {
+            echo "<script>
+                    Swal.fire({
+                            icon: 'error',
+                            title: 'Acceso Prohibido',
+                            text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        }).then(() => {
+                            window.location.href = './';
+                        });
+                </script>";
+            exit();
+        }
 
-?>
+    ?>
+
+    <div class="navegator-nav">
+
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
+
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
     
-<div class="container">
-    <!-- Barra de navegación -->
-    <button id="mobileToggle" class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
-        
-        <!-- Inclusión del menú de navegación -->
-        <?php require 'menu.php' ?>
-        
-        <!-- Script para navegación interna -->
-        <script>
-            function navigateTo(page) {
-                window.location.href = page;
-            }
-            
-            function toggleNav() {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('active');
-            }
-        </script>
-        
-        <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
-        <div class="overlay" id="overlay"></div>
-    
-    <div class="emp_general-container">
-    <div class="emp_header">
-        <div class="emp_header-top">
-            <h1>Lista de Empleados</h1>
-            <a href="empleados-nuevo.php" class="emp_new-button">
-                <i class="fas fa-plus"></i> Nuevo Empleado
-            </a>
-        </div>
-            
-            <!-- Formulario de búsqueda -->
-            <form action="" method="GET" class="emp_search-form">
-                <input 
-                    type="text" 
-                    name="busqueda" 
-                    placeholder="Buscar por nombre o identificación..." 
-                    class="emp_search-input"
-                    value="<?php echo htmlspecialchars($_GET['busqueda'] ?? ''); ?>"
-                >
-                <button type="submit" class="emp_search-button">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-               
-            </form>
-        </div>
-        
-        <!-- Vista de Escritorio -->
-        <div class="emp_desktop-view">
-            <div class="emp_table-card">
-                <table class="emp_table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Tipo de Identificación</th>
-                            <th>Identificación</th>
-                            <th>Teléfono</th>
-                            <th>Puesto</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if ($resultado && $resultado->num_rows > 0): ?>
-                            <?php while ($fila = $resultado->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
-                                    <td><?php echo htmlspecialchars($fila['apellido']); ?></td>
-                                    <td><?php echo htmlspecialchars($fila['tipo_identificacion']); ?></td>
-                                    <td><?php echo htmlspecialchars($fila['identificacion']); ?></td>
-                                    <td><?php echo htmlspecialchars($fila['telefono']); ?></td>
-                                    <td><?php echo htmlspecialchars($fila['puesto']); ?></td>
-                                    <td>
-                                        <a href="empleados.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="7">No hay empleados registrados<?php echo !empty($busqueda) ? ' que coincidan con la búsqueda.' : '.'; ?></td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Vista Móvil -->
-        <div class="emp_mobile-view">
-            <?php if ($resultado && $resultado->num_rows > 0): ?>
-                <?php 
-                // Reiniciar el puntero del resultado para la vista móvil
-                $resultado->data_seek(0);
-                while ($fila = $resultado->fetch_assoc()): 
-                ?>
-                    <div class="emp_mobile-card">
-                        <div class="emp_mobile-card-header">
-                            <div class="emp_mobile-card-title-section">
-                                <h3 class="emp_mobile-card-title"><?php echo htmlspecialchars($fila['nombre'] . ' ' . $fila['apellido']); ?></h3>
-                                <p class="emp_mobile-card-subtitle"><?php echo htmlspecialchars($fila['puesto']); ?></p>
-                            </div>
-                            <a href="empleados.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
-                        </div>
-                        <div class="emp_mobile-card-content">
-                            <div class="emp_mobile-card-item">
-                                <span class="emp_mobile-card-label">Tipo de Identificación</span>
-                                <span class="emp_mobile-card-value"><?php echo htmlspecialchars($fila['tipo_identificacion']); ?></span>
-                            </div>
-                            <div class="emp_mobile-card-item">
-                                <span class="emp_mobile-card-label">Identificación</span>
-                                <span class="emp_mobile-card-value"><?php echo htmlspecialchars($fila['identificacion']); ?></span>
-                            </div>
-                            <div class="emp_mobile-card-item">
-                                <span class="emp_mobile-card-label">Teléfono</span>
-                                <span class="emp_mobile-card-value"><?php echo htmlspecialchars($fila['telefono']); ?></span>
-                            </div>
-                        </div>
+            <div class="emp_general-container">
+                <div class="emp_header">
+                    <div class="emp_header-top">
+                        <h1>Lista de Empleados</h1>
+                        <a href="empleados-nuevo.php" class="emp_new-button">
+                            <i class="fas fa-plus"></i> Nuevo Empleado
+                        </a>
                     </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <div class="emp_mobile-card">
-                    <p>No hay empleados registrados<?php echo !empty($busqueda) ? ' que coincidan con la búsqueda.' : '.'; ?></p>
+                
+                    <!-- Formulario de búsqueda -->
+                    <form action="" method="GET" class="emp_search-form">
+                        
+                        <input type="text" name="busqueda" placeholder="Buscar por nombre o identificación..." class="emp_search-input" value="<?php echo htmlspecialchars($_GET['busqueda'] ?? ''); ?>">
+                        
+                        <button type="submit" class="emp_search-button"><i class="fas fa-search"></i> Buscar</button>
+                
+                    </form>
+                </div>
+            
+                <!-- Vista de Escritorio -->
+                <div class="emp_desktop-view">
+                    <div class="emp_table-card">
+                        <table class="emp_table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Tipo de Identificación</th>
+                                    <th>Identificación</th>
+                                    <th>Teléfono</th>
+                                    <th>Puesto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if ($resultado && $resultado->num_rows > 0): ?>
+                                    <?php while ($fila = $resultado->fetch_assoc()): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($fila['nombre']); ?></td>
+                                            <td><?php echo htmlspecialchars($fila['apellido']); ?></td>
+                                            <td><?php echo htmlspecialchars($fila['tipo_identificacion']); ?></td>
+                                            <td><?php echo htmlspecialchars($fila['identificacion']); ?></td>
+                                            <td><?php echo htmlspecialchars($fila['telefono']); ?></td>
+                                            <td><?php echo htmlspecialchars($fila['puesto']); ?></td>
+                                            <td>
+                                                <a href="empleados.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="7">No hay empleados registrados<?php echo !empty($busqueda) ? ' que coincidan con la búsqueda.' : '.'; ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            
+                <!-- Vista Móvil -->
+                <div class="emp_mobile-view">
+                    <?php if ($resultado && $resultado->num_rows > 0): ?>
+                        <?php 
+                        // Reiniciar el puntero del resultado para la vista móvil
+                        $resultado->data_seek(0);
+                        while ($fila = $resultado->fetch_assoc()): 
+                        ?>
+                            <div class="emp_mobile-card">
+                                <div class="emp_mobile-card-header">
+                                    <div class="emp_mobile-card-title-section">
+                                        <h3 class="emp_mobile-card-title"><?php echo htmlspecialchars($fila['nombre'] . ' ' . $fila['apellido']); ?></h3>
+                                        <p class="emp_mobile-card-subtitle"><?php echo htmlspecialchars($fila['puesto']); ?></p>
+                                    </div>
+                                    <a href="empleados.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
+                                </div>
+                                <div class="emp_mobile-card-content">
+                                    <div class="emp_mobile-card-item">
+                                        <span class="emp_mobile-card-label">Tipo de Identificación</span>
+                                        <span class="emp_mobile-card-value"><?php echo htmlspecialchars($fila['tipo_identificacion']); ?></span>
+                                    </div>
+                                    <div class="emp_mobile-card-item">
+                                        <span class="emp_mobile-card-label">Identificación</span>
+                                        <span class="emp_mobile-card-value"><?php echo htmlspecialchars($fila['identificacion']); ?></span>
+                                    </div>
+                                    <div class="emp_mobile-card-item">
+                                        <span class="emp_mobile-card-label">Teléfono</span>
+                                        <span class="emp_mobile-card-value"><?php echo htmlspecialchars($fila['telefono']); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <div class="emp_mobile-card">
+                            <p>No hay empleados registrados<?php echo !empty($busqueda) ? ' que coincidan con la búsqueda.' : '.'; ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Modal de edición mejorado con diseño de dos columnas -->
+            <?php if ($empleado_editar): ?>
+                <div class="emp_modal">
+                    <div class="emp_modal-content">
+                        <h2>Modificar Empleado</h2>
+                        <form action="" method="post">
+                            <input type="hidden" name="id" value="<?php echo $empleado_editar['id']; ?>">
+                            <?php if (!empty($busqueda)): ?>
+                            <input type="hidden" name="busqueda" value="<?php echo htmlspecialchars($busqueda); ?>">
+                            <?php endif; ?>
+                            
+                            <div class="emp_form-grid">
+                                <div class="emp_form-group">
+                                    <label for="nombre">Nombre:</label>
+                                    <input type="text" id="nombre" name="nombre" value="<?php echo htmlspecialchars($empleado_editar['nombre']); ?>" required>
+                                </div>
+                                
+                                <div class="emp_form-group">
+                                    <label for="apellido">Apellido:</label>
+                                    <input type="text" id="apellido" name="apellido" value="<?php echo htmlspecialchars($empleado_editar['apellido']); ?>" required>
+                                </div>
+                                
+                                <div class="emp_form-group">
+                                    <label for="tipo_identificacion">Tipo de Identificación:</label>
+                                    <select id="tipo_identificacion" name="tipo_identificacion" required>
+                                        <option value="Cedula" <?php echo ($empleado_editar['tipo_identificacion'] === 'Cedula' ? 'selected' : ''); ?>>Cédula</option>
+                                        <option value="Pasaporte" <?php echo ($empleado_editar['tipo_identificacion'] === 'Pasaporte' ? 'selected' : ''); ?>>Pasaporte</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="emp_form-group">
+                                    <label for="identificacion">Identificación:</label>
+                                    <input type="text" id="identificacion" name="identificacion" value="<?php echo htmlspecialchars($empleado_editar['identificacion']); ?>" required>
+                                </div>
+                                
+                                <div class="emp_form-group">
+                                    <label for="telefono">Teléfono:</label>
+                                    <input type="text" id="telefono" name="telefono" value="<?php echo htmlspecialchars($empleado_editar['telefono']); ?>" required>
+                                </div>
+                                
+                                <div class="emp_form-group">
+                                    <label for="idPuesto">Puesto:</label>
+                                    <select id="idPuesto" name="idPuesto" required>
+                                        <?php
+                                        $sql_puestos = "SELECT id, descripcion FROM empleados_puestos ORDER BY descripcion ASC";
+                                        $resultado_puestos = $conn->query($sql_puestos);
+                                        if ($resultado_puestos && $resultado_puestos->num_rows > 0) {
+                                            while ($fila = $resultado_puestos->fetch_assoc()) {
+                                                $selected = ($fila['id'] == $empleado_editar['idPuesto']) ? 'selected' : '';
+                                                echo "<option value='" . $fila['id'] . "' $selected>" . $fila['descripcion'] . "</option>";
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                
+                                <div class="emp_form-actions">
+                                    <button type="button" onclick="window.location.href='empleados.php<?php echo !empty($busqueda) ? '?busqueda=' . urlencode($busqueda) : ''; ?>'">Cancelar</button>
+                                    <button type="submit">Actualizar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             <?php endif; ?>
+
+        <!-- TODO EL CONTENIDO DE LA PAGINA POR ENCIMA DE ESTA LINEA -->
         </div>
     </div>
 
-    <!-- Modal de edición mejorado con diseño de dos columnas -->
-    <?php if ($empleado_editar): ?>
-        <div class="emp_modal">
-            <div class="emp_modal-content">
-                <h2>Modificar Empleado</h2>
-                <form action="" method="post">
-                    <input type="hidden" name="id" value="<?php echo $empleado_editar['id']; ?>">
-                    <?php if (!empty($busqueda)): ?>
-                    <input type="hidden" name="busqueda" value="<?php echo htmlspecialchars($busqueda); ?>">
-                    <?php endif; ?>
-                    
-                    <div class="emp_form-grid">
-                        <div class="emp_form-group">
-                            <label for="nombre">Nombre:</label>
-                            <input type="text" id="nombre" name="nombre" value="<?php echo htmlspecialchars($empleado_editar['nombre']); ?>" required>
-                        </div>
-                        
-                        <div class="emp_form-group">
-                            <label for="apellido">Apellido:</label>
-                            <input type="text" id="apellido" name="apellido" value="<?php echo htmlspecialchars($empleado_editar['apellido']); ?>" required>
-                        </div>
-                        
-                        <div class="emp_form-group">
-                            <label for="tipo_identificacion">Tipo de Identificación:</label>
-                            <select id="tipo_identificacion" name="tipo_identificacion" required>
-                                <option value="Cedula" <?php echo ($empleado_editar['tipo_identificacion'] === 'Cedula' ? 'selected' : ''); ?>>Cédula</option>
-                                <option value="Pasaporte" <?php echo ($empleado_editar['tipo_identificacion'] === 'Pasaporte' ? 'selected' : ''); ?>>Pasaporte</option>
-                            </select>
-                        </div>
-                        
-                        <div class="emp_form-group">
-                            <label for="identificacion">Identificación:</label>
-                            <input type="text" id="identificacion" name="identificacion" value="<?php echo htmlspecialchars($empleado_editar['identificacion']); ?>" required>
-                        </div>
-                        
-                        <div class="emp_form-group">
-                            <label for="telefono">Teléfono:</label>
-                            <input type="text" id="telefono" name="telefono" value="<?php echo htmlspecialchars($empleado_editar['telefono']); ?>" required>
-                        </div>
-                        
-                        <div class="emp_form-group">
-                            <label for="idPuesto">Puesto:</label>
-                            <select id="idPuesto" name="idPuesto" required>
-                                <?php
-                                $sql_puestos = "SELECT id, descripcion FROM empleados_puestos ORDER BY descripcion ASC";
-                                $resultado_puestos = $conn->query($sql_puestos);
-                                if ($resultado_puestos && $resultado_puestos->num_rows > 0) {
-                                    while ($fila = $resultado_puestos->fetch_assoc()) {
-                                        $selected = ($fila['id'] == $empleado_editar['idPuesto']) ? 'selected' : '';
-                                        echo "<option value='" . $fila['id'] . "' $selected>" . $fila['descripcion'] . "</option>";
-                                    }
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        
-                        <div class="emp_form-actions">
-                            <button type="button" onclick="window.location.href='empleados.php<?php echo !empty($busqueda) ? '?busqueda=' . urlencode($busqueda) : ''; ?>'">Cancelar</button>
-                            <button type="submit">Actualizar</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    <?php endif; ?>
-
     <!-- Script para mostrar mensajes de éxito o error -->
     <?php if (isset($_SESSION['success_message'])): ?>
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Éxito',
-            text: '<?php echo $_SESSION['success_message']; ?>',
-            confirmButtonColor: '#3b82f6'
-        });
-        <?php unset($_SESSION['success_message']); ?>
-    </script>
+
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: '<?php echo $_SESSION['success_message']; ?>',
+                confirmButtonColor: '#3b82f6'
+            });
+            <?php unset($_SESSION['success_message']); ?>
+        </script>
+
     <?php endif; ?>
 
     <?php if (isset($_SESSION['error_message'])): ?>
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: '<?php echo $_SESSION['error_message']; ?>',
-            confirmButtonColor: '#ef4444'
-        });
-        <?php unset($_SESSION['error_message']); ?>
-    </script>
+
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '<?php echo $_SESSION['error_message']; ?>',
+                confirmButtonColor: '#ef4444'
+            });
+            <?php unset($_SESSION['error_message']); ?>
+        </script>
+
     <?php endif; ?>
 
-    <script src="js/menu.js"></script>
-
-</div>
 </body>
 </html>

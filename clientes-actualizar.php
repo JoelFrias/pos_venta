@@ -136,11 +136,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Actualizar Cliente</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css">
-    <link rel="stylesheet" href="css/modo_oscuro.css">
     <link rel="stylesheet" href="css/actualizar_cliente.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
 </head>
 <body>
 <?php 
@@ -177,126 +176,114 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
 }
 ?>
 
-<div class="container">
-    <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
-    <button id="mobileToggle" class="toggle-btn">
-        <i class="fas fa-bars"></i>
-    </button>
+    <div class="navegator-nav">
 
-    <!-- Incluir el menú -->
-    <?php require 'menu.php' ?>
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
 
-    <!-- Script para navegar entre páginas y mostrar/ocultar el menú -->
-    <script>
-        function navigateTo(page) {
-            window.location.href = page; // Cambia la URL en la misma pestaña
-        }
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
 
-        function toggleNav() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active'); // Añade o quita la clase active para mostrar/ocultar el menú
-        }
-    </script>
+            <!-- Contenedor del formulario -->
+            <div class="form-container">
+                <h1 class="form-title">Actualizar Datos</h1>
+                <form class="registration-form" action="" method="POST">
+                    <!-- Sección de Datos Personales -->
+                    <fieldset>
+                        <legend>Datos Personales</legend>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nombre">Nombre:</label>
+                                <input type="text" id="nombre" name="nombre" minlength="1" value="<?php echo $cliente['nombre']; ?>" placeholder="Ingrese el nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="apellido">Apellido:</label>
+                                <input type="text" id="apellido" name="apellido" minlength="1" value="<?php echo $cliente['apellido']; ?>" placeholder="Ingrese el apellido" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="empresa">Empresa:</label>
+                                <input type="text" id="empresa" name="empresa" minlength="1" value="<?php echo $cliente['empresa']; ?>" placeholder="Ingrese la empresa" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tipo_identificacion">Tipo Identificación:</label>
+                                <select id="tipo_identificacion" name="tipo_identificacion" required>
+                                    <option value="cedula" <?php echo $cliente['tipo_identificacion'] === 'cedula' ? 'selected' : ''; ?>>Cédula</option>
+                                    <option value="rnc" <?php echo $cliente['tipo_identificacion'] === 'rnc' ? 'selected' : ''; ?>>RNC</option>
+                                    <option value="pasaporte" <?php echo $cliente['tipo_identificacion'] === 'pasaporte' ? 'selected' : ''; ?>>Pasaporte</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="identificacion">Identificación:</label>
+                                <input type="text" id="identificacion" name="identificacion" min="0" value="<?php echo $cliente['identificacion']; ?>" placeholder="Ingrese la identificación" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="telefono">Teléfono:</label>
+                                <input type="text" id="telefono" name="telefono" minlength="12" maxlength="12" value="<?php echo $cliente['telefono']; ?>" placeholder="000-000-0000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="notas">Notas:</label>
+                                <textarea id="notas" name="notas" minlength="1" placeholder="Indique notas del cliente"><?php echo $cliente['notas']; ?></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
 
-    <!-- Overlay para dispositivos móviles -->
-    <div class="overlay" id="overlay"></div>
+                    <!-- Sección de Crédito -->
+                    <fieldset>
+                        <legend>Crédito</legend>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="limite_credito">Límite Crédito:</label>
+                                <input type="number" id="limite_credito" name="limite_credito" min="0" value="<?php echo $cliente['limite_credito']; ?>" step="0.01" placeholder="Ingrese el límite de crédito" required>
+                            </div>
+                        </div>
+                    </fieldset>
 
-    <!-- Contenedor del formulario -->
-    <div class="form-container">
-        <h1 class="form-title">Actualizar Datos</h1>
-        <form class="registration-form" action="" method="POST">
-            <!-- Sección de Datos Personales -->
-            <fieldset>
-                <legend>Datos Personales</legend>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="nombre">Nombre:</label>
-                        <input type="text" id="nombre" name="nombre" minlength="1" value="<?php echo $cliente['nombre']; ?>" placeholder="Ingrese el nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="apellido">Apellido:</label>
-                        <input type="text" id="apellido" name="apellido" minlength="1" value="<?php echo $cliente['apellido']; ?>" placeholder="Ingrese el apellido" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="empresa">Empresa:</label>
-                        <input type="text" id="empresa" name="empresa" minlength="1" value="<?php echo $cliente['empresa']; ?>" placeholder="Ingrese la empresa" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="tipo_identificacion">Tipo Identificación:</label>
-                        <select id="tipo_identificacion" name="tipo_identificacion" required>
-                            <option value="cedula" <?php echo $cliente['tipo_identificacion'] === 'cedula' ? 'selected' : ''; ?>>Cédula</option>
-                            <option value="rnc" <?php echo $cliente['tipo_identificacion'] === 'rnc' ? 'selected' : ''; ?>>RNC</option>
-                            <option value="pasaporte" <?php echo $cliente['tipo_identificacion'] === 'pasaporte' ? 'selected' : ''; ?>>Pasaporte</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="identificacion">Identificación:</label>
-                        <input type="text" id="identificacion" name="identificacion" min="0" value="<?php echo $cliente['identificacion']; ?>" placeholder="Ingrese la identificación" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="text" id="telefono" name="telefono" minlength="12" maxlength="12" value="<?php echo $cliente['telefono']; ?>" placeholder="000-000-0000" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="notas">Notas:</label>
-                        <textarea id="notas" name="notas" minlength="1" placeholder="Indique notas del cliente"><?php echo $cliente['notas']; ?></textarea>
-                    </div>
-                </div>
-            </fieldset>
+                    <!-- Sección de Dirección -->
+                    <fieldset>
+                        <legend>Dirección</legend>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="no">No:</label>
+                                <input type="text" id="no" name="no" minlength="1" value="<?php echo $cliente['no']; ?>" placeholder="Ingrese el número de casa" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="calle">Calle:</label>
+                                <input type="text" id="calle" name="calle" minlength="1" value="<?php echo $cliente['calle']; ?>" placeholder="Ingrese la calle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sector">Sector:</label>
+                                <input type="text" id="sector" name="sector" minlength="1" value="<?php echo $cliente['sector']; ?>" placeholder="Ingrese el sector" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ciudad">Ciudad:</label>
+                                <input type="text" id="ciudad" name="ciudad" minlength="1" value="<?php echo $cliente['ciudad']; ?>" placeholder="Ingrese la ciudad" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="referencia">Referencia:</label>
+                                <textarea id="referencia" name="referencia" minlength="1" placeholder="Indique referencia de direccion (Ej: Al lado de una farmacia)" required><?php echo $cliente['referencia']; ?></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
 
-            <!-- Sección de Crédito -->
-            <fieldset>
-                <legend>Crédito</legend>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="limite_credito">Límite Crédito:</label>
-                        <input type="number" id="limite_credito" name="limite_credito" min="0" value="<?php echo $cliente['limite_credito']; ?>" step="0.01" placeholder="Ingrese el límite de crédito" required>
-                    </div>
-                </div>
-            </fieldset>
+                    <!-- Sección de Estado -->
+                    <fieldset>
+                        <legend>Estado</legend>
+                        <div class="form-group">
+                            <label for="inactividad">Estado:</label>
+                            <select id="inactividad" name="inactividad" required>
+                                <option value="TRUE" <?php echo $cliente['activo'] ? 'selected' : ''; ?>>Activo</option>
+                                <option value="FALSE" <?php echo !$cliente['activo'] ? 'selected' : ''; ?>>Inactivo</option>
+                            </select>
+                        </div>
+                    </fieldset>
 
-            <!-- Sección de Dirección -->
-            <fieldset>
-                <legend>Dirección</legend>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="no">No:</label>
-                        <input type="text" id="no" name="no" minlength="1" value="<?php echo $cliente['no']; ?>" placeholder="Ingrese el número de casa" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="calle">Calle:</label>
-                        <input type="text" id="calle" name="calle" minlength="1" value="<?php echo $cliente['calle']; ?>" placeholder="Ingrese la calle" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="sector">Sector:</label>
-                        <input type="text" id="sector" name="sector" minlength="1" value="<?php echo $cliente['sector']; ?>" placeholder="Ingrese el sector" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="ciudad">Ciudad:</label>
-                        <input type="text" id="ciudad" name="ciudad" minlength="1" value="<?php echo $cliente['ciudad']; ?>" placeholder="Ingrese la ciudad" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="referencia">Referencia:</label>
-                        <textarea id="referencia" name="referencia" minlength="1" placeholder="Indique referencia de direccion (Ej: Al lado de una farmacia)" required><?php echo $cliente['referencia']; ?></textarea>
-                    </div>
-                </div>
-            </fieldset>
+                    <!-- Botón para enviar el formulario -->
+                    <button class="btn-submit" type="submit">Actualizar</button>
+                </form>
+            </div>
 
-            <!-- Sección de Estado -->
-            <fieldset>
-                <legend>Estado</legend>
-                <div class="form-group">
-                    <label for="inactividad">Estado:</label>
-                    <select id="inactividad" name="inactividad" required>
-                        <option value="TRUE" <?php echo $cliente['activo'] ? 'selected' : ''; ?>>Activo</option>
-                        <option value="FALSE" <?php echo !$cliente['activo'] ? 'selected' : ''; ?>>Inactivo</option>
-                    </select>
-                </div>
-            </fieldset>
-
-            <!-- Botón para enviar el formulario -->
-            <button class="btn-submit" type="submit">Actualizar</button>
-        </form>
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR POR ENCIMA DE ESTA LINEA -->
+        </div>
     </div>
 
     <!-- Script para formatear el número de teléfono -->
@@ -319,10 +306,6 @@ if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
             this.value = value;
         });
     </script>
-</div>
-    <!-- Scripts adicionales -->
-    <script src="js/menu.js"></script>
-    <script src="js/modo_oscuro.js"></script>
-    <script src="js/oscuro_recargar.js"></script>
+
 </body>
 </html>

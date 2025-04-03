@@ -79,124 +79,106 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Nuevo Empleado</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/registro_empleados.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
 </head>
 <body>
 
-<?php
+    <?php
 
-if ($_SESSION['idPuesto'] > 2) {
-    echo "<script>
-            Swal.fire({
-                    icon: 'error',
-                    title: 'Acceso Prohibido',
-                    text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
-                    showConfirmButton: true,
-                    confirmButtonText: 'Aceptar'
-                }).then(() => {
-                    window.location.href = './';
-                });
-          </script>";
-    exit();
-}
+        if ($_SESSION['idPuesto'] > 2) {
+            echo "<script>
+                    Swal.fire({
+                            icon: 'error',
+                            title: 'Acceso Prohibido',
+                            text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        }).then(() => {
+                            window.location.href = './';
+                        });
+                </script>";
+            exit();
+        }
 
-?>
-<!----------------------------------------->
-  <!-- Contenedor principal -->
-  <div class="container">
-        <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
-        <button id="mobileToggle" class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
+    ?>
 
-        <!-- Incluir el menú -->
-        <?php require 'menu.php' ?>
-        <!-- Script para navegación interna -->
-        <script>
-            /**
-             * Redirige a la página especificada dentro de la misma pestaña.
-             * @param {string} page - URL de la página a la que se desea navegar.
-             */
-            function navigateTo(page) {
-                window.location.href = page;
-            }
-            
-            /**
-             * Alterna la visibilidad del menú lateral.
-             */
-            function toggleNav() {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('active');
-            }
-        </script>
-        
-        <!-- Overlay para móviles (evita recarga innecesaria de la página) -->
-        <div class="overlay" id="overlay"></div>
-<!------------------------------------------------------------>
-    <div class="form-container">
-        <h2 class="form-title">Registro de Empleado</h2>
-        <form class="registration-form" action="" method="post">
-        <legend>Datos del Empleado</legend>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" autocomplete="off" placeholder="Nombre" required>
-                </div>
-                <div class="form-group">
-                    <label for="apellido">Apellido:</label>
-                    <input type="text" id="apellido" name="apellido" autocomplete="off" placeholder="Apellido" required>
-                </div>
-                <div class="form-group">
-                    <label for="tipo_identificacion">Tipo de Identificación:</label>
-                    <select id="tipo_identificacion" name="tipo_identificacion" required>
-                        <option value="Cedula">Cédula</option>
-                        <option value="Pasaporte">Pasaporte</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="identificacion">Identificación:</label>
-                    <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="Identificacion" required>
-                </div>
-                <div class="form-group">
-                    <label for="telefono">Teléfono:</label>
-                    <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" minlength="12" maxlength="12" required>
-                </div>
-                <div class="form-group">
-                    <label for="idPuesto">Puesto:</label>
-                    <select id="idPuesto" name="idPuesto" required>
-                        <?php
-                        // Obtener el id y la descripción de los tipos de producto
-                        $sql = "SELECT id, descripcion FROM empleados_puestos ORDER BY descripcion ASC";
-                        $resultado = $conn->query($sql);
+    <div class="navegator-nav">
 
-                        if ($resultado->num_rows > 0) {
-                            while ($fila = $resultado->fetch_assoc()) {
-                                echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
-                            }
-                        } else {
-                            echo "<option value='' disabled>No hay opciones</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-            <legend>Datos de Usuario</legend>
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
+
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
+
+            <div class="form-container">
+                <h2 class="form-title">Registro de Empleado</h2>
+                <form class="registration-form" action="" method="post">
+                <legend>Datos del Empleado</legend>
                     <div class="form-grid">
-                <div class="form-group">
-                    <label for="username">Usuario:</label>
-                    <input type="text" id="username" name="username" placeholder="Usuario" autocomplete="off" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" placeholder="Contraseña" autocomplete="off" minlength="4" required>
-                </div>
+                        <div class="form-group">
+                            <label for="nombre">Nombre:</label>
+                            <input type="text" id="nombre" name="nombre" autocomplete="off" placeholder="Nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apellido">Apellido:</label>
+                            <input type="text" id="apellido" name="apellido" autocomplete="off" placeholder="Apellido" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo_identificacion">Tipo de Identificación:</label>
+                            <select id="tipo_identificacion" name="tipo_identificacion" required>
+                                <option value="Cedula">Cédula</option>
+                                <option value="Pasaporte">Pasaporte</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="identificacion">Identificación:</label>
+                            <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="Identificacion" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefono">Teléfono:</label>
+                            <input type="text" id="telefono" name="telefono" autocomplete="off" placeholder="000-000-0000" minlength="12" maxlength="12" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="idPuesto">Puesto:</label>
+                            <select id="idPuesto" name="idPuesto" required>
+                                <?php
+                                // Obtener el id y la descripción de los tipos de producto
+                                $sql = "SELECT id, descripcion FROM empleados_puestos ORDER BY descripcion ASC";
+                                $resultado = $conn->query($sql);
+
+                                if ($resultado->num_rows > 0) {
+                                    while ($fila = $resultado->fetch_assoc()) {
+                                        echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
+                                    }
+                                } else {
+                                    echo "<option value='' disabled>No hay opciones</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <legend>Datos de Usuario</legend>
+                            <div class="form-grid">
+                        <div class="form-group">
+                            <label for="username">Usuario:</label>
+                            <input type="text" id="username" name="username" placeholder="Usuario" autocomplete="off" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Contraseña:</label>
+                            <input type="password" id="password" name="password" placeholder="Contraseña" autocomplete="off" minlength="4" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar Cambios</button>
+                </form>
             </div>
-            <button type="submit" class="btn-submit">Guardar Cambios</button>
-        </form>
+
+        <!-- TODO EL CONTENIDO DE LA PAGINA ENCIMA DE ESTA LINEA -->
+        </div>
     </div>
+
     <!--script de manejo de mensajes-->
     <script>
         // Verificar si hay un mensaje de éxito y mostrarlo con SweetAlert2
@@ -219,6 +201,7 @@ if ($_SESSION['idPuesto'] > 2) {
             <?php unset($_SESSION['error_message']); ?> // Limpiar el mensaje de la sesión
         <?php endif; ?>
     </script>
+
     <!-- Script para formatear el número de teléfono -->
     <script>
         const telefonoInput = document.getElementById('telefono');
@@ -239,7 +222,6 @@ if ($_SESSION['idPuesto'] > 2) {
             this.value = value;
         });
     </script>
-    <!-- Script para manejar el menú móvil -->
-    <script src="js/menu.js"></script>
+
 </body>
 </html>

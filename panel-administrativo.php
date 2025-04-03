@@ -50,7 +50,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Panel Administrativo</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/prueba-css.css">
+    <link rel="stylesheet" href="css/menu.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Libreria de alertas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Libreria de graficos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -60,7 +60,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
@@ -203,10 +203,16 @@
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             width: 90%;
-            max-width: 600px;
             z-index: 1000;
             max-height: 90vh;
             overflow-y: auto;
+        }
+        #modal-banks, #modal-destinations {
+            max-width: 600px;
+        }
+
+        #edit-banks, #edit-destinations {
+            max-width: 400px;
         }
 
         /* Fondo oscuro para modales */
@@ -243,59 +249,80 @@
             background-color: #f7f7f7;
         }
 
-        /* Estilos para formularios */
-        h3 {
-            margin-bottom: 20px;
-            color: #2c3e50;
-            text-align: center;
+        /* Estilos mejorados para los formularios de destinos y bancos */
+        #new-destination, #new-bank {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            margin-top: 10px;
         }
 
-        h4 {
-            margin: 20px 0 15px;
-            color: #2c3e50;
+        #new-destination:hover, #new-bank:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
-        label {
+        #new-destination label, #new-bank label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
         }
 
-        input[type="text"] {
+        #new-destination input[type="text"], #new-bank input[type="text"] {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
             border-radius: 4px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            font-size: 15px;
         }
 
-        button[type="submit"], #update-edit-bank, #update-edit-destination {
-            padding: 10px 15px;
+        #new-destination input[type="text"]:focus, #new-bank input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+            outline: none;
+        }
+
+        #new-destination button[type="submit"], #new-bank button[type="submit"] {
+            width: 100%;
             background-color: #27ae60;
             color: white;
             border: none;
             border-radius: 4px;
+            padding: 12px 15px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s;
-            margin-right: 10px;
+            transition: all 0.3s ease;
+            display: block;
+            text-align: center;
         }
 
-        button[type="submit"]:hover, #update-edit-bank:hover, #update-edit-destination:hover {
+        #new-destination button[type="submit"]:hover, #new-bank button[type="submit"]:hover {
             background-color: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        #cancel-edit-bank, #cancel-edit-destination {
-            padding: 10px 15px;
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        #new-destination button[type="submit"]:active, #new-bank button[type="submit"]:active {
+            transform: translateY(0);
         }
 
-        #cancel-edit-bank:hover, #cancel-edit-destination:hover {
-            background-color: #c0392b;
+        /* Responsive para formularios */
+        @media (max-width: 768px) {
+            #new-destination, #new-bank {
+                padding: 15px;
+            }
+            
+            #new-destination input[type="text"], #new-bank input[type="text"],
+            #new-destination button[type="submit"], #new-bank button[type="submit"] {
+                padding: 10px 12px;
+            }
         }
 
         /* Estilos para tablas */
@@ -376,6 +403,122 @@
             
             h3 {
                 font-size: 18px;
+            }
+        }
+
+        /* Estilos mejorados para los botones de acción en tablas */
+        table button.delete-bank, 
+        table button.edit-bank,
+        table button.delete-destination, 
+        table button.edit-destination {
+            padding: 8px 12px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            margin-right: 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        /* Añadir un ligero fondo al hacer hover */
+        table button.delete-bank:hover, 
+        table button.delete-destination:hover {
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        table button.edit-bank:hover,
+        table button.edit-destination:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        /* Estilos para los iconos */
+        table button i.fa-trash {
+            color: #e74c3c;
+            font-size: 16px;
+        }
+
+        table button i.fa-pen-to-square {
+            color: #3498db;
+            font-size: 16px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button[type="submit"], #update-edit-bank, #update-edit-destination {
+            padding: 10px 15px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 47%;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+
+        button[type="submit"]:hover, #update-edit-bank:hover, #update-edit-destination:hover {
+            background-color: #2ecc71;
+        }
+
+        #cancel-edit-bank, #cancel-edit-destination {
+            padding: 10px 15px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 47%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #cancel-edit-bank:hover, #cancel-edit-destination:hover {
+            background-color: #c0392b;
+        }
+
+        /* Estilos específicos para móviles */
+        @media (max-width: 480px) {
+            /* Hacer que los botones sean más grandes y tengan mejor espacio entre ellos */
+            table button.delete-bank, 
+            table button.edit-bank,
+            table button.delete-destination, 
+            table button.edit-destination {
+                padding: 10px 12px;
+                margin: 3px;
+                display: inline-block;
+                min-width: 40px;
+                text-align: center;
+            }
+            
+            /* Aumentar tamaño de iconos en móvil */
+            table button i.fa-trash,
+            table button i.fa-pen-to-square {
+                font-size: 18px;
+            }
+            
+            /* Ajustar el contenedor de los botones */
+            table td:last-child {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 10px 8px;
+                flex-wrap: nowrap;
+            }
+        }
+
+        /* Para pantallas muy pequeñas */
+        @media (max-width: 360px) {
+            table button.delete-bank, 
+            table button.edit-bank,
+            table button.delete-destination, 
+            table button.edit-destination {
+                min-width: 36px;
+                padding: 8px 10px;
             }
         }
 
@@ -460,7 +603,7 @@
     <div class="navegator-nav">
 
         <!-- Menu-->
-        <?php include 'prueba-menu.php'; ?>
+        <?php include 'menu.php'; ?>
 
         <div class="page-content">
 
@@ -484,11 +627,11 @@
                 <div id="div-employees">
                     <button id="manager-employees" onclick="redirectEmployee()">Administrar Empleados</button>
                 </div>
-                <div id="div-transactions">
-                    <button id="manager-transactions">Transacciones de Productos</button>
-                </div>
                 <div id="div-cashiers">
                     <button id="manager-cashiers">Cuadres de Caja</button>
+                </div>
+                <div id="div-transactions-inventory">
+                    <button id="transactions-inventory" onclick="inventario_transaccion()">Trasancciones de Inventario</button>
                 </div>
                 <div id="div-inventory">
                     <button id="manager-inventory">Administrar Inventario</button>
@@ -500,12 +643,14 @@
                 <h2>Dashboard de Estadísticas Administrativas</h2>
 
                 <div id="filters">
+                    <label for="months">Periodo:</label>
                     <select name="months" id="months">
-                        <option value="current">Mes Actual</option>
-                        <option value="previous">Mes Anterior</option>
+                        <option value="current" <?php echo (isset($_GET['periodo']) && $_GET['periodo'] == 'current') ? 'selected' : ''; ?>>Mes Actual</option>
+                        <option value="previous" <?php echo (isset($_GET['periodo']) && $_GET['periodo'] == 'previous') ? 'selected' : ''; ?>>Mes Anterior</option>
+
                     </select>
 
-                    <button id="btn-filters" name="btn-filters"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button id="btn-filters" name="btn-filters" onclick="recargar()"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
                 
                 <div class="dashboard-grid">
@@ -563,11 +708,14 @@
             <div id="modal-banks" style="display: none;">
 
                 <span class="close-modal-banks">&times;</span>
+                
+                <h3>Bancos</h3>
 
-                <h3>Agregar Banco</h3>
-                <label for="bank-name">Nombre del Banco:</label>
-                <input type="text" id="bank-name" name="bank-name" autocomplete="off">
-                <button type="submit">Agregar</button>
+                <div id="new-bank">
+                    <label for="bank-name">Agregar Nuevo Banco:</label>
+                    <input type="text" id="bank-name" name="bank-name" autocomplete="off">
+                    <button type="submit">Agregar</button>
+                </div>
 
                 <div id="bank-list">
 
@@ -622,11 +770,14 @@
                 
                 <span class="close-modal-destinations">&times;</span>
 
-                <h3>Agregar Destino</h3>
-                <label for="destination-name">Nombre del Destino:</label>
-                <input type="text" id="destination-name" name="destination-name" autocomplete="off">
-                <button type="submit">Agregar</button>
+                <h3>Destinos</h3>
 
+                <div id="new-destination">
+                    <label for="destination-name">Agregar Nuevo Destino:</label>
+                    <input type="text" id="destination-name" name="destination-name" autocomplete="off">
+                    <button type="submit">Agregar</button>
+                </div>
+                
                 <div id="destination-list">
 
                     <h4>Lista de Destinos</h4>
@@ -1004,272 +1155,282 @@
                 window.location.href = "usuarios-editar.php";
             }
         }
+        
+        function inventario_transaccion() {
+            if (idPuesto > 2) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso bloqueado',
+                    text: 'NNo tienes permiso para realizar esta acción.'
+                });
+            } else {
+                navigateTo('inventario-transaccion.php');
+            }
+        }
 
     </script>
 
     <!-- Script para graficos -->
     <script>
 
-        // Gráficos de ventas totales por día
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('graphics/admin/ventas-totales.php')
-                .then(response => response.json())
-                .then(data => {
-                    const dias = data.map(item => item.dia);
-                    const ventas = data.map(item => item.ventas);
+        function recargar() {
+            window.location.href = "?periodo="+document.getElementById("months").value;
+        }
 
-                    const ctx = document.getElementById('ventas-totales').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: dias,
-                            datasets: [{
-                                label: 'Ventas Totales ($)',
-                                data: ventas,
-                                backgroundColor: 'rgba(54, 150, 214, 0.92)',
-                                borderColor: 'rgba(62, 101, 127, 0.92)',
-                                borderWidth: 1
-                            }]
+        function cargarGraficos() {
+
+            let periodo = "<?php echo isset($_GET['periodo']) ? $_GET['periodo'] : 'current'; ?>";
+
+            fetch(`graphics/admin/ventas-totales.php?periodo=${periodo}`)
+            .then(response => response.json())
+            .then(data => {
+                const dias = data.map(item => item.dia);
+                const ventas = data.map(item => item.ventas);
+
+                const ctx = document.getElementById('ventas-totales').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: dias,
+                        datasets: [{
+                            label: 'Ventas Totales ($)',
+                            data: ventas,
+                            backgroundColor: 'rgba(54, 150, 214, 0.92)',
+                            borderColor: 'rgba(62, 101, 127, 0.92)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
+                        plugins: {
+                            legend: {
+                                display: false
                             }
                         }
-                    });
-                })
-                .catch(error => console.error('Error cargando los datos:', error));
-        });
+                    }
+                });
+            })
+            .catch(error => console.error('Error cargando los datos:', error));
 
-        // Gráfico para ganancias totales
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('graphics/admin/ganancias-totales.php')
-                .then(response => response.json())
-                .then(data => {
-                    const dias = data.map(item => item.dia);
-                    const ganancias = data.map(item => item.ganancias);
+            // Gráfico para ganancias totales
+            fetch(`graphics/admin/ganancias-totales.php?periodo=${periodo}`)
+            .then(response => response.json())
+            .then(data => {
+                const dias = data.map(item => item.dia);
+                const ganancias = data.map(item => item.ganancias);
 
-                    const ctx = document.getElementById('ganancias-totales').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: dias,
-                            datasets: [{
-                                label: 'Ganancias Totales ($)',
-                                data: ganancias,
-                                backgroundColor: 'rgba(46, 204, 113, 0.2)',
-                                borderColor: 'rgba(39, 174, 96, 1)',
-                                borderWidth: 2,
-                                fill: true,
-                                tension: 0.3
-                            }]
+                const ctx = document.getElementById('ganancias-totales').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dias,
+                        datasets: [{
+                            label: 'Ganancias Totales ($)',
+                            data: ganancias,
+                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            borderColor: 'rgba(39, 174, 96, 1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
+                        plugins: {
+                            legend: {
+                                display: false
                             }
                         }
-                    });
-                })
-                .catch(error => console.error('Error cargando los datos:', error));
-        });
+                    }
+                });
+            })
+            .catch(error => console.error('Error cargando los datos:', error));
 
-        // Gráfico para ventas por empleado
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('graphics/admin/ventas-empleados.php')
-                .then(response => response.json())
-                .then(data => {
-                    const empleados = data.map(item => item.empleado);
-                    const ventas = data.map(item => item.ventas);
+            // Gráfico para ventas por empleado
+            fetch(`graphics/admin/ventas-empleados.php?periodo=${periodo}`)
+            .then(response => response.json())
+            .then(data => {
+                const empleados = data.map(item => item.empleado);
+                const ventas = data.map(item => item.ventas);
 
-                    const ctx = document.getElementById('ventas-empleados').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: empleados,
-                            datasets: [{
-                                label: 'Ventas Totales ($)',
-                                data: ventas,
-                                backgroundColor: 'rgba(155, 89, 182, 0.7)',
-                                borderColor: 'rgba(142, 68, 173, 1)',
-                                borderWidth: 1
-                            }]
+                const ctx = document.getElementById('ventas-empleados').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: empleados,
+                        datasets: [{
+                            label: 'Ventas Totales ($)',
+                            data: ventas,
+                            backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                            borderColor: 'rgba(142, 68, 173, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
+                        plugins: {
+                            legend: {
+                                display: false
                             }
                         }
-                    });
-                })
-                .catch(error => console.error('Error cargando los datos:', error));
-        });
+                    }
+                });
+            })
+            .catch(error => console.error('Error cargando los datos:', error));
 
-        // Número de ventas por empleado
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('graphics/admin/numero-ventas-e.php')
-                .then(response => response.json())
-                .then(data => {
-                    const empleados = data.map(item => item.empleado);
-                    const ventas = data.map(item => item.numero_ventas);
+            // Número de ventas por empleado
+            fetch(`graphics/admin/numero-ventas-e.php?periodo=${periodo}`)
+            .then(response => response.json())
+            .then(data => {
+                const empleados = data.map(item => item.empleado);
+                const ventas = data.map(item => item.numero_ventas);
 
-                    const ctx = document.getElementById('num-ventas-empleado').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: empleados,
-                            datasets: [{
-                                label: 'Número de Ventas',
-                                data: ventas,
-                                backgroundColor: [
-                                    'rgba(255, 183, 77, 0.7)',  // Naranja suave pero vibrante
-                                    'rgba(129, 199, 132, 0.7)', // Verde menta elegante
-                                    'rgba(100, 181, 246, 0.7)', // Azul cielo armónico
-                                    'rgba(244, 143, 177, 0.7)', // Rosa coral sutil
-                                    'rgba(77, 182, 172, 0.7)',  // Verde azulado moderno
-                                    'rgba(171, 71, 188, 0.7)'   // Morado pastel sofisticado
-                                ],
-                                borderColor: [
-                                    'rgba(255, 183, 77, 1)',
-                                    'rgba(129, 199, 132, 1)',
-                                    'rgba(100, 181, 246, 1)',
-                                    'rgba(244, 143, 177, 1)',
-                                    'rgba(77, 182, 172, 1)',
-                                    'rgba(171, 71, 188, 1)'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'right'
-                                }
+                const ctx = document.getElementById('num-ventas-empleado').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: empleados,
+                        datasets: [{
+                            label: 'Número de Ventas',
+                            data: ventas,
+                            backgroundColor: [
+                                'rgba(255, 183, 77, 0.7)',  // Naranja suave pero vibrante
+                                'rgba(129, 199, 132, 0.7)', // Verde menta elegante
+                                'rgba(100, 181, 246, 0.7)', // Azul cielo armónico
+                                'rgba(244, 143, 177, 0.7)', // Rosa coral sutil
+                                'rgba(77, 182, 172, 0.7)',  // Verde azulado moderno
+                                'rgba(171, 71, 188, 0.7)'   // Morado pastel sofisticado
+                            ],
+                            borderColor: [
+                                'rgba(255, 183, 77, 1)',
+                                'rgba(129, 199, 132, 1)',
+                                'rgba(100, 181, 246, 1)',
+                                'rgba(244, 143, 177, 1)',
+                                'rgba(77, 182, 172, 1)',
+                                'rgba(171, 71, 188, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'right'
                             }
                         }
-                    });
-                })
-                .catch(error => console.error('Error cargando los datos:', error));
-        });
+                    }
+                });
+            })
+            .catch(error => console.error('Error cargando los datos:', error));
 
-        // Gráfico de productos más vendidos
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('graphics/admin/productos-vendidos.php')
-                .then(response => response.json())
-                .then(data => {
-                    const productos = data.map(item => item.producto);
-                    const ventas = data.map(item => item.total_vendido);
+            // Gráfico de productos más vendidos
+            fetch(`graphics/admin/productos-vendidos.php?periodo=${periodo}`)
+            .then(response => response.json())
+            .then(data => {
+                const productos = data.map(item => item.producto);
+                const ventas = data.map(item => item.total_vendido);
 
-                    const ctx = document.getElementById('productos-vendidos').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: productos,
-                            datasets: [{
-                                label: 'Cantidad Vendida',
-                                data: ventas,
-                                backgroundColor: 'rgba(230, 126, 34, 0.7)',
-                                borderColor: 'rgba(211, 84, 0, 1)',
-                                borderWidth: 1
-                            }]
+                const ctx = document.getElementById('productos-vendidos').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: productos,
+                        datasets: [{
+                            label: 'Cantidad Vendida',
+                            data: ventas,
+                            backgroundColor: 'rgba(230, 126, 34, 0.7)',
+                            borderColor: 'rgba(211, 84, 0, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
+                        plugins: {
+                            legend: {
+                                display: false
                             }
                         }
-                    });
-                })
-                .catch(error => console.error('Error cargando los datos:', error));
-        });
+                    }
+                });
+            })
+            .catch(error => console.error('Error cargando los datos:', error));
 
-        // Gráfico para productos en reorden
-        document.addEventListener("DOMContentLoaded", function() {
+            // Gráfico para productos en reorden
             fetch('graphics/admin/producto-reorden.php')
-                .then(response => response.json())
-                .then(data => {
-                    const productos = data.map(item => item.producto);
-                    const stock = data.map(item => item.stock);
-                    const stockMinimo = data.map(item => item.stock_minimo);
+            .then(response => response.json())
+            .then(data => {
+                const productos = data.map(item => item.producto);
+                const stock = data.map(item => item.stock);
+                const stockMinimo = data.map(item => item.stock_minimo);
 
-                    const ctx = document.getElementById('productos-reorden').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: productos,
-                            datasets: [{
-                                label: 'Stock Actual',
-                                data: stock,
-                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                                borderColor: 'rgba(192, 57, 43, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Stock Mínimo',
-                                data: stockMinimo,
-                                backgroundColor: 'rgba(241, 196, 15, 0.7)',
-                                borderColor: 'rgba(243, 156, 18, 1)',
-                                borderWidth: 1
-                            }]
+                const ctx = document.getElementById('productos-reorden').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: productos,
+                        datasets: [{
+                            label: 'Stock Actual',
+                            data: stock,
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderColor: 'rgba(192, 57, 43, 1)',
+                            borderWidth: 1
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top'
-                                }
+                        {
+                            label: 'Stock Mínimo',
+                            data: stockMinimo,
+                            backgroundColor: 'rgba(241, 196, 15, 0.7)',
+                            borderColor: 'rgba(243, 156, 18, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
                             }
                         }
-                    });
-                })
-                .catch(error => console.error('Error cargando los datos:', error));
-        });
+                    }
+                });
+            })
+            .catch(error => console.error('Error cargando los datos:', error));
+        }
+
+        cargarGraficos(); // Cargar graficos al entrar a la pagina
 
     </script>
 
@@ -1340,25 +1501,21 @@
             // Cerrar modal de editar banco
             closeEditBanks.addEventListener('click', function() {
                 editBanks.style.display = 'none';
-                removeOverlay();
             });
             
             // Cerrar modal de editar destino
             closeEditDestinations.addEventListener('click', function() {
                 editDestinations.style.display = 'none';
-                removeOverlay();
             });
             
             // Cancelar edición de banco
             cancelEditBank.addEventListener('click', function() {
                 editBanks.style.display = 'none';
-                removeOverlay();
             });
             
             // Cancelar edición de destino
             cancelEditDestination.addEventListener('click', function() {
                 editDestinations.style.display = 'none';
-                removeOverlay();
             });
             
             // Delegación de eventos para editar bancos
@@ -1373,7 +1530,6 @@
                     document.getElementById('edit-bank-name').value = bankName;
                     
                     // Mostrar modal de edición
-                    createOverlay();
                     editBanks.style.display = 'block';
                 }
             });
@@ -1390,7 +1546,6 @@
                     document.getElementById('edit-destination-name').value = destName;
                     
                     // Mostrar modal de edición
-                    createOverlay();
                     editDestinations.style.display = 'block';
                 }
             });

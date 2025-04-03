@@ -102,10 +102,10 @@ $results1 = $stmt1->get_result();
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Facturas</title>
     <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+
     <style>
         :root {
             --primary-blue: #4285f4;
@@ -125,13 +125,13 @@ $results1 = $stmt1->get_result();
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
             background-color: var(--background);
             color: var(--text-primary);
-            line-height: 1.5;
+            line-height: 1.2;
          
         }
 
@@ -452,205 +452,198 @@ $results1 = $stmt1->get_result();
 </head>
 <body>
 
-<!-- Contenedor principal -->
-<div class="container">
-        <!-- Botón para mostrar/ocultar el menú en dispositivos móviles -->
-        <button id="mobileToggle" class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
+    <div class="navegator-nav">
 
-        <!-- Incluir el menú -->
-        <?php require 'menu.php' ?>
-        <script src="js/sidebar_menu.js"></script>
-        
+        <!-- Menu-->
+        <?php include 'menu.php'; ?>
 
-        <!-- Overlay para dispositivos móviles -->
-        <div class="overlay" id="overlay"></div>
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
 
-    <!-- Contenedor principal -->
-    <div class="contenedor">
-        <div class="cabeza">
-            <h1>Registro de Facturas</h1>
-        </div>
-        
-        <form action="" method="post">
-            <div class="card">
-                <div class="filters">
-                    <div class="filter-group">
-                        <label>Desde</label>
-                        <input type="date" name="desde" value="<?php echo isset($_POST['desde']) ? $_POST['desde'] : ''; ?>">
-                    </div>
-                    <div class="filter-group">
-                        <label>Hasta</label>
-                        <input type="date" name="hasta" value="<?php echo isset($_POST['hasta']) ? $_POST['hasta'] : ''; ?>">
-                    </div>
-                    <div class="filter-group">
-                        <label>Tipo de Factura</label>
-                        <select name="tipo" id="tipo">
-                            <option value="" disabled selected>Seleccionar</option>
-                            <option value="credito" <?php echo (isset($_POST['tipo']) && $_POST['tipo'] == 'credito') ? 'selected' : ''; ?>>Crédito</option>
-                            <option value="contado" <?php echo (isset($_POST['tipo']) && $_POST['tipo'] == 'contado') ? 'selected' : ''; ?>>Contado</option>
-                        </select>
-
-                    </div>
-                    <div class="filter-group">
-                        <label>Estado de Factura</label>
-                        <select name="estado" id="estado">
-                            <option value="" disabled selected>Seleccionar</option>
-                            <option value="Pagada" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Pagada') ? 'selected' : ''; ?>>Pagada</option>
-                            <option value="Pendiente" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Pendiente') ? 'selected' : ''; ?>>Pendiente</option>
-                            <option value="Cancelada" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Cancelada') ? 'selected' : ''; ?>>Cancelada</option>
-                        </select>
-                    </div>
+            <!-- Contenedor principal -->
+            <div class="contenedor">
+                <div class="cabeza">
+                    <h1>Registro de Facturas</h1>
                 </div>
-            
+        
+                <form action="" method="post">
+                    <div class="card">
+                        <div class="filters">
+                            <div class="filter-group">
+                                <label>Desde</label>
+                                <input type="date" name="desde" value="<?php echo isset($_POST['desde']) ? $_POST['desde'] : ''; ?>">
+                            </div>
+                            <div class="filter-group">
+                                <label>Hasta</label>
+                                <input type="date" name="hasta" value="<?php echo isset($_POST['hasta']) ? $_POST['hasta'] : ''; ?>">
+                            </div>
+                            <div class="filter-group">
+                                <label>Tipo de Factura</label>
+                                <select name="tipo" id="tipo">
+                                    <option value="" disabled selected>Seleccionar</option>
+                                    <option value="credito" <?php echo (isset($_POST['tipo']) && $_POST['tipo'] == 'credito') ? 'selected' : ''; ?>>Crédito</option>
+                                    <option value="contado" <?php echo (isset($_POST['tipo']) && $_POST['tipo'] == 'contado') ? 'selected' : ''; ?>>Contado</option>
+                                </select>
 
-                <div class="search-bar">
-                    <div class="search-input">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="buscador" name="buscador" value="<?php echo isset($_POST['buscador']) ? $_POST['buscador'] : ''; ?>" placeholder="Buscar factura por número, cliente o vendedor">
+                            </div>
+                            <div class="filter-group">
+                                <label>Estado de Factura</label>
+                                <select name="estado" id="estado">
+                                    <option value="" disabled selected>Seleccionar</option>
+                                    <option value="Pagada" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Pagada') ? 'selected' : ''; ?>>Pagada</option>
+                                    <option value="Pendiente" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Pendiente') ? 'selected' : ''; ?>>Pendiente</option>
+                                    <option value="Cancelada" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Cancelada') ? 'selected' : ''; ?>>Cancelada</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="search-bar">
+                            <div class="search-input">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="buscador" name="buscador" value="<?php echo isset($_POST['buscador']) ? $_POST['buscador'] : ''; ?>" placeholder="Buscar factura por número, cliente o vendedor">
+                            </div>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                                Buscar
+                            </button>
+                            <button class="btn btn-secondary" type="reset" onclick="window.location.href='factura-registro.php'">
+                                <i class="fas fa-redo"></i>
+                                Limpiar
+                            </button>
+                        </div>
                     </div>
-                    <button class="btn btn-primary" type="submit">
-                        <i class="fas fa-search"></i>
-                        Buscar
-                    </button>
-                    <button class="btn btn-secondary" type="reset" onclick="window.location.href='factura-registro.php'">
-                        <i class="fas fa-redo"></i>
-                        Limpiar
-                    </button>
+                </form>
+
+                <!-- Desktop Table View -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No. Factura</th>
+                                <th>Tipo</th>
+                                <th>Fecha y Hora</th>
+                                <th>Total</th>
+                                <th>Cliente</th>
+                                <th>Balance</th>
+                                <th>Vendedor</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <?php
+                                if ($results->num_rows > 0) {
+                                    while ($row = $results->fetch_assoc()) {
+                                        // FORMATO DE MONEDA
+                                        $totalf = number_format($row['totalf'], 2, '.', ',');
+                                        $balancef = number_format($row['balancef'], 2, '.', ',');
+
+                                        // Determinar la clase CSS del estado
+                                        $estadoClass = "";
+                                        if ($row['estadof'] == "Pagada") {
+                                            $estadoClass = "paid";
+                                        } elseif ($row['estadof'] == "Pendiente") {
+                                            $estadoClass = "pending";
+                                        } elseif ($row['estadof'] == "Cancelada") {
+                                            $estadoClass = "cancel";
+                                        }
+
+                                        echo "
+                                            <tr>
+                                                <td>{$row['numf']}</td>
+                                                <td>{$row['tipof']}</td>
+                                                <td>{$row['fechaf']}</td>
+                                                <td>RD$ {$totalf}</td>
+                                                <td>{$row['nombrec']}</td>
+                                                <td>RD$ {$balancef}</td>
+                                                <td>{$row['nombree']}</td>
+                                                <td><span class='status status-{$estadoClass}'>{$row['estadof']}</span></td>
+                                                <td><button class='btn btn-secondary' onclick=\"window.location.href='factura-detalle.php?numFactura={$row['numf']}'\">Ver Detalles</button></td>
+                                            </tr>
+                                        ";
+                                    }
+                                } else {
+                                    echo "<tr>
+                                            <td colspan='9'>No se encontraron resultados.</td>
+                                        </tr>";
+                                }
+                            ?>
+
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </form>
 
-        <!-- Desktop Table View -->
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>No. Factura</th>
-                        <th>Tipo</th>
-                        <th>Fecha y Hora</th>
-                        <th>Total</th>
-                        <th>Cliente</th>
-                        <th>Balance</th>
-                        <th>Vendedor</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <?php
-                        if ($results->num_rows > 0) {
-                            while ($row = $results->fetch_assoc()) {
+                <!-- Mobile Cards View -->
+                <!-- Mobile Cards View -->
+                <div class="mobile-cards">
+                    <div class="mobile-cards-grid">
+                        <?php
+                        if ($results1->num_rows > 0) {
+                            while ($row1 = $results1->fetch_assoc()) {
                                 // FORMATO DE MONEDA
-                                $totalf = number_format($row['totalf'], 2, '.', ',');
-                                $balancef = number_format($row['balancef'], 2, '.', ',');
+                                $totalf1 = number_format($row1['totalf'], 2, '.', ',');
+                                $balancef1 = number_format($row1['balancef'], 2, '.', ',');
 
                                 // Determinar la clase CSS del estado
-                                $estadoClass = "";
-                                if ($row['estadof'] == "Pagada") {
-                                    $estadoClass = "paid";
-                                } elseif ($row['estadof'] == "Pendiente") {
-                                    $estadoClass = "pending";
-                                } elseif ($row['estadof'] == "Cancelada") {
-                                    $estadoClass = "cancel";
+                                $estadoClass1 = "";
+                                if ($row1['estadof'] == "Pagada") {
+                                    $estadoClass1 = "paid";
+                                } elseif ($row1['estadof'] == "Pendiente") {
+                                    $estadoClass1 = "pending";
+                                } elseif ($row1['estadof'] == "Cancelada") {
+                                    $estadoClass1 = "cancel";
                                 }
-
-                                echo "
-                                    <tr>
-                                        <td>{$row['numf']}</td>
-                                        <td>{$row['tipof']}</td>
-                                        <td>{$row['fechaf']}</td>
-                                        <td>RD$ {$totalf}</td>
-                                        <td>{$row['nombrec']}</td>
-                                        <td>RD$ {$balancef}</td>
-                                        <td>{$row['nombree']}</td>
-                                        <td><span class='status status-{$estadoClass}'>{$row['estadof']}</span></td>
-                                        <td><button class='btn btn-secondary' onclick=\"window.location.href='factura-detalle.php?numFactura={$row['numf']}'\">Ver Detalles</button></td>
-                                    </tr>
-                                ";
+                        ?>
+                                <!-- Factura individual -->
+                                <div class="invoice-card">
+                                    <div class="invoice-card-header">
+                                        <span class="invoice-number">No. <?php echo $row1['numf']; ?></span>
+                                        <span class="status status-<?php echo $estadoClass1; ?>"><?php echo $row1['estadof']; ?></span>
+                                    </div>
+                                    <div class="invoice-card-body">
+                                        <div class="invoice-detail">
+                                            <span class="detail-label">Cliente</span>
+                                            <span class="detail-value"><?php echo $row1['nombrec']; ?></span>
+                                        </div>
+                                        <div class="invoice-detail">
+                                            <span class="detail-label">Tipo</span>
+                                            <span class="detail-value"><?php echo $row1['tipof']; ?></span>
+                                        </div>
+                                        <div class="invoice-detail">
+                                            <span class="detail-label">Fecha y Hora</span>
+                                            <span class="detail-value"><?php echo $row1['fechaf']; ?></span>
+                                        </div>
+                                        <div class="invoice-detail">
+                                            <span class="detail-label">Total</span>
+                                            <span class="detail-value">RD$ <?php echo $totalf1; ?></span>
+                                        </div>
+                                        <div class="invoice-detail">
+                                            <span class="detail-label">Balance</span>
+                                            <span class="detail-value">RD$ <?php echo $balancef1; ?></span>
+                                        </div>
+                                        <div class="invoice-detail">
+                                            <span class="detail-label">Cajero</span>
+                                            <span class="detail-value"><?php echo $row1['nombree']; ?></span>
+                                        </div>
+                                        <div class="">
+                                            <button class='btn btn-secondary' onclick="window.location.href='factura-detalle.php?numFactura=<?php echo $row1['numf']; ?>'">Ver Detalles</button>
+                                        </div>
+                                    </div>
+                                </div>
+                        <?php
                             }
                         } else {
-                            echo "<tr>
-                                    <td colspan='9'>No se encontraron resultados.</td>
-                                </tr>";
+                            echo "<p class=\"note\">No se encontraron resultados.</p>";
                         }
-                    ?>
-
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Mobile Cards View -->
-       <!-- Mobile Cards View -->
-<div class="mobile-cards">
-    <div class="mobile-cards-grid">
-        <?php
-        if ($results1->num_rows > 0) {
-            while ($row1 = $results1->fetch_assoc()) {
-                // FORMATO DE MONEDA
-                $totalf1 = number_format($row1['totalf'], 2, '.', ',');
-                $balancef1 = number_format($row1['balancef'], 2, '.', ',');
-
-                // Determinar la clase CSS del estado
-                $estadoClass1 = "";
-                if ($row1['estadof'] == "Pagada") {
-                    $estadoClass1 = "paid";
-                } elseif ($row1['estadof'] == "Pendiente") {
-                    $estadoClass1 = "pending";
-                } elseif ($row1['estadof'] == "Cancelada") {
-                    $estadoClass1 = "cancel";
-                }
-        ?>
-                <!-- Factura individual -->
-                <div class="invoice-card">
-                    <div class="invoice-card-header">
-                        <span class="invoice-number">No. <?php echo $row1['numf']; ?></span>
-                        <span class="status status-<?php echo $estadoClass1; ?>"><?php echo $row1['estadof']; ?></span>
-                    </div>
-                    <div class="invoice-card-body">
-                        <div class="invoice-detail">
-                            <span class="detail-label">Cliente</span>
-                            <span class="detail-value"><?php echo $row1['nombrec']; ?></span>
-                        </div>
-                        <div class="invoice-detail">
-                            <span class="detail-label">Tipo</span>
-                            <span class="detail-value"><?php echo $row1['tipof']; ?></span>
-                        </div>
-                        <div class="invoice-detail">
-                            <span class="detail-label">Fecha y Hora</span>
-                            <span class="detail-value"><?php echo $row1['fechaf']; ?></span>
-                        </div>
-                        <div class="invoice-detail">
-                            <span class="detail-label">Total</span>
-                            <span class="detail-value">RD$ <?php echo $totalf1; ?></span>
-                        </div>
-                        <div class="invoice-detail">
-                            <span class="detail-label">Balance</span>
-                            <span class="detail-value">RD$ <?php echo $balancef1; ?></span>
-                        </div>
-                        <div class="invoice-detail">
-                            <span class="detail-label">Cajero</span>
-                            <span class="detail-value"><?php echo $row1['nombree']; ?></span>
-                        </div>
-                        <div class="">
-                            <button class='btn btn-secondary' onclick="window.location.href='factura-detalle.php?numFactura=<?php echo $row1['numf']; ?>'">Ver Detalles</button>
-                        </div>
+                        ?>
                     </div>
                 </div>
-        <?php
-            }
-        } else {
-            echo "<p class=\"note\">No se encontraron resultados.</p>";
-        }
-        ?>
-    </div>
-</div>
+            </div>
 
-    
-    <script src="js/menu.js"></script>
-    <script src="js/modo_oscuro.js"></script>
-    <script src="js/oscuro_recargar.js"></script>
+        <!-- TODO EL CONTENIDO DE LA PAGINA ARRIBA DE ESTA LINEA -->
+        </div>
+    </div>
+
 </body>
 </html>

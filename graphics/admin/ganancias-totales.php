@@ -4,13 +4,25 @@ require_once '../../php/conexion.php';
 
 header('Content-Type: application/json');
 
+// Obtener el parámetro de fecha del request
+$periodo = isset($_GET['periodo']) ? $_GET['periodo'] : 'current';
+
+// Definir la cláusula WHERE según el periodo solicitado
+if ($periodo === 'previous') {
+    // Mes anterior
+    $whereClause = "MONTH(f.fecha) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND YEAR(f.fecha) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
+} else {
+    // Mes actual (por defecto)
+    $whereClause = "MONTH(f.fecha) = MONTH(CURDATE()) AND YEAR(f.fecha) = YEAR(CURDATE())";
+}
+
 $sql = "SELECT
             DAY(f.fecha) AS dia,
             SUM(f.total_ajuste - f.balance) AS ganancias
         FROM
             facturas AS f
         WHERE
-            MONTH(f.fecha) = MONTH(CURDATE()) AND YEAR(f.fecha) = YEAR(CURDATE())
+            $whereClause
         GROUP BY
             dia
         ORDER BY

@@ -25,9 +25,6 @@ html, body {
 }
 
 .main-content {
-  width: 80%;
-  max-width: 1200px;
-  margin: 40px auto 0;
   padding: 1.5rem;
 }
 
