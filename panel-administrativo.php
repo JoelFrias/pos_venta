@@ -135,7 +135,7 @@
         /* Estilos para el contenedor de filtros */
         #filters {
             display: flex;
-            justify-content: center;
+            justify-content: left;
             align-items: center;
             gap: 15px;
             margin-bottom: 30px;
@@ -523,9 +523,6 @@
         }
 
         /* Estilos para el dashboard de gráficos */
-        #dashboard {
-            padding: 20px 0;
-        }
         
         #dashboard h2 {
             margin-bottom: 25px;
@@ -578,6 +575,78 @@
                 margin-bottom: 15px;
             }
         }
+
+        /* Estilos para el menú móvil */
+        .mobile-menu-toggle {
+            display: none;
+            width: 100%;
+            padding: 15px;
+            background-color:rgb(55, 63, 71);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle:hover {
+            background-color: rgb(55, 63, 71);
+        }
+
+        /* Ocultar botones en móvil y preparar animación */
+        @media (max-width: 768px) {
+            #buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            #buttons > div {
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition: max-height 0.4s ease-out, opacity 0.3s ease;
+                min-width: 100%;
+            }
+            
+            #buttons.active > div {
+                max-height: 100px;
+                opacity: 1;
+                margin-bottom: 10px;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            /* Asegurar que los botones ocupen todo el ancho */
+            #buttons button {
+                width: 100%;
+            }
+        }
+
+        /* Estilos para escritorio */
+        @media (min-width: 769px) {
+            #buttons {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+                margin-bottom: 30px;
+                justify-content: center;
+            }
+            
+            #buttons > div {
+                flex: 1;
+                min-width: 200px;
+            }
+            
+            .mobile-menu-toggle {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -614,6 +683,9 @@
             </div>
 
             <!-- Botones principales -->
+            <div>
+                <button class="mobile-menu-toggle">Menú Administrativo  ▼</button>
+            </div>
             <div id="buttons">
                 <div id="div-banks">
                     <button id="manager-banks">Administrar Bancos</button>
@@ -1167,6 +1239,41 @@
                 navigateTo('inventario-transaccion.php');
             }
         }
+
+        // Manejar menu administrativo en movil
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            const buttonsContainer = document.getElementById('buttons');
+            
+            menuToggle.addEventListener('click', function() {
+                buttonsContainer.classList.toggle('active');
+                
+                // Cambiar el ícono del botón
+                if (buttonsContainer.classList.contains('active')) {
+                    this.innerHTML = 'Menú Administrativo ▲';
+                } else {
+                    this.innerHTML = 'Menú Administrativo ▼';
+                }
+            });
+            
+            // Cerrar el menú cuando se hace clic en un botón (solo móvil)
+            if (window.innerWidth <= 768) {
+                document.querySelectorAll('#buttons > div:not(:first-child) button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        buttonsContainer.classList.remove('active');
+                        menuToggle.innerHTML = 'Menú Administrativo  ▼';
+                    });
+                });
+            }
+            
+            // Manejar redimensionamiento de la ventana
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    buttonsContainer.classList.remove('active');
+                    menuToggle.innerHTML = 'Menú Administrativo  ▼';
+                }
+            });
+        });
 
     </script>
 

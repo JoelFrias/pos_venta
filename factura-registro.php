@@ -113,7 +113,6 @@ $results1 = $stmt1->get_result();
             --background:rgb(252, 252, 252);
             --card-bg::rgb(252, 252, 252);
             --border: #e0e4ec;
-            --text-primary:rgb(0, 0, 0);
             --text-secondary: #718096;
             --success: #48bb78;
             --warning: #ed8936;
@@ -130,8 +129,6 @@ $results1 = $stmt1->get_result();
 
         body {
             background-color: var(--background);
-            color: var(--text-primary);
-            line-height: 1.2;
          
         }
 
@@ -149,7 +146,6 @@ $results1 = $stmt1->get_result();
 
         .cabeza h1 {
             font-size: 24px;
-            color: var(--text-primary);
             font-weight: 600;
             margin-top: 45px;
             margin-left: 10px; /* Agrega margen a la izquierda */
@@ -188,7 +184,6 @@ $results1 = $stmt1->get_result();
             border: 1px solid var(--border);
             border-radius: var(--radius);
             font-size: 0.875rem;
-            color: var(--text-primary);
             background: var(--card-bg);
             transition: all 0.2s;
         }
@@ -246,7 +241,6 @@ $results1 = $stmt1->get_result();
 
         .btn-secondary {
             background: var(--card-bg);
-            color: var(--text-primary);
             border: 1px solid var(--border);
         }
 
@@ -292,7 +286,6 @@ $results1 = $stmt1->get_result();
 
         .invoice-number {
             font-weight: 600;
-            color: var(--text-primary);
         }
 
         .invoice-card-body {
@@ -314,7 +307,6 @@ $results1 = $stmt1->get_result();
 
         .detail-value {
             font-size: 0.875rem;
-            color: var(--text-primary);
             font-weight: 500;
         }
 
@@ -337,7 +329,6 @@ $results1 = $stmt1->get_result();
         td {
             padding: 1rem;
             border-bottom: 1px solid var(--border);
-            color: var(--text-primary);
             font-size: 0.875rem;
         }
 

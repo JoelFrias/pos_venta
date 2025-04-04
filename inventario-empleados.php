@@ -224,8 +224,7 @@ $resultEmpleados = $stmtEmp->get_result();
                                             <td>" . htmlspecialchars($row["existencia_inventario"], ENT_QUOTES, 'UTF-8') . "</td>
                                             <td>$" . htmlspecialchars($row["precioVenta1"], ENT_QUOTES, 'UTF-8') . ", $" . 
                                             htmlspecialchars($row["precioVenta2"], ENT_QUOTES, 'UTF-8') . "</td>
-                                            <td><span class='status " . htmlspecialchars(strtolower(str_replace(' ', '-', $row["disponiblidad_inventario"])), ENT_QUOTES, 'UTF-8') . "'>" . 
-                                            htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "</span></td>
+                                            <td><span class='status " . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . "</span></td>
                                         </tr>";
                                 }
                             } else {
@@ -244,7 +243,7 @@ $resultEmpleados = $stmtEmp->get_result();
                         while ($row = $result->fetch_assoc()) {
                             $productName = htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8');
                             $productNameUpper = htmlspecialchars(strtoupper($row["producto"]), ENT_QUOTES, 'UTF-8');
-                            $statusClass = htmlspecialchars(strtolower(str_replace(' ', '-', $row["disponiblidad_inventario"])), ENT_QUOTES, 'UTF-8');
+                            $statusClass = htmlspecialchars(str_replace(' ', '-', $row["disponiblidad_inventario"]), ENT_QUOTES, 'UTF-8');
                             
                             echo <<<HTML
                             <div class="mobile-card" data-product="{$productNameUpper}">
@@ -253,7 +252,7 @@ $resultEmpleados = $stmtEmp->get_result();
                                         <h3 class="mobile-card-title">{$productName}</h3>
                                         <p class="mobile-card-subtitle">{$row["tipo_producto"]}</p>
                                     </div>
-                                    <span class="status {$statusClass}">{$row["disponiblidad_inventario"]}</span>
+                                    <span class="status $statusClass">{$row["disponiblidad_inventario"]}</span>
                                 </div>
                                 <div class="mobile-card-content">
                                     <div class="mobile-card-item">

@@ -16,20 +16,15 @@
     <!-- Menú de navegación -->
     <ul class="menu">
         <li onclick="navigateTo('index.php')"><i class="fas fa-home"></i><span>Inicio</span></li>
-        <li onclick="navigateTo('clientes.php')"><i class="fas fa-users"></i><span>Clientes</span></li>
-        <li onclick="navigateTo('productos.php')"><i class="fas fa-box"></i><span>Productos</span></li>
-        <li onclick="navigateTo('factura-registro.php')"><i class="fa-solid fa-file-lines"></i><span>Registro de Facturas</span></li>
+        <li onclick="navigateTo('clientes.php')"><i class="fa-solid fa-user-group"></i><span>Clientes</span></li>
+        <li onclick="navigateTo('productos.php')"><i class="fa-solid fa-box-open"></i></i><span>Productos</span></li>
+        <li onclick="navigateTo('factura-registro.php')"><i class="fa-solid fa-list-ul"></i></i><span>Registro de Facturas</span></li>
         <li onclick="navigateTo('inventario.php')"><i class="fa-solid fa-warehouse"></i><span>Almacén</span></li>
-        <li onclick="navigateTo('inventario-empleados.php')"><i class="fa-solid fa-boxes-stacked"></i><span>Inventario Empleados</span></li>
-        <li onclick="navigateTo('facturacion.php')"><i class="fas fa-cash-register"></i><span>Facturación</span></li>
+        <li onclick="navigateTo('inventario-empleados.php')"><i class="fa-solid fa-boxes-stacked"></i><span>Inventario Personal</span></li>
+        <li onclick="navigateTo('facturacion.php')"><i class="fa-solid fa-shop"></i><span>Facturación</span></li>
         <li onclick="panelAdministrativo(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-screwdriver-wrench"></i><span>Panel Administrativo</span></li>
-        <li onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></li>
+        <li onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Cerrar Sesión</span></li>
     </ul>
-
-    <div id="bienvenida">
-        <span>Bienvenido:</span>
-        <span><?php echo $_SESSION['nombre'] ?></span>
-    </div>
 
 </nav>
 
