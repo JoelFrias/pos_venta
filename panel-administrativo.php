@@ -581,10 +581,9 @@
             display: none;
             width: 100%;
             padding: 15px;
-            background-color:rgb(55, 63, 71);
-            color: white;
-            border: none;
-            border-radius: 5px;
+            color: rgb(55, 63, 71);
+            border: 3px solid rgb(55, 63, 71);
+            border-radius: 10px;
             cursor: pointer;
             margin-bottom: 15px;
             font-weight: 600;
@@ -592,8 +591,9 @@
             transition: all 0.3s ease;
         }
 
-        .mobile-menu-toggle:hover {
+        .mobile-menu-toggle:focus {
             background-color: rgb(55, 63, 71);
+            color: white;
         }
 
         /* Ocultar botones en móvil y preparar animación */
