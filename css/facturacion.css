@@ -17,7 +17,6 @@ body {
   position: relative;
   position: relative;
   overflow-x: hidden;
-  margin-top: 40px;
 }
 
 .title {
@@ -29,7 +28,6 @@ body {
 /* nueva clase */
 .facturacion-container {
   flex: 1;
-  padding: 20px;
   background-color: #f9fafb;
   transition: margin-left 0.3s ease;
   overflow: auto;

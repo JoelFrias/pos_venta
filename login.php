@@ -49,6 +49,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['nombre'] = $row['nombre'];
                     $_SESSION['idPuesto'] = $row['idPuesto'];
 
+                    // Verificar si el empleado tiene una caja abierta
+                    caja($conn);
+
+                    // Redirigir a la página de inicio
                     header("Location: index.php");
                     exit();
                 } else {
@@ -75,6 +79,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // Verificar si la sesión ha expirado
 if (isset($_GET['session_expired']) && $_GET['session_expired'] === 'session_expired') {
     $error = "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.";
+}
+
+// Verificar si el empleado tiene una caja abierta
+function caja($conn){
+    
+    $sql_verificar = "SELECT
+                        numCaja,
+                        idEmpleado,
+                        DATE_FORMAT(fechaApertura, '%d/%m/%Y %l:%i %p') AS fechaApertura,
+                        saldoApertura,
+                        registro
+                    FROM
+                        cajasabiertas
+                    WHERE
+                        idEmpleado = " . $_SESSION['idEmpleado'];
+
+    $resultado = $conn->query($sql_verificar);
+    $datos_caja = null;
+
+    if ($resultado->num_rows > 0) {
+        $datos_caja = $resultado->fetch_assoc();
+
+        // Almacenar datos de la caja abierta
+        $_SESSION['numCaja'] = $datos_caja['numCaja'];
+        $_SESSION['fechaApertura'] = $datos_caja['fechaApertura'];
+        $_SESSION['saldoApertura'] = $datos_caja['saldoApertura'];
+        $_SESSION['registro'] = $datos_caja['registro'];
+
+    }
 }
 
 ?>

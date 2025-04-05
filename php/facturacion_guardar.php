@@ -106,6 +106,11 @@ try {
         'montoPagado' => $montoPagado
     ]);
 
+    // Validar que el empleado tenga una caja asignada
+    if (!isset($_SESSION['numCaja'])) {
+        throw new Exception("No se ha encontrado ninguna caja asignada al vendedor", 1001);
+    }
+
     // Validar que el cliente existe
     $stmt = $conn->prepare("SELECT id FROM clientes WHERE id = ?");
     if (!$stmt) {
@@ -446,9 +451,24 @@ try {
     }
     logDebug("Método de pago registrado");
 
+
+    /**
+     *      10. Registrar ingreso en caja
+     */
+
+    $stmt = $conn->prepare("INSERT INTO cajaingresos (metodo, monto, IdEmpleado, numCaja, razon, fecha) VALUES (?, ?, ?, ?, ?, NOW())");
+    if (!$stmt) {
+        throw new Exception("Error preparando inserción de ingresos: " . $conn->error);
+    }
+    $razon = "Venta por factura #".$numFactura;
+    $stmt->bind_param("sdiss", $formaPago, $montoNeto, $_SESSION['idEmpleado'], $_SESSION['numCaja'], $razon);
+    if (!$stmt->execute()) {
+        throw new Exception("Error insertando el ingreso: " . $stmt->error);
+    }
+    logDebug("Ingresos en caja registrado");
     
     /**
-     *      10. Actualizar balance del cliente
+     *      11. Actualizar balance del cliente
      */
 
     $stmt = $conn->prepare("SELECT limite_credito FROM clientes_cuenta WHERE idCliente = ?");
@@ -508,7 +528,7 @@ try {
 
 
     /**
-     *      11. Confirmar la transacción
+     *      12. Confirmar la transacción
      */
     
     $conn->commit();

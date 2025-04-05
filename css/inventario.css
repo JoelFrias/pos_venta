@@ -15,7 +15,6 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
-    margin-top: 40px;
     flex: 1;   /*  le indica al elemento que debe ocupar el espacio disponible de manera proporcional, */
     overflow: auto;
 }

@@ -119,6 +119,11 @@ try {
     $banco = isset($data['banco']) ? (int)$data['banco'] : 1;
     $destino = isset($data['destino']) ? (int)$data['destino'] : 1;
 
+    // Validar que el empleado tenga una caja asignada
+    if (!isset($_SESSION['numCaja'])) {
+        throw new Exception("No se ha encontrado ninguna caja asignada al vendedor", 1001);
+    }
+
     // Validar que el cliente existe en la base de datos
     $stmt = $conn->prepare("SELECT id FROM clientes WHERE id = ?");
     if (!$stmt) {
@@ -363,7 +368,23 @@ try {
     }
 
     /**
-     *  4. Confirmar la transacción
+     *      4. Registrar ingreso en caja
+     */
+
+     $stmt = $conn->prepare("INSERT INTO cajaingresos (metodo, monto, IdEmpleado, numCaja, razon, fecha) VALUES (?, ?, ?, ?, ?, NOW())");
+     if (!$stmt) {
+         throw new Exception("Error preparando inserción de ingresos: " . $conn->error);
+     }
+     $razon = "Pago a cuenta del cliente: " . $idCliente;
+     $stmt->bind_param("sdiss", $formaPago, $montoPagado1, $idEmpleado, $_SESSION['numCaja'], $razon);
+     if (!$stmt->execute()) {
+         throw new Exception("Error insertando el ingreso: " . $stmt->error);
+     }
+     logDebug("Ingresos en caja registrado");
+
+
+    /**
+     *  5. Confirmar la transacción
      */
 
     $conn->commit();

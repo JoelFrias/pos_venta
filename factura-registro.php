@@ -134,7 +134,7 @@ $results1 = $stmt1->get_result();
 
         .contenedor {
             max-width: 1400px;
-            margin: 0 auto;
+            margin: 1rem;
         }
 
         .cabeza {
@@ -147,7 +147,6 @@ $results1 = $stmt1->get_result();
         .cabeza h1 {
             font-size: 24px;
             font-weight: 600;
-            margin-top: 45px;
             margin-left: 10px; /* Agrega margen a la izquierda */
            
    
@@ -366,10 +365,6 @@ $results1 = $stmt1->get_result();
         }
 
         @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-
             /* .cabeza {
                 flex-direction: column;
                 gap: 1rem;
@@ -403,6 +398,9 @@ $results1 = $stmt1->get_result();
                 background: var(--background);
                 border-radius: var(--radius);
                 border: none;
+            }
+            .contenedor {
+                margin: 0rem;
             }
         }
 

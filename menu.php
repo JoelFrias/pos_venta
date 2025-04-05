@@ -22,6 +22,7 @@
         <li onclick="navigateTo('inventario.php')"><i class="fa-solid fa-warehouse"></i><span>Almacén</span></li>
         <li onclick="navigateTo('inventario-empleados.php')"><i class="fa-solid fa-boxes-stacked"></i><span>Inventario Personal</span></li>
         <li onclick="navigateTo('facturacion.php')"><i class="fa-solid fa-shop"></i><span>Facturación</span></li>
+        <li onclick="navigateTo('caja.php')"><i class="fa-solid fa-cash-register"></i><span>Caja</span></li>
         <li onclick="panelAdministrativo(<?php echo $_SESSION['idPuesto'] ?>)"><i class="fa-solid fa-screwdriver-wrench"></i><span>Panel Administrativo</span></li>
         <li onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Cerrar Sesión</span></li>
     </ul>

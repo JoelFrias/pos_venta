@@ -524,7 +524,6 @@
   @media (max-width: 768px) {
     .contenedor {
       margin: 0;
-      border-radius: 0;
       padding: 0.25rem;
     }
     
