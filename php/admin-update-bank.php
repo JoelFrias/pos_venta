@@ -154,15 +154,28 @@ try {
 
     $stmt->close();
 
+
     /**
-     *  2. Se ejecuta la transacción
+     *  2. Auditoria de acciones de usuario
+     */
+
+    require_once 'auditorias.php';
+    $usuario_id = $_SESSION['idEmpleado'];
+    $accion = 'Actualizar banco';
+    $detalle = 'Se actualizó el banco con id ' . $idBank . ' a ' . $banco;
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+
+
+    /**
+     *  3. Se ejecuta la transacción
      */
     $conn->commit();
 
     // Respuesta exitosa
     echo json_encode([
         'success' => true,
-        'message' => 'El banco fue eliminado correctamente',
+        'message' => 'El banco fue actualizado correctamente',
         'datos' => [
             'idBank' => $idBank,
             'nombre' => $banco

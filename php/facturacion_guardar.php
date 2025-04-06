@@ -452,9 +452,11 @@ try {
     logDebug("Método de pago registrado");
 
 
+
     /**
      *      10. Registrar ingreso en caja
      */
+
 
     $stmt = $conn->prepare("INSERT INTO cajaingresos (metodo, monto, IdEmpleado, numCaja, razon, fecha) VALUES (?, ?, ?, ?, ?, NOW())");
     if (!$stmt) {
@@ -465,8 +467,29 @@ try {
     if (!$stmt->execute()) {
         throw new Exception("Error insertando el ingreso: " . $stmt->error);
     }
+
     logDebug("Ingresos en caja registrado");
+
+
+    /**
+     *      10. Registrar auditorias
+     */
+
+    require_once 'auditorias.php';
+    $usuario_id = $_SESSION['idEmpleado'];
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+
+    // auditoria de caja
+    $accion = "Registro de venta por factura #".$numFactura;
+    $detalles = "Método: ".$formaPago.", Monto: ".$montoNeto.", Razón: ".$razon;
+    registrarAuditoriaCaja($conn, $usuario_id, $accion, $detalles);
     
+    // auditoria de usuarios
+    $accion = "Registro de venta por factura #".$numFactura;
+    $detalles = "Método: ".$formaPago.", Monto: ".$montoNeto.", Razón: ".$razon;
+    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalles);
+
+
     /**
      *      11. Actualizar balance del cliente
      */

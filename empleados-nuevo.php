@@ -47,6 +47,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Iniciar transacción
     $conn->begin_transaction();
     try {
+
+        // Verificar si el nombre de usuario ya existe
+        $queryVerificarUsuario = "SELECT COUNT(*) as count FROM usuarios WHERE username = ?";
+        $stmt = $conn->prepare($queryVerificarUsuario);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+        if ($count > 0) {
+            throw new Exception('El nombre de usuario ya existe.'); // Lanzar excepción si el nombre de usuario ya existe
+        }
+
+        // Verificar si la identificación ya existe
+        $queryVerificarIdentificacion = "SELECT COUNT(*) as count FROM empleados WHERE identificacion = ?";
+        $stmt = $conn->prepare($queryVerificarIdentificacion);
+        $stmt->bind_param("s", $identificacion);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+        if ($count > 0) {
+            throw new Exception('La identificación ya existe.'); // Lanzar excepción si la identificación ya existe
+        }
+
+        // Verificar si el teléfono ya existe
+        $queryVerificarTelefono = "SELECT COUNT(*) as count FROM empleados WHERE telefono = ?";
+        $stmt = $conn->prepare($queryVerificarTelefono);
+        $stmt->bind_param("s", $telefono);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+        if ($count > 0) {
+            throw new Exception('El teléfono ya existe.'); // Lanzar excepción si el teléfono ya existe
+        }
+
         // Insertar empleado
         $queryEmpleado = "INSERT INTO empleados (nombre, apellido, tipo_identificacion, identificacion, telefono, idPuesto, fechaIngreso, activo) VALUES (?, ?, ?, ?, ?, ?, NOW(), TRUE)";
         $stmt = $conn->prepare($queryEmpleado);
@@ -61,6 +98,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ssi", $username, $hashed_password, $idEmpleado);
         $stmt->execute();
         $stmt->close();
+
+        /**
+         *  2. Auditoria de acciones de usuario
+         */
+
+        require_once 'php/auditorias.php';
+        $usuario_id = $_SESSION['idEmpleado'];
+        $accion = 'Nuevo Empleado';
+        $detalle = 'IdEmpleado: ' . $idEmpleado . ', Nombre: ' . $nombre . ', Apellido: ' . $apellido;
+        $ip = $_SERVER['REMOTE_ADDR']; // Obtener la dirección IP del cliente
+        registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
 
         // Confirmar transacción
         $conn->commit();
@@ -135,7 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                         <div class="form-group">
                             <label for="identificacion">Identificación:</label>
-                            <input type="text" id="identificacion" name="identificacion" autocomplete="off" placeholder="Identificacion" required>
+                            <input type="number" id="identificacion" name="identificacion" autocomplete="off" placeholder="Identificacion" min="0" required>
                         </div>
                         <div class="form-group">
                             <label for="telefono">Teléfono:</label>

@@ -112,12 +112,15 @@ $result = $conn->query($query);
                     <div class="title-container">
                         <h1>Lista de Clientes</h1>
                         <!-- Botón para agregar un nuevo cliente -->
-                        <a href="clientes-nuevo.php" class="btn btn-new">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 5v14m-7-7h14"></path>
-                            </svg>
-                            <span>Nuevo</span>
-                        </a>
+
+                        <?php if ($_SESSION['idPuesto'] <= 2): ?>
+                            <a href="clientes-nuevo.php" class="btn btn-new">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14m-7-7h14"></path>
+                                </svg>
+                                <span>Nuevo</span>
+                            </a>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Sección de búsqueda -->
@@ -176,7 +179,12 @@ $result = $conn->query($query);
                                         <th>Balance</th>
                                         <th>Dirección</th>
                                         <th>Estado</th>
-                                        <th>Acciones</th>
+                                        <?php 
+                                            // Verificar si el usuario tiene permisos de administrador
+                                            if ($_SESSION['idPuesto'] <= 2) {
+                                                echo '<th>Acciones</th>';
+                                            }
+                                        ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -205,6 +213,10 @@ $result = $conn->query($query);
                                                 <?php echo $row['activo'] ? 'Activo' : 'Inactivo'; ?>
                                             </span>
                                         </td>
+                                        <?php 
+                                            // Verificar si el usuario tiene permisos de administrador
+                                            if ($_SESSION['idPuesto'] <= 2):
+                                        ?>
                                         <td>
                                             <!-- Botón para actualizar el cliente -->
                                             <a href="clientes-actualizar.php?id=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
@@ -216,6 +228,7 @@ $result = $conn->query($query);
                                                 <span>Actualizar</span>
                                             </a>
                                         </td>
+                                        <?php endif; ?>
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>

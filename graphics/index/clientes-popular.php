@@ -31,7 +31,7 @@ $sql = "SELECT
         GROUP BY
             c.nombre, c.apellido
         ORDER BY
-            total_comprado DESC
+            total_comprado ASC
         LIMIT 5;";
 
 $stmt = $conn->prepare($sql);

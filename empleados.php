@@ -179,7 +179,6 @@ if (isset($_GET['editar'])) {
             max-width: 1200px;
             margin: 0 auto;
             padding: 1rem;
-            margin-top: 40px;
             flex: 1;
             overflow: auto;
         }

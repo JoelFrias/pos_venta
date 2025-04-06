@@ -32,8 +32,7 @@ $sql = "SELECT
         GROUP BY
             p.descripcion
         ORDER BY
-            cantidad_vendida DESC
-        LIMIT 5;";
+            cantidad_vendida DESC";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $_SESSION['idEmpleado']);

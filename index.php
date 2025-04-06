@@ -226,6 +226,148 @@ $_SESSION['last_activity'] = time();
                 width: 100%;
             }
         }
+
+        /* Estilos para el modal de editar perfil */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            animation: modal-appear 0.3s forwards;
+        }
+
+        @keyframes modal-appear {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 24px;
+            font-weight: 300;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: var(--primary-colors);
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--primary-colors);
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .modal form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal label {
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .modal input {
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid #e1e1e1;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .modal input:focus {
+            outline: none;
+            border-color: var(--primary-colors);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.15);
+        }
+
+        .modal button[type="submit"] {
+            margin-top: 10px;
+            padding: 12px;
+            background-color: var(--primary-colors);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .modal button[type="submit"]:hover {
+            background-color: #3a5885;
+        }
+
+        .modal button[type="submit"]:active {
+            transform: translateY(1px);
+        }
+
+        /* Estilo para indicar campos de formulario con error */
+        .modal input.error {
+            border-color: #e74c3c;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: -15px;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 20% auto;
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -249,6 +391,23 @@ $_SESSION['last_activity'] = time();
             <div class="welcome">
                 <h1 id="mensaje"></h1>
                 <button id="btn-edit-profile">Editar Perfil</button>
+            </div>
+
+            <!-- modal para editar perfil -->
+            <div id="modal-edit-profile" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Editar Perfil</h2>
+                    <form id="edit-profile-form">
+                        <label for="user">Usuario:</label>
+                        <input type="text" id="user" name="user" required>
+
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" name="password" required>
+
+                        <button type="submit">Guardar Cambios</button>
+                    </form>
+                </div>
             </div>
 
             <h2>Dashboard de Estadísticas Personal</h2>
@@ -501,11 +660,6 @@ $_SESSION['last_activity'] = time();
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
                             plugins: {
                                 title: {
                                     display: true,
@@ -569,6 +723,165 @@ $_SESSION['last_activity'] = time();
         } else {
             mensaje.textContent = "Buenas noches <?php echo $_SESSION['nombre']; ?>.";
         }
+    </script>
+
+    <!-- Script para controlar el modal -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        // Elementos DOM
+        const modal = document.getElementById('modal-edit-profile');
+        const openBtn = document.getElementById('btn-edit-profile');
+        const closeBtn = document.querySelector('.close');
+        const form = document.getElementById('edit-profile-form');
+        
+        // Obtener valores actuales del usuario
+        const username = "<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?>";
+        document.getElementById('user').value = username;
+        
+        // Función para abrir el modal
+        function openModal() {
+            modal.style.display = 'block';
+            setTimeout(function() {
+                modal.classList.add('show');
+            }, 10);
+            document.body.style.overflow = 'hidden'; // Prevenir scroll en el fondo
+        }
+        
+        // Función para cerrar el modal
+        function closeModal() {
+            modal.classList.remove('show');
+            setTimeout(function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = ''; // Restaurar scroll
+            }, 300);
+        }
+        
+        // Event listeners
+        openBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        
+        // Cerrar modal cuando se hace clic fuera del contenido
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.classList.contains('show')) {
+                closeModal();
+            }
+        });
+        
+        // Manejar envío del formulario
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Validación básica
+            const userInput = document.getElementById('user');
+            const passwordInput = document.getElementById('password');
+            let isValid = true;
+            
+            // Eliminar mensajes de error previos
+            const errorMessages = document.querySelectorAll('.error-message');
+            for (let i = 0; i < errorMessages.length; i++) {
+                errorMessages[i].remove();
+            }
+            userInput.classList.remove('error');
+            passwordInput.classList.remove('error');
+            
+            // Validar usuario
+            if (userInput.value.trim() === '') {
+                isValid = false;
+                userInput.classList.add('error');
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                errorMsg.textContent = 'Por favor ingresa un nombre de usuario';
+                userInput.insertAdjacentElement('afterend', errorMsg);
+            }
+            
+            // Validar contraseña
+            if (passwordInput.value.trim() === '') {
+                isValid = false;
+                passwordInput.classList.add('error');
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                errorMsg.textContent = 'Por favor ingresa una contraseña';
+                passwordInput.insertAdjacentElement('afterend', errorMsg);
+            }
+            
+            if (isValid) {
+                // datos del formulario
+                const datos = {
+                    user: userInput.value,
+                    password: passwordInput.value
+                };
+
+                // Enviar datos mediante AJAX
+                fetch("php/update-profile.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(datos)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.text();
+                })
+                .then(text => {
+                    try {
+                        // Intentar analizar el texto como JSON
+                        let data = JSON.parse(text);
+                        
+                        if (data.success) {
+                            // Mostrar mensaje de éxito
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Perfil actualizado!',
+                                text: data.message || 'El perfil se ha actualizado correctamente.',
+                                showConfirmButton: true,
+                                confirmButtonText: 'Aceptar',
+                                confirmButtonColor: '#4a6fa5'
+                            }).then(function() {
+                                closeModal();
+                                // Limpiar el formulario
+                                passwordInput.value = '';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.error || 'Ocurrió un error al actualizar el perfil.',
+                                confirmButtonColor: '#4a6fa5'
+                            });
+                            console.log("Error al actualizar el perfil:", data.error);
+                        }
+                    } catch (error) {
+                        console.error("Error: Respuesta no es JSON válido:", text);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Se produjo un error inesperado en el servidor.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Se produjo un error de red o en el servidor.\nPor favor, inténtelo de nuevo.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                    console.error("Error de red o servidor:", error);
+                });
+            }
+        });
+    });
     </script>
     
 </body>

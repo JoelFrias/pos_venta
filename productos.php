@@ -117,12 +117,16 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                 <div class="header-section">
                     <div class="title-container">
                         <h1>Lista de Productos</h1>
+
+                        <?php if ($_SESSION['idPuesto'] <= 2): ?> 
                         <button class="btn btn-new" id="btnNew" onclick="validation()">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 5v14m-7-7h14"></path>
                             </svg>
                             <span>Nuevo</span>
                         </button>
+                        <?php endif; ?>
+
                     </div>
                     
                     <!-- Sección de búsqueda -->
@@ -174,7 +178,12 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                                         <th>Precio Venta 2</th>
                                         <th>Reorden</th>
                                         <th>Estado</th>
-                                        <th>Acciones</th>
+                                        <?php 
+                                            // Verificar si el usuario tiene permisos de administrador
+                                            if ($_SESSION['idPuesto'] <= 2) {
+                                                echo '<th>Acciones</th>';
+                                            }
+                                        ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -199,26 +208,34 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                                                 <?php echo $row['activo'] ? 'Activo' : 'Inactivo'; ?>
                                             </span>
                                         </td>
-                                        <td>
-                                            <button class="btn btn-update" 
-                                                    data-id="<?php echo $row['idProducto']; ?>" 
-                                                    data-descripcion="<?php echo $row['descripcion']; ?>"
-                                                    data-tipo="<?php echo $row['idTipo']; ?>" 
-                                                    data-existencia="<?php echo $row['existencia']; ?>"
-                                                    data-preciocompra="<?php echo $row['precioCompra']; ?>"
-                                                    data-precioventa1="<?php echo $row['precioVenta1']; ?>"
-                                                    data-precioventa2="<?php echo $row['precioVenta2']; ?>"
-                                                    data-reorden="<?php echo $row['reorden']; ?>"
-                                                    data-activo="<?php echo $row['activo']; ?>"
-                                                    onclick="mostrarModal(this)">
-                                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M21 2v6h-6M3 22v-6h6"></path>
-                                                    <path d="M21 8c0 9.941-8.059 18-18 18"></path>
-                                                    <path d="M3 16c0-9.941 8.059-18 18-18"></path>
-                                                </svg>
-                                                <span>Editar</span>
-                                            </button>
-                                        </td>
+
+                                        <?php 
+                                            // Verificar si el usuario tiene permisos de administrador
+                                            if ($_SESSION['idPuesto'] <= 2):
+                                        ?>
+
+                                            <td>
+                                                <button class="btn btn-update" 
+                                                        data-id="<?php echo $row['idProducto']; ?>" 
+                                                        data-descripcion="<?php echo $row['descripcion']; ?>"
+                                                        data-tipo="<?php echo $row['idTipo']; ?>" 
+                                                        data-existencia="<?php echo $row['existencia']; ?>"
+                                                        data-preciocompra="<?php echo $row['precioCompra']; ?>"
+                                                        data-precioventa1="<?php echo $row['precioVenta1']; ?>"
+                                                        data-precioventa2="<?php echo $row['precioVenta2']; ?>"
+                                                        data-reorden="<?php echo $row['reorden']; ?>"
+                                                        data-activo="<?php echo $row['activo']; ?>"
+                                                        onclick="mostrarModal(this)">
+                                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M21 2v6h-6M3 22v-6h6"></path>
+                                                        <path d="M21 8c0 9.941-8.059 18-18 18"></path>
+                                                        <path d="M3 16c0-9.941 8.059-18 18-18"></path>
+                                                    </svg>
+                                                    <span>Editar</span>
+                                                </button>
+                                            </td>
+
+                                        <?php endif; ?>
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>

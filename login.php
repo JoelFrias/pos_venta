@@ -52,6 +52,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Verificar si el empleado tiene una caja abierta
                     caja($conn);
 
+                    /**
+                     *  2. Auditoria de acciones de usuario
+                     */
+
+                    require_once 'php/auditorias.php';
+                    $usuario_id = $_SESSION['idEmpleado'];
+                    $accion = 'Nueva sesión iniciada';
+                    $detalle = 'El usuario ' . $_SESSION['username'] . ' ha iniciado sesión.';
+                    $ip = $_SERVER['REMOTE_ADDR']; // Obtener la dirección IP del cliente
+                    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+
                     // Redirigir a la página de inicio
                     header("Location: index.php");
                     exit();
@@ -106,7 +117,6 @@ function caja($conn){
         $_SESSION['fechaApertura'] = $datos_caja['fechaApertura'];
         $_SESSION['saldoApertura'] = $datos_caja['saldoApertura'];
         $_SESSION['registro'] = $datos_caja['registro'];
-
     }
 }
 

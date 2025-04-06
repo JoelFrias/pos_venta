@@ -371,20 +371,44 @@ try {
      *      4. Registrar ingreso en caja
      */
 
-     $stmt = $conn->prepare("INSERT INTO cajaingresos (metodo, monto, IdEmpleado, numCaja, razon, fecha) VALUES (?, ?, ?, ?, ?, NOW())");
-     if (!$stmt) {
-         throw new Exception("Error preparando inserción de ingresos: " . $conn->error);
-     }
-     $razon = "Pago a cuenta del cliente: " . $idCliente;
-     $stmt->bind_param("sdiss", $formaPago, $montoPagado1, $idEmpleado, $_SESSION['numCaja'], $razon);
-     if (!$stmt->execute()) {
-         throw new Exception("Error insertando el ingreso: " . $stmt->error);
-     }
-     logDebug("Ingresos en caja registrado");
+    $stmt = $conn->prepare("INSERT INTO cajaingresos (metodo, monto, IdEmpleado, numCaja, razon, fecha) VALUES (?, ?, ?, ?, ?, NOW())");
+    if (!$stmt) {
+        throw new Exception("Error preparando inserción de ingresos: " . $conn->error);
+    }
+    $razon = "Pago a cuenta del cliente: " . $idCliente;
+    $stmt->bind_param("sdiss", $formaPago, $montoPagado1, $idEmpleado, $_SESSION['numCaja'], $razon);
+    if (!$stmt->execute()) {
+        throw new Exception("Error insertando el ingreso: " . $stmt->error);
+    }
+    logDebug("Ingresos en caja registrado");
 
 
     /**
-     *  5. Confirmar la transacción
+     * *  5. Registrar auditoría de caja
+     */
+
+    $usuario_id = $_SESSION['idEmpleado'];
+    $accion = "Registro de pago a cuenta del cliente: " . $idCliente;
+    $detalles = "Método: " . $formaPago . ", Monto: " . $montoPagado1 . ", Autorización: " . $numeroAutorizacion . ", Tarjeta: " . $numeroTarjeta . ", Banco: " . $banco . ", Destino: " . $destino;
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+
+    require_once 'auditorias.php';
+    registrarAuditoriaCaja($conn, $usuario_id, $accion, $detalles);
+
+
+    /**
+     *  6. Auditoria de acciones de usuario
+     */
+
+    require_once 'auditorias.php';
+    $usuario_id = $_SESSION['idEmpleado'];
+    $accion = 'Pago a cuenta del cliente: ' . $idCliente;
+    $detalle = 'Método: ' . $formaPago . ', Monto: ' . $montoPagado1 . ', Autorización: ' . $numeroAutorizacion . ', Tarjeta: ' . $numeroTarjeta . ', Banco: ' . $banco . ', Destino: ' . $destino;
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+
+    /**
+     *  7. Confirmar la transacción
      */
 
     $conn->commit();

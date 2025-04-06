@@ -38,6 +38,71 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_user'])) {
     $new_username = trim($_POST['new_username']);
     $new_password = trim($_POST['new_password']);
 
+    // Validar que el ID del usuario sea un número entero
+    if (!filter_var($id, FILTER_VALIDATE_INT)) {
+        $_SESSION['error_message'] = 'ID de usuario inválido.';
+        header('Location: usuarios-editar.php');
+        exit();
+    }
+
+    // Validar que el nuevo nombre de usuario no esté vacío
+    if (empty($new_username)) {
+        $_SESSION['error_message'] = 'El nombre de usuario no puede estar vacío.';
+        header('Location: usuarios-editar.php');
+        exit();
+    }
+
+    // Validar que la nueva contraseña tenga al menos 4 caracteres
+    if (strlen($new_password) < 4) {
+        $_SESSION['error_message'] = 'La contraseña debe tener al menos 4 caracteres.';
+        header('Location: usuarios-editar.php');
+        exit();
+    }
+
+    // Validar que el usuario no exista ya en la base de datos
+    $sql_check = "SELECT id FROM usuarios WHERE username = ? AND id != ?";
+    $stmt = $conn->prepare($sql_check);
+    $stmt->bind_param("si", $new_username, $id);
+    $stmt->execute();
+    $resultado_check = $stmt->get_result();
+    if ($resultado_check->num_rows > 0) {
+        $_SESSION['error_message'] = 'El nombre de usuario ya está en uso.';
+        $stmt->close();
+        header('Location: usuarios-editar.php');
+        exit();
+    }
+    $stmt->close();
+
+    // Verificar si la identificación ya existe
+    $queryVerificarIdentificacion = "SELECT COUNT(*) as count FROM empleados WHERE identificacion = ?";
+    $stmt = $conn->prepare($queryVerificarIdentificacion);
+    $stmt->bind_param("s", $identificacion);
+    $stmt->execute();
+    $stmt->bind_result($count);
+    $stmt->fetch();
+    $stmt->close();
+    if ($count > 0) {
+        $_SESSION['error_message'] = 'La identificación ya existe.';
+        $stmt->close();
+        header('Location: usuarios-editar.php');
+        exit();
+    }
+
+    // Verificar si el teléfono ya existe
+    $queryVerificarTelefono = "SELECT COUNT(*) as count FROM empleados WHERE telefono = ?";
+    $stmt = $conn->prepare($queryVerificarTelefono);
+    $stmt->bind_param("s", $telefono);
+    $stmt->execute();
+    $stmt->bind_result($count);
+    $stmt->fetch();
+    $stmt->close();
+    if ($count > 0) {
+        $_SESSION['error_message'] = 'El telefono ya existe.';
+        $stmt->close();
+        header('Location: usuarios-editar.php');
+        exit();
+    }
+
     // Validar que se ingresen ambos campos
     if (empty($new_username) || empty($new_password)) {
         $_SESSION['error_message'] = 'Debe completar ambos campos.';
@@ -52,6 +117,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_user'])) {
 
         if ($stmt->execute()) {
             $_SESSION['success_message'] = 'Usuario actualizado con éxito.';
+
+        /**
+         *  2. Auditoria de acciones de usuario
+         */
+
+        require_once 'php/auditorias.php';
+        $usuario_id = $_SESSION['idEmpleado'];
+        $accion = 'Modificar usuario';
+        $detalle = 'Se modificó el usuario con ID: ' . $id;
+        $ip = $_SERVER['REMOTE_ADDR']; // Obtener la dirección IP del cliente
+        registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+
         } else {
             $_SESSION['error_message'] = 'Error al actualizar el usuario: ' . $stmt->error;
         }

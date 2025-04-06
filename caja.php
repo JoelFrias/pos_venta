@@ -76,7 +76,7 @@
     if ($caja_abierta) {
         $num_caja = $datos_caja['numCaja'];
         
-        // Calcular total de ingresos - USANDO PREPARED STATEMENT
+        // Calcular total de ingresos
         $sql_ingresos = "SELECT SUM(monto) as total FROM cajaingresos WHERE metodo = 'efectivo' AND numCaja = ?";
         $stmt = $conn->prepare($sql_ingresos);
         $stmt->bind_param("s", $num_caja);
@@ -88,7 +88,7 @@
         }
         $stmt->close();
         
-        // Calcular total de egresos - USANDO PREPARED STATEMENT
+        // Calcular total de egresos
         $sql_egresos = "SELECT SUM(monto) as total FROM cajaegresos WHERE metodo = 'efectivo' AND numCaja = ?";
         $stmt = $conn->prepare($sql_egresos);
         $stmt->bind_param("s", $num_caja);
@@ -142,6 +142,17 @@
                     if (!$stmt->execute()) {
                         throw new Exception("Error al abrir caja en sistema");
                     }
+
+                    /**
+                     *  2. Auditoria de acciones de usuario
+                     */
+
+                    require_once 'php/auditorias.php';
+                    $usuario_id = $_SESSION['idEmpleado'];
+                    $accion = 'APERTURA_CAJA';
+                    $detalle = 'Caja abierta con saldo inicial: ' . $saldo_apertura . ' y número de caja: ' . $num_caja;
+                    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+                    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
                     
                     $conn->commit();
                     $mensaje = "Caja abierta exitosamente";
@@ -156,7 +167,7 @@
                     $datos_caja = $resultado->fetch_assoc();
                     
                     // Registrar auditoría
-                    registrarAuditoria($conn, $id_empleado, 'APERTURA_CAJA', 
+                    registrarAuditoriaCaja($conn, $id_empleado, 'APERTURA_CAJA', 
                         "Caja #$num_caja abierta con saldo inicial: $saldo_apertura");
                     
                 } catch (Exception $e) {
@@ -167,7 +178,7 @@
                 
                 $conn->autocommit(TRUE);
                 if ($error) {
-                    registrarAuditoria($conn, $id_empleado, 'ERROR_APERTURA', 
+                    registrarAuditoriaCaja($conn, $id_empleado, 'ERROR_APERTURA', 
                         "Fallo al abrir caja: " . $mensaje);
                 }
             }
@@ -207,13 +218,24 @@
                     if (!$stmt->execute()) {
                         throw new Exception("Error al eliminar caja abierta");
                     }
+
+                    /**
+                     *  2. Auditoria de acciones de usuario
+                     */
+
+                    require_once 'php/auditorias.php';
+                    $usuario_id = $_SESSION['idEmpleado'];
+                    $accion = 'CIERRE_CAJA';
+                    $detalle = 'Caja cerrada con saldo final: ' . $saldo_final . ' y número de caja: ' . $num_caja;
+                    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+                    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
                     
                     $conn->commit();
                     $mensaje = "Caja cerrada exitosamente";
                     $caja_abierta = false;
 
                     // Registrar auditoría
-                    registrarAuditoria($conn, $id_empleado, 'CIERRE_CAJA', 
+                    registrarAuditoriaCaja($conn, $id_empleado, 'CIERRE_CAJA', 
                         "Caja #$num_caja cerrada. Saldo final: $saldo_final, Diferencia: $diferencia");
                     
                     // Limpiar variables de caja
@@ -230,7 +252,7 @@
                 
                 $conn->autocommit(TRUE);
                 if ($error) {
-                    registrarAuditoria($conn, $id_empleado, 'ERROR_CIERRE', 
+                    registrarAuditoriaCaja($conn, $id_empleado, 'ERROR_CIERRE', 
                         "Fallo al cerrar caja #$num_caja: " . $mensaje);
                 }
             }
@@ -275,12 +297,23 @@
                         $row_ingresos = $result_ingresos->fetch_assoc();
                         $total_ingresos = $row_ingresos['total'] ? $row_ingresos['total'] : 0;
                     }
+
+                    /**
+                     *  2. Auditoria de acciones de usuario
+                     */
+
+                    require_once 'php/auditorias.php';
+                    $usuario_id = $_SESSION['idEmpleado'];
+                    $accion = 'INGRESO_CAJA';
+                    $detalle = 'Ingreso registrado con monto: ' . $monto . ' y número de caja: ' . $num_caja . ' Razón: ' . $razon;
+                    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+                    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
                     
                     $conn->commit();
                     $mensaje = "Ingreso registrado exitosamente";
                     
                     // Registrar auditoría
-                    registrarAuditoria($conn, $id_empleado, 'INGRESO', 
+                    registrarAuditoriaCaja($conn, $id_empleado, 'INGRESO', 
                         "Monto: $monto, Razón: $razon, Caja: $num_caja");
                     
                 } catch (Exception $e) {
@@ -291,7 +324,7 @@
                 
                 $conn->autocommit(TRUE);
                 if ($error) {
-                    registrarAuditoria($conn, $id_empleado, 'ERROR_INGRESO', 
+                    registrarAuditoriaCaja($conn, $id_empleado, 'ERROR_INGRESO', 
                         "Fallo al registrar ingreso: " . $mensaje);
                 }
             }
@@ -335,13 +368,24 @@
                         $row_egresos = $result_egresos->fetch_assoc();
                         $total_egresos = $row_egresos['total'] ? $row_egresos['total'] : 0;
                     }
-                    
-                    $conn->commit();
-                    $mensaje = "Egreso registrado exitosamente";
+
+                    /**
+                     *  2. Auditoria de acciones de usuario
+                     */
+
+                    require_once 'php/auditorias.php';
+                    $usuario_id = $_SESSION['idEmpleado'];
+                    $accion = 'EGRESO_CAJA';
+                    $detalle = 'Egreso registrado con monto: ' . $monto . ' y número de caja: ' . $num_caja . ' Razón: ' . $razon;
+                    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+                    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
                     
                     // Registrar auditoría
-                    registrarAuditoria($conn, $id_empleado, 'EGRESO', 
+                    registrarAuditoriaCaja($conn, $id_empleado, 'EGRESO', 
                         "Monto: $monto, Razón: $razon, Caja: $num_caja");
+
+                    $conn->commit();
+                    $mensaje = "Egreso registrado exitosamente";
                     
                 } catch (Exception $e) {
                     $conn->rollback();
@@ -351,22 +395,13 @@
                 
                 $conn->autocommit(TRUE);
                 if ($error) {
-                    registrarAuditoria($conn, $id_empleado, 'ERROR_EGRESO', 
+                    registrarAuditoriaCaja($conn, $id_empleado, 'ERROR_EGRESO', 
                         "Fallo al registrar egreso: " . $mensaje);
                 }
             }
         }
     }
-
-    // Función auxiliar para registrar auditoría
-    function registrarAuditoria($conn, $usuario_id, $accion, $detalles) {
-        $sql = "INSERT INTO auditoria_caja (usuario_id, accion, detalles, fecha, ip) 
-                VALUES (?, ?, ?, NOW(), ?)";
-        $stmt = $conn->prepare($sql);
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
-        $stmt->bind_param("isss", $usuario_id, $accion, $detalles, $ip);
-        $stmt->execute();
-    }
+    
 ?>
 
 <!DOCTYPE html>
@@ -662,7 +697,7 @@
                     
                     <!-- Resumen de caja y cierre -->
                     <div class="panel">
-                        <h2>Resumen de Caja #<?php echo $datos_caja['numCaja']; ?></h2>
+                        <h2>Resumen de Caja</h2>
                         <div class="resumen">
                             <p><strong>Saldo inicial:</strong> $<?php echo number_format($datos_caja['saldoApertura'], 2); ?></p>
                             <p><strong>Total ingresos en efectivo:</strong> $<?php echo number_format($total_ingresos, 2); ?></p>

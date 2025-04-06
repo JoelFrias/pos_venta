@@ -235,6 +235,16 @@ try {
         logDebug("Transaccion de invatario realizada", $producto);
     }
 
+    /**
+     *      2. Auditoria de acciones de usuario
+     */
+
+    require_once 'auditorias.php';
+    $usuario_id = $_SESSION['idEmpleado'];
+    $accion = 'Transacción de inventario';
+    $detalle = 'Se han transferido productos al inventario del empleado con ID: ' . $idEmpleado . ' - Productos: ' . json_encode($productos);
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
 
     /**
      *      3. Confirmar la transacción

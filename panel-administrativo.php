@@ -682,10 +682,12 @@
                 <h1>Panel Administrativo</h1>
             </div>
 
-            <!-- Botones principales -->
+            <!-- Desplegar menú móvil -->
             <div>
                 <button class="mobile-menu-toggle">Menú Administrativo  ▼</button>
             </div>
+
+            <!-- Botones principales -->
             <div id="buttons">
                 <div id="div-banks">
                     <button id="manager-banks">Administrar Bancos</button>
@@ -786,7 +788,7 @@
                 <div id="new-bank">
                     <label for="bank-name">Agregar Nuevo Banco:</label>
                     <input type="text" id="bank-name" name="bank-name" autocomplete="off">
-                    <button type="submit">Agregar</button>
+                    <button type="submit" onclick="addBank()">Agregar</button>
                 </div>
 
                 <div id="bank-list">
@@ -847,7 +849,7 @@
                 <div id="new-destination">
                     <label for="destination-name">Agregar Nuevo Destino:</label>
                     <input type="text" id="destination-name" name="destination-name" autocomplete="off">
-                    <button type="submit">Agregar</button>
+                    <button type="submit" onclick="addDestination()">Agregar</button>
                 </div>
                 
                 <div id="destination-list">
@@ -1668,6 +1670,207 @@
                 }
             });
         });
+    </script>
+
+    <!-- Script para agregar bancos y destinos -->
+    <script>
+        function addBank() {
+            const bankNameInput = document.getElementById('bank-name');
+            
+            const datos = {
+                nameBank: bankNameInput.value.trim()
+            };
+            
+            // Validación básica
+            if (!datos.nameBank) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campo vacío',
+                    text: 'Por favor ingrese un nombre para el banco',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
+
+            fetch("php/admin-new-bank.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.text();
+            })
+            .then(text => {
+                try {
+                    console.log("Respuesta del servidor:", text); // Para depuración
+                    let data = JSON.parse(text);
+                    
+                    if (data.success) {
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: data.message || 'Banco agregado correctamente.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+
+                        // Agregar la nueva fila a la tabla
+                        const newRow = `<tr data-id="${data.data.id}" data-name="${datos.nameBank}">
+                            <td>${datos.nameBank}</td>
+                            <td>
+                                <button class="delete-bank" onclick="deleteBank(${data.data.id})">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                                <button class="edit-bank">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+                        
+                        document.getElementById('bank-table-body').insertAdjacentHTML('beforeend', newRow);
+
+                        // Limpiar el campo de entrada
+                        bankNameInput.value = '';
+
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error || 'Ocurrió un error al agregar el banco.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+                        console.log("Error al agregar el banco:", data.error);
+                    }
+                } catch (error) {
+                    console.error("Error al procesar respuesta JSON:", error);
+                    console.error("Texto recibido:", text);
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Se produjo un error inesperado en el servidor.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Error de red o servidor:", error);
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Se produjo un error de red o en el servidor. Por favor, inténtelo de nuevo.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+            });
+        }
+
+        function addDestination() {
+            const destinationNameInput = document.getElementById('destination-name');
+            
+            const datos = {
+                nameDestination: destinationNameInput.value.trim()
+            };
+            
+            // Validación básica
+            if (!datos.nameDestination) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campo vacío',
+                    text: 'Por favor ingrese un nombre para el destino',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
+
+            fetch("php/admin-new-destination.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.text();
+            })
+            .then(text => {
+                try {
+                    console.log("Respuesta del servidor:", text); // Para depuración
+                    let data = JSON.parse(text);
+                    
+                    if (data.success) {
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: data.message || 'Destino agregado correctamente.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+
+                        // Recargar la tabla de destinos
+                        const newRow = `<tr data-id="${data.data.id}" data-name="${datos.nameDestination}">
+                                            <td>${datos.nameDestination}</td>
+                                            <td>
+                                                <button class="delete-destination" onclick="deleteDestination(${data.data.id})">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                                <button class="edit-destination">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                </button>
+                                            </td>
+                                        </tr>`;
+                        
+                        document.getElementById('destination-table-body').insertAdjacentHTML('beforeend', newRow);
+
+                        // Limpiar el campo de entrada
+                        destinationNameInput.value = '';
+
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error || 'Ocurrió un error al agregar el destino.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+                        console.log("Error al agregar el destino:", data.error);
+                    }
+                } catch (error) {
+                    console.error("Error al procesar respuesta JSON:", error);
+                    console.error("Texto recibido:", text);
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Se produjo un error inesperado en el servidor.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Error de red o servidor:", error);
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Se produjo un error de red o en el servidor. Por favor, inténtelo de nuevo.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+            });
+        }
     </script>
     
 </body>

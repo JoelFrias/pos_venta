@@ -148,9 +148,23 @@ try {
 
     $stmt->close();
 
+
     /**
-     *  2. Se ejecuta la transacción
+     *  2. Auditoria de acciones de usuario
      */
+
+     require_once 'auditorias.php';
+     $usuario_id = $_SESSION['idEmpleado'];
+     $accion = 'Eliminar destino';
+     $detalle = 'Se eliminó el destino con id: ' . $idDestination;
+     $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+     registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+
+    /**
+     *  3. Se ejecuta la transacción
+     */
+
+
     $conn->commit();
 
     // Respuesta exitosa

@@ -152,7 +152,17 @@ try {
         throw new Exception("Error preparando actualización del destino: " . $stmt->error, 3007);
     }
 
-    $stmt->close();
+    /**
+     *  2. Auditoria de acciones de usuario
+     */
+
+    require_once 'auditorias.php';
+    $usuario_id = $_SESSION['idEmpleado'];
+    $accion = 'Actualizar destino';
+    $detalle = 'Se actualizó el destino con id ' . $idDestino . ' a ' . $destino;
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+
 
     /**
      *  2. Se ejecuta la transacción

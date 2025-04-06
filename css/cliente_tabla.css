@@ -213,9 +213,6 @@ main{
 }
 
 @media (max-width: 768px) {
-  .main-content {
-    width: 95%;
-  }
 
   .title-container {
     margin-top: 1rem;
@@ -226,7 +223,6 @@ main{
 
   .title-container h1 {
     margin: 0;
-    font-size: 1.25rem;
   }
 
   .btn-new {

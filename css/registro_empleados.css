@@ -24,7 +24,6 @@ body {
 .form-title {
     font-size: 1.5rem;
     color: var(--text);
-    margin: 1rem 0;
     font-weight: 600;
 }
 
@@ -57,17 +56,11 @@ legend {
     .form-grid {
         grid-template-columns: repeat(3, 1fr);
     }
-    .form-title {
-        margin-top: 40px;
-    }
 }
 
 @media (max-width: 1199px) and (min-width: 768px) {
     .form-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-    .form-title {
-        margin-top: 40px;
     }
 }
 

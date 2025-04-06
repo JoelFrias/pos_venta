@@ -53,6 +53,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
         }
 
+        /**
+         *  2. Auditoria de acciones de usuario
+         */
+
+        require_once 'auditorias.php';
+        $usuario_id = $_SESSION['idEmpleado'];
+        $accion = 'Actualizar producto';
+        $detalle = 'Producto actualizado: ' . $descripcion . ', ID: ' . $idProducto;
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+        registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+
         // Confirmar la transacción
         $conn->commit();
 

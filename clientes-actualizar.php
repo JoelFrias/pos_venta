@@ -104,6 +104,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_direccion->bind_param("sssssi", $no, $calle, $sector, $ciudad, $referencia, $cliente_id);
         $stmt_direccion->execute();
 
+        /**
+         *  2. Auditoria de acciones de usuario
+         */
+
+        require_once 'php/auditorias.php';
+        $usuario_id = $_SESSION['idEmpleado'];
+        $accion = 'Actualizar cliente';
+        $detalle = 'Cliente actualizado: 
+            Nombre: ' . $nombre . ' - 
+            Apellido: ' . $apellido . ' - 
+            ID: ' . $cliente_id . ' - 
+            Empresa: ' . $empresa . ' - 
+            Tipo Identificacion: ' . $tipo_identificacion . ' - 
+            Identificacion: ' . $identificacion . ' - 
+            Telefono: ' . $telefono . ' - 
+            Notas: ' . $notas . ' - 
+            Limite Credito: ' . $limite_credito . ' - 
+            DIRECCION: ' . $no . ' - ' . $calle . ' - ' . $sector . ' - ' . $ciudad . ' - ' . $referencia . ' - 
+            Inactividad: ' . ($inactividad ? 'Activo' : 'Inactivo');
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+        registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+
         // Confirmar la transacción
         $conn->commit();
 

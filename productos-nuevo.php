@@ -72,6 +72,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $descripcionTransaccion = "Ingreso por nuevo producto: ";
         $stmt->bind_param("siis", $tipo, $idProducto, $cantidad, $descripcionTransaccion);
         $stmt->execute();
+
+        /**
+         *  2. Auditoria de acciones de usuario
+         */
+
+        require_once 'php/auditorias.php';
+        $usuario_id = $_SESSION['idEmpleado'];
+        $accion = 'Nuevo Producto';
+        $detalle = 'Se ha registrado un nuevo producto: ' . $idProducto . ' - ' . $descripcion;
+        $ip = $_SERVER['REMOTE_ADDR']; // Obtener la dirección IP del cliente
+        registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
     
         // Confirmar la transacción
         $conn->commit();

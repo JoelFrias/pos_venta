@@ -51,6 +51,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Ejecutar la consulta y verificar el resultado
     if ($stmt->execute()) {
         $_SESSION['success'] = "Categoría registrada correctamente.";
+
+        /**
+         *  2. Auditoria de acciones de usuario
+         */
+
+        require_once 'php/auditorias.php';
+        $usuario_id = $_SESSION['idEmpleado'];
+        $accion = 'Registro de categoría';
+        $detalle = 'Descripción: ' . $descripcion;
+        $ip = $_SERVER['REMOTE_ADDR']; // Obtener la dirección IP del cliente
+        registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+
     } else {
         $_SESSION['error'] = "Error al registrar la categoría: " . $stmt->error;
     }
