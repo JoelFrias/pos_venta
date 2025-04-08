@@ -227,7 +227,7 @@ $_SESSION['last_activity'] = time();
             }
         }
 
-        /* Estilos para el modal de editar perfil */
+        /* Estilos para el modal de editar usuario */
         .modal {
             display: none;
             position: fixed;
@@ -390,14 +390,14 @@ $_SESSION['last_activity'] = time();
             <!-- Mensaje de bienvenida -->
             <div class="welcome">
                 <h1 id="mensaje"></h1>
-                <button id="btn-edit-profile">Editar Perfil</button>
+                <button id="btn-edit-profile">Editar Usuario</button>
             </div>
 
-            <!-- modal para editar perfil -->
+            <!-- modal para editar Usuario -->
             <div id="modal-edit-profile" class="modal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
-                    <h2>Editar Perfil</h2>
+                    <h2>Editar Usuario</h2>
                     <form id="edit-profile-form">
                         <label for="user">Usuario:</label>
                         <input type="text" id="user" name="user" required>

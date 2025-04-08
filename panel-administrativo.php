@@ -708,7 +708,7 @@
                     <button id="transactions-inventory" onclick="inventario_transaccion()">Trasancciones de Inventario</button>
                 </div>
                 <div id="div-inventory">
-                    <button id="manager-inventory">Administrar Inventario</button>
+                    <button id="manager-inventory" onclick="gestion_inventario()">Administrar Inventario</button>
                 </div>
             </div>
 
@@ -1235,10 +1235,22 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Acceso bloqueado',
-                    text: 'NNo tienes permiso para realizar esta acción.'
+                    text: 'No tienes permiso para realizar esta acción.'
                 });
             } else {
                 navigateTo('inventario-transaccion.php');
+            }
+        }
+
+        function gestion_inventario() {
+            if (idPuesto > 2) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso bloqueado',
+                    text: 'No tienes permiso para realizar esta acción.'
+                });
+            } else {
+                navigateTo('inventario-gestion.php');
             }
         }
 

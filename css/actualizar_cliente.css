@@ -111,6 +111,7 @@ select {
     background-repeat: no-repeat;
     background-position: right 0.5rem center;
     padding-right: 1.5rem;
+    width: 270px;
 }
 
 textarea {

@@ -415,13 +415,13 @@ try {
      *      8. Registrar trasacciones de inventario
      */
 
-    $stmt = $conn->prepare("INSERT INTO inventariotransacciones (tipo, idProducto, cantidad, fecha, descripcion) VALUES ( 'retiro', ?, ?, NOW(), 'Venta por factura #".$numFactura."')");
+    $stmt = $conn->prepare("INSERT INTO inventariotransacciones (tipo, idProducto, cantidad, fecha, descripcion, idEmpleado) VALUES ( 'venta', ?, ?, NOW(), 'Venta por factura #".$numFactura."', ?)");
     if (!$stmt) {
         throw new Exception("Error registrando las transacciones de inventario: " . $conn->error);
     }
     
     foreach ($productos as $producto) {
-        $stmt->bind_param('ii', $producto['id'], $producto['cantidad']);
+        $stmt->bind_param('iii', $producto['id'], $producto['cantidad'], $_SESSION['idEmpleado']);
         if (!$stmt->execute()) {
             throw new Exception("Error registrar las transacciones de inventario del producto -> {$producto['id']}: " . $stmt->error);
         }
@@ -441,11 +441,11 @@ try {
          $montoNeto = $montoPagado;
      }
 
-    $stmt = $conn->prepare("INSERT INTO facturas_metodoPago (numFactura, metodo, monto, numAutorizacion, referencia, idBanco, idDestino) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO facturas_metodoPago (numFactura, metodo, monto, numAutorizacion, referencia, idBanco, idDestino, noCaja) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Error preparando inserción de método de pago: " . $conn->error);
     }
-    $stmt->bind_param('ssdssii', $numFactura, $formaPago, $montoNeto, $numeroAutorizacion, $numeroTarjeta, $banco, $destino);
+    $stmt->bind_param('ssdssiii', $numFactura, $formaPago, $montoNeto, $numeroAutorizacion, $numeroTarjeta, $banco, $destino, $_SESSION['numCaja']);
     if (!$stmt->execute()) {
         throw new Exception("Error insertando método de pago: " . $stmt->error);
     }

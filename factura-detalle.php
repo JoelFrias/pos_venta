@@ -453,6 +453,22 @@ if ($result->num_rows > 0) {
             min-width: 150px;
         }
 
+        .btn-secondary-cancel {
+            padding: 0.75rem 1.5rem;
+            background-color: rgb(211, 80, 80);
+            border: 1px rgb(160, 33, 33);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: rgb(251, 251, 251);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
         /* Overlay para dispositivos móviles */
         .overlay {
             display: none;
@@ -518,7 +534,8 @@ if ($result->num_rows > 0) {
             }
 
             .btn-primary,
-            .btn-secondary {
+            .btn-secondary,
+            .btn-secondary-cancel {
                 width: 100%;
                 min-width: 0;
             }
@@ -607,7 +624,90 @@ if ($result->num_rows > 0) {
             background-color: #007bff; /* Fondo azul al hacer hover */
             color: #fff; /* Texto blanco al hacer hover */
         }
+
+        /* Estilos del menu con swal */
+        .swal-responsive-container {
+            padding: 10px;
+        }
+        
+        .swal-responsive-popup {
+            max-width: 90% !important;
+            width: auto !important;
+            font-size: 14px !important;
+        }
+        
+        .swal-responsive-content {
+            padding: 10px !important;
+        }
+
+        #motivo-cancelacion{
+            width: 450px;
+            height: 80px;
+            min-height: 80px;
+            padding: 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            resize: none;
+            box-sizing: border-box; 
+            margin: auto;
+        }
+        
+        @media (max-width: 500px) {
+            .swal2-popup {
+                padding: 1em !important;
+                font-size: 0.9em !important;
+            }
+            
+            .swal2-title {
+                font-size: 1.3em !important;
+            }
+            
+            .swal2-content {
+                font-size: 1em !important;
+            }
+            
+            .swal2-textarea {
+                font-size: 1em !important;
+            }
+            #motivo-cancelacion{
+                width: 250px;
+                padding: 0;
+            }
+        }
+
+        .note-cancelation {
+                background-color: #fef2f2;
+                border-left: 4px solid #dc2626;
+                padding: 1rem;
+                margin-top: 1rem;
+                border-radius: 0.5rem;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                max-width: 90%;
+                box-sizing: border-box;
+            }
+
+            .note-cancelation label {
+                display: block;
+                font-weight: 600;
+                color: #991b1b;
+                margin-top: 0.5rem;
+            }
+
+            .note-cancelation span {
+                display: block;
+                margin-left: 0.5rem;
+                color: #444;
+            }
+
+            @media (max-width: 600px) {
+                .note-cancelation {
+                    font-size: 0.9rem;
+                    padding: 0.75rem;
+                }
+            }
+            
     </style>
+
 </head>
 <body>
 
@@ -776,12 +876,60 @@ if ($result->num_rows > 0) {
                                             <span><?php echo $facturaInfo['total']; ?></span>
                                         </div>
                                     </div>
+
+                                    <?php
+                                    if ($factura['estado'] == "Cancelada" && $_SESSION['idEmpleado'] <= 2):
+
+                                        $sqlfc = "SELECT
+                                                    fc.motivo AS motivofc,
+                                                    DATE_FORMAT(fc.fecha, '%d/%m/%Y %l:%i %p') AS fechafc,
+                                                    CONCAT(e.nombre, ' ', e.apellido) AS empleadofc
+                                                FROM
+                                                    facturas_cancelaciones AS fc
+                                                JOIN empleados AS e
+                                                    ON e.id = fc.idEmpleado
+                                                WHERE
+                                                    fc.numFactura = ?";
+
+                                        $stmtfc = $conn->prepare($sqlfc);
+                                        $stmtfc->bind_param("s", $factura['numFactura']);
+                                        $stmtfc->execute();
+                                        $resultfc = $stmtfc->get_result();
+
+                                        if ($resultfc->num_rows > 0):
+                                            $datosfc = $resultfc->fetch_assoc();
+                                    ?>
+                                            <div class="note-cancelation">
+                                                <label for="motivo-cancelation"><i class="fa-solid fa-circle-info"></i> Motivo de Cancelación:</label>
+                                                <span id="motivo-cancelation"><?php echo $datosfc['motivofc']; ?></span>
+
+                                                <label for="fechafc">Fecha de Cancelación:</label>
+                                                <span id="fechafc"><?php echo $datosfc['fechafc']; ?></span>
+
+                                                <label for="empleadofc">Empleado que Canceló:</label>
+                                                <span id="empleadofc"><?php echo $datosfc['empleadofc']; ?></span>
+                                            </div>
+                                    <?php
+                                        endif;
+
+                                    endif;
+                                    ?>
+
                                     <div class="action-buttons">
-                                        <button class="btn-primary" onclick="navigateTo('cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
                                         <button class="btn-secondary">
                                             <span class="printer-icon">🖨️</span>
                                             Reimprimir
                                         </button>
+
+                                        <?php if($factura['estado'] !== "Cancelada"): ?>
+                                            <button class="btn-secondary-cancel" id="cancel-btn">
+                                                <spa class="printer-icon"><i class="fa-solid fa-ban">  </i></span>
+                                                Cancelar Factura
+                                            </button>
+                                        <?php endif ?>
+
+                                        <button class="btn-primary" onclick="navigateTo('cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -798,5 +946,126 @@ if ($result->num_rows > 0) {
         // Cerrar conexión
         $conn->close();
     ?>
+
+    <!-- Cancelar Facturas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cancelBtn = document.getElementById('cancel-btn');
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    // Obtener el número de factura directamente del PHP
+                    const numFactura = <?php echo $facturaInfo['numFactura']; ?>;
+                    
+                    // Mostrar confirmación con SweetAlert2 con configuraciones responsivas
+                    Swal.fire({
+                        title: '¿Cancelar Factura?',
+                        text: `¿Está seguro que desea cancelar la factura #${numFactura}? Esta acción no se puede deshacer.`,
+                        icon: 'warning',
+                        html: `
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label for="motivo-cancelacion" style="display: block; text-align: left; margin-bottom: 8px; font-weight: 500;">Motivo de cancelación:</label>
+                                <textarea id="motivo-cancelacion" class="swal2-textarea" placeholder="Ingrese el motivo de la cancelación"></textarea>
+                            </div>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, cancelar',
+                        confirmButtonColor: '#d33',
+                        cancelButtonText: 'Volver',
+                        cancelButtonColor: '#3085d6',
+                        showLoaderOnConfirm: true,
+                        width: 'auto',
+                        customClass: {
+                            container: 'swal-responsive-container',
+                            popup: 'swal-responsive-popup',
+                            content: 'swal-responsive-content'
+                        },
+                        preConfirm: () => {
+                            const motivoCancelacion = document.getElementById('motivo-cancelacion').value.trim();
+                            
+                            if (!motivoCancelacion) {
+                                Swal.showValidationMessage('Debe ingresar un motivo para cancelar la factura');
+                                return false;
+                            }
+                            
+                            // Crear el objeto FormData para enviar los datos
+                            const formData = new FormData();
+                            formData.append('numFactura', numFactura);
+                            formData.append('motivo', motivoCancelacion);
+                            
+                            // Mostrar indicador de carga en el botón
+                            cancelBtn.disabled = true;
+                            const btnTextoOriginal = cancelBtn.innerHTML;
+                            cancelBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+                            
+                            // Llamada fetch al backend
+                            return fetch('php/cancelar-factura.php', {
+                                method: 'POST',
+                                body: formData,
+                                credentials: 'same-origin'
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Error en la respuesta del servidor: ' + response.status);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                // Restaurar el estado del botón
+                                cancelBtn.disabled = false;
+                                cancelBtn.innerHTML = btnTextoOriginal;
+                                
+                                if (data.success) {
+                                    // Mensaje de éxito con detalles
+                                    let mensaje = `Factura #${numFactura} cancelada correctamente.`;
+                                    if (data.caja_activa) {
+                                        mensaje += ' Se ha registrado un egreso por el monto de la factura.';
+                                    } else {
+                                        mensaje += ' No se registró egreso porque la caja ya está cerrada.';
+                                    }
+                                    
+                                    return {
+                                        success: true,
+                                        message: mensaje
+                                    };
+                                } else {
+                                    throw new Error(data.message || 'Error al cancelar la factura');
+                                }
+                            })
+                            .catch(error => {
+                                // Restaurar el estado del botón en caso de error
+                                cancelBtn.disabled = false;
+                                cancelBtn.innerHTML = btnTextoOriginal;
+                                
+                                throw new Error(error.message || 'Error en la comunicación con el servidor');
+                            });
+                        },
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed && result.value && result.value.success) {
+                            // Mostrar mensaje de éxito
+                            Swal.fire({
+                                title: '¡Completado!',
+                                text: result.value.message,
+                                icon: 'success',
+                                confirmButtonText: 'Aceptar'
+                            }).then(() => {
+                                // Recargar la página para mostrar los cambios
+                                location.reload();
+                            });
+                        }
+                    }).catch(error => {
+                        // Mostrar mensaje de error
+                        Swal.fire({
+                            title: 'Error',
+                            text: error.message || 'Ha ocurrido un error al procesar la solicitud.',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>

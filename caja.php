@@ -700,8 +700,8 @@
                         <h2>Resumen de Caja</h2>
                         <div class="resumen">
                             <p><strong>Saldo inicial:</strong> $<?php echo number_format($datos_caja['saldoApertura'], 2); ?></p>
-                            <p><strong>Total ingresos en efectivo:</strong> $<?php echo number_format($total_ingresos, 2); ?></p>
-                            <p><strong>Total egresos en efectivo:   </strong> $<?php echo number_format($total_egresos, 2); ?></p>
+                            <p><strong>Total ingresos (Efectivo):</strong> $<?php echo number_format($total_ingresos, 2); ?></p>
+                            <p><strong>Total egresos (Efectivo):   </strong> $<?php echo number_format($total_egresos, 2); ?></p>
                             <p><strong>Saldo esperado:</strong> $<?php echo number_format($datos_caja['saldoApertura'] + $total_ingresos - $total_egresos, 2); ?></p>
                         </div>
                         
