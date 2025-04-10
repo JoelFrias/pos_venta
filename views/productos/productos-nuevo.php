@@ -1,0 +1,288 @@
+<?php
+
+/* Verificacion de sesion */
+
+// Iniciar sesión
+session_start();
+
+// Configurar el tiempo de caducidad de la sesión
+$inactivity_limit = 900; // 15 minutos en segundos
+
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['username'])) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header('Location: ../../views/auth/login.php'); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
+    session_unset(); // Eliminar todas las variables de sesión
+    session_destroy(); // Destruir la sesión
+    header("Location: ../../views/auth/login.php?session_expired=session_expired"); // Redirigir al login
+    exit(); // Detener la ejecución del script
+}
+
+// Actualizar el tiempo de la última actividad
+$_SESSION['last_activity'] = time();
+
+/* Fin de verificacion de sesion */
+
+require '../../models/conexion.php';
+
+// Validar si el formulario fue enviado
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // Obtener y sanitizar los datos del formulario
+    $descripcion = htmlspecialchars(trim($_POST['descripcion']));
+    $idTipo = isset($_POST['tipo']) ? intval($_POST['tipo']) : 0; // Captura el idTipo aquí
+    $cantidad = floatval($_POST['cantidad']);
+    $precioCompra = floatval($_POST['precioCompra']);
+    $precio1 = floatval($_POST['precio1']);
+    $precio2 = floatval($_POST['precio2']);
+    $reorden = floatval($_POST['reorden']);
+
+    // Debug: Imprimir el idTipo para verificar
+    error_log("ID Tipo: " . $idTipo); // Esto se registrará en el log de errores
+
+    // Manejo de errores con consultas preparadas
+    try {
+        // Iniciar la transacción
+        $conn->begin_transaction();
+    
+        // Insertar en la tabla 'productos'
+        $stmt = $conn->prepare("INSERT INTO productos (descripcion, idTipo, existencia, precioCompra, precioVenta1, precioVenta2, reorden, fechaRegistro, activo) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)");
+        $stmt->bind_param("siidddd", $descripcion, $idTipo, $cantidad, $precioCompra, $precio1, $precio2, $reorden);
+        $stmt->execute();
+    
+        // Obtener el ID del producto recién insertado
+        $idProducto = $stmt->insert_id;
+    
+        // Insertar en la tabla 'inventario'
+        $stmt = $conn->prepare("INSERT INTO inventario (idProducto, existencia, ultima_actualizacion) 
+                                VALUES (?, ?, NOW())");
+        $stmt->bind_param("id", $idProducto, $cantidad);
+        $stmt->execute();
+
+        // Insertar en la tabla 'inventariotransacciones'
+        $stmt = $conn->prepare("INSERT INTO `inventariotransacciones`(`tipo`, `idProducto`, `cantidad`, `fecha`, `descripcion`) VALUES (?,?,?,NOW(),?)");
+        $tipo = "ingreso";
+        $descripcionTransaccion = "Ingreso por nuevo producto: ";
+        $stmt->bind_param("siis", $tipo, $idProducto, $cantidad, $descripcionTransaccion);
+        $stmt->execute();
+
+        /**
+         *  2. Auditoria de acciones de usuario
+         */
+
+        require_once '../../models/auditorias.php';
+        $usuario_id = $_SESSION['idEmpleado'];
+        $accion = 'Nuevo Producto';
+        $detalle = 'Se ha registrado un nuevo producto: ' . $idProducto . ' - ' . $descripcion;
+        $ip = $_SERVER['REMOTE_ADDR']; // Obtener la dirección IP del cliente
+        registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
+    
+        // Confirmar la transacción
+        $conn->commit();
+    
+        // Almacenar mensaje de éxito en sesión y redirigir
+        $_SESSION['status'] = 'success';
+        header("Location: productos-nuevo.php");
+        exit;
+    
+    } catch (Exception $e) {
+        // En caso de error, revertir la transacción
+        $conn->rollback();
+        $_SESSION['errors'][] = "Error al registrar producto: " . $e->getMessage();
+        header("Location: productos-nuevo.php");
+        exit;
+    } finally {
+        // Cerrar las declaraciones preparadas
+        if (isset($stmt)) $stmt->close();
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Nuevo Producto</title>
+    <link rel="icon" type="image/png" href="../../assets/img/logo-blanco.png">
+    <link rel="stylesheet" href="../../assets/css/mant_producto.css">
+    <link rel="stylesheet" href="../../assets/css/producto_modal.css">
+    <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+</head>
+<body>
+
+    <?php
+
+        if ($_SESSION['idPuesto'] > 2) {
+            echo "<script>
+                    Swal.fire({
+                            icon: 'error',
+                            title: 'Acceso Prohibido',
+                            text: 'Usted no cuenta con permisos de administrador para entrar a esta pagina.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        }).then(() => {
+                            window.location.href = '../../index.php';
+                        });
+                </script>";
+            exit();
+        }
+
+    ?>
+
+    <div class="navegator-nav">
+
+        <!-- Menu-->
+        <?php include '../../views/layouts/menu.php'; ?>
+
+        <div class="page-content">
+        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
+
+            <!-- Modal para registrar categorías -->
+            <div id="myModal" class="MODAL2">
+                <div class="modal-contenedor">
+                    <span onclick="document.getElementById('myModal').style.display='none'" class="close">&times;</span>
+                    <h4>Registrar Categoría</h4>
+                    <form action="modal-categoria.php" method="POST">
+                        <input type="text" name="descripcion" placeholder="Tipo de Producto" class="input-fila" required>
+                        <button id="submitBtn" type="submit" class="btn-subir">Registrar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Script para manejar el modal -->
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const modal = document.getElementById("myModal");
+                    const input = modal.querySelector("input[name='descripcion']");
+                    const btnAbrir = document.querySelector(".btn-abrir");
+
+                    btnAbrir.addEventListener("click", function () {
+                        modal.style.display = "flex"; // Muestra el modal
+                        setTimeout(() => input.focus(), 100); // Agrega un pequeño retraso para asegurar el enfoque
+                    });
+
+                    // Cierra el modal cuando se hace clic en la "x"
+                    modal.querySelector(".close").addEventListener("click", function () {
+                        modal.style.display = "none";
+                    });
+                });
+            </script>
+
+            <!-- Contenedor del formulario de registro de productos -->
+            <div class="form-container">
+                <h1 class="form-title">Registro de Productos</h1>
+                
+                <form class="registration-form" action="" method="POST">
+                    <fieldset>
+                        <legend>Datos del Producto</legend>
+                        <div class="form-grid-producto">
+                            <div class="form-group">
+                                <label for="descripcion">Descripción:</label>
+                                <input type="text" id="descripcion" name="descripcion" autocomplete="off" placeholder="Nombre del producto" required>   
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tipo_identificacion">Tipo de Producto:</label>
+                                <div class="input-button-container">
+                                    <select id="tipo" name="tipo" required>
+                                        <option value="" disabled selected>Seleccionar</option>
+                                        <?php
+                                        // Obtener el id y la descripción de los tipos de producto
+                                        $sql = "SELECT id, descripcion FROM productos_tipo ORDER BY descripcion ASC";
+                                        $resultado = $conn->query($sql);
+
+                                        if ($resultado->num_rows > 0) {
+                                            while ($fila = $resultado->fetch_assoc()) {
+                                                echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
+                                            }
+                                        } else {
+                                            echo "<option value='' disabled>No hay opciones</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <!-- Botón para abrir el modal -->
+                                    <button id="openModalBtn" onclick="document.getElementById('myModal').style.display='flex'" class="btn-abrir">Tipo Producto</button>
+                                </div>
+                            </div>    
+                            <div class="form-group">
+                                <label for="precioCompra">Precio de Compra:</label>
+                                <input type="number" id="precioCompra" name="precioCompra" step="0.01" autocomplete="off" placeholder="Precio de Compra" min="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="precio1">Precio de Venta 1:</label>
+                                <input type="number" id="precio1" name="precio1" step="0.01" autocomplete="off" placeholder="Precio de venta 1" min="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="precio2">Precio de Venta 2:</label>
+                                <input type="number" id="precio2" name="precio2" step="0.01" autocomplete="off" placeholder="Precio de venta 2" min="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cantidad">Cantidad Existente:</label>
+                                <input type="number" id="cantidad" name="cantidad" step="0.01" autocomplete="off" placeholder="Cantidad existente" min="1" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="telefono">Reorden:</label>
+                                <input type="number" id="reorden" name="reorden" step="0.01" autocomplete="off" placeholder="Reorden de producto" min="0" required>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn-submit1">Registrar Producto</button>
+                </form>
+            </div>
+        
+        <!-- TODO EL CONTENIDO DE ESTA PAGINA ENCIMA DE ESTA LINEA -->
+        </div>
+    </div>
+
+    <!-- Mostrar mensajes de éxito o error -->
+    <?php 
+        if (isset($_SESSION['status']) && $_SESSION['status'] === 'success') {
+            echo "
+                <script>
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: 'El producto ha sido registrado exitosamente.',
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    });
+                </script>
+            ";
+            unset($_SESSION['status']); // Limpiar el estado después de mostrar el mensaje
+        }
+        if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
+            foreach ($_SESSION['errors'] as $error) {
+                echo "
+                    <script>
+                        Swal.fire({
+                            title: '¡Error!',
+                            text: '$error',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    </script>
+                ";
+            }
+            unset($_SESSION['errors']); // Limpiar los errores después de mostrarlos
+        }
+    ?>
+
+    <!-- Scripts adicionales -->
+    <script src="js/producto_modal.js"></script>
+
+</body>
+</html>

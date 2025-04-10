@@ -12,7 +12,7 @@ $inactivity_limit = 900; // 15 minutos en segundos
 if (!isset($_SESSION['username'])) {
     session_unset(); // Eliminar todas las variables de sesión
     session_destroy(); // Destruir la sesión
-    header('Location: login.php'); // Redirigir al login
+    header('Location: views/auth/login.php'); // Redirigir al login
     exit(); // Detener la ejecución del script
 }
 
@@ -20,7 +20,7 @@ if (!isset($_SESSION['username'])) {
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactivity_limit)) {
     session_unset(); // Eliminar todas las variables de sesión
     session_destroy(); // Destruir la sesión
-    header("Location: login.php?session_expired=session_expired"); // Redirigir al login
+    header("Location: views/auth/login.php?session_expired=session_expired"); // Redirigir al login
     exit(); // Detener la ejecución del script
 }
 
@@ -37,8 +37,8 @@ $_SESSION['last_activity'] = time();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>YSAPELLI</title>
-    <link rel="icon" type="image/png" href="img/logo-blanco.png">
-    <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
+    <link rel="icon" type="image/png" href="assets/img/logo-blanco.png">
+    <link rel="stylesheet" href="assets/css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Librería de iconos -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Librería para gráficos -->
@@ -375,7 +375,7 @@ $_SESSION['last_activity'] = time();
     <div class="navegator-nav">
 
         <!-- Menu-->
-        <?php include 'menu.php'; ?>
+        <?php include 'views/layouts/menu.php'; ?>
 
         <div class="page-content">
         <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
@@ -451,7 +451,7 @@ $_SESSION['last_activity'] = time();
     <!-- graphics -->
     <script>
         function cargarVentasPorDia(periodo) {
-            fetch(`graphics/index/no-ventas.php?periodo=${periodo}`)
+            fetch(`assets/graphics/index/no-ventas.php?periodo=${periodo}`)
                 .then(response => response.json())
                 .then(data => {
                     const dias = data.map(item => item.dia);
@@ -508,7 +508,7 @@ $_SESSION['last_activity'] = time();
 
         // Función para obtener los datos del total de ventas por día
         function cargarTotalVentasPorDia(periodo) {
-            fetch(`graphics/index/total-ventas.php?periodo=${periodo}`)
+            fetch(`assets/graphics/index/total-ventas.php?periodo=${periodo}`)
                 .then(response => response.json())
                 .then(data => {
                     const dias = data.map(item => item.dia);
@@ -567,7 +567,7 @@ $_SESSION['last_activity'] = time();
 
         // Función para obtener los datos de clientes más populares (por cantidad de compras)
         function cargarClientesPopulares(periodo) {
-            fetch(`graphics/index/clientes-popular.php?periodo=${periodo}`)
+            fetch(`assets/graphics/index/clientes-popular.php?periodo=${periodo}`)
                 .then(response => response.json())
                 .then(data => {
                     const clientes = data.map(item => item.nombre_cliente);
@@ -624,7 +624,7 @@ $_SESSION['last_activity'] = time();
 
         // Función para obtener los datos de productos más vendidos
         function cargarProductosMasVendidos(periodo) {
-            fetch(`graphics/index/mas-vendidos.php?periodo=${periodo}`)
+            fetch(`assets/graphics/index/mas-vendidos.php?periodo=${periodo}`)
                 .then(response => response.json())
                 .then(data => {
                     const productos = data.map(item => item.descripcion);
@@ -819,7 +819,7 @@ $_SESSION['last_activity'] = time();
                 };
 
                 // Enviar datos mediante AJAX
-                fetch("php/update-profile.php", {
+                fetch("controllers/gestion/update-profile.php", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(datos)
@@ -881,7 +881,7 @@ $_SESSION['last_activity'] = time();
                 });
             }
         });
-    });
+        });
     </script>
     
 </body>

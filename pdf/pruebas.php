@@ -1,5 +1,5 @@
 <?php
-require('../fpdf/fpdf.php');
+require('../libs/fpdf/fpdf.php');
 
 class InvoiceReport extends FPDF
 {
