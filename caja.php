@@ -41,8 +41,7 @@
     $sql_verificar = "SELECT
                         numCaja,
                         idEmpleado,
-                        DATE_FORMAT(fechaApertura, '%d/%m/%Y %l:%i %p') AS fechaApertura,
-                        fechaApertura AS fechaApertura12,
+                        fechaApertura AS fechaApertura,
                         saldoApertura,
                         registro
                     FROM
@@ -61,7 +60,7 @@
         $caja_abierta = true;
         $datos_caja = $resultado->fetch_assoc();
 
-        // Almacenar datos de la caja abierta
+        // Almacenar datos de la caja abierta - aseguramos que numCaja sea string
         $_SESSION['numCaja'] = $datos_caja['numCaja'];
         $_SESSION['fechaApertura'] = $datos_caja['fechaApertura'];
         $_SESSION['saldoApertura'] = $datos_caja['saldoApertura'];
@@ -74,6 +73,7 @@
     $total_egresos = 0;
 
     if ($caja_abierta) {
+
         $num_caja = $datos_caja['numCaja'];
         
         // Calcular total de ingresos
@@ -104,6 +104,7 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Abrir caja con transacción
         if (isset($_POST['abrir_caja']) && !$caja_abierta) {
+
             $saldo_apertura = filter_input(INPUT_POST, 'saldo_apertura', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
             
             if ($saldo_apertura === false || $saldo_apertura < 0) {
@@ -122,19 +123,25 @@
                     
                     $result_contador = $stmt->get_result();
                     $contador_row = $result_contador->fetch_assoc();
-                    $num_caja = $contador_row['contador'];
-                    $num_caja1 = intval($contador_row['contador']);
                     
-                    // Incrementar contador
-                    $nuevo_contador = str_pad($num_caja1 + 1, 5, '0', STR_PAD_LEFT);
+                    // Asegurar que el contador sea un entero
+                    $contador_num = intval($contador_row['contador']);
+                    
+                    // Formatear el contador con ceros a la izquierda (5 dígitos)
+                    $num_caja = str_pad($contador_num, 5, '0', STR_PAD_LEFT);
+                    
+                    // Incrementar contador para el próximo uso
+                    $nuevo_contador = $contador_num + 1;
+                    
+                    // Actualizar el contador
                     $sql_update_contador = "UPDATE cajacontador SET contador = ?";
                     $stmt = $conn->prepare($sql_update_contador);
-                    $stmt->bind_param("s", $nuevo_contador);
+                    $stmt->bind_param("i", $nuevo_contador);
                     if (!$stmt->execute()) {
                         throw new Exception("Error al actualizar contador");
                     }
                     
-                    // Insertar caja abierta
+                    // Insertar caja abierta - usar num_caja como string formateado
                     $sql = "INSERT INTO cajasabiertas (numCaja, idEmpleado, fechaApertura, saldoApertura) 
                             VALUES (?, ?, NOW(), ?)";
                     $stmt = $conn->prepare($sql);
@@ -165,6 +172,12 @@
                     $stmt->execute();
                     $resultado = $stmt->get_result();
                     $datos_caja = $resultado->fetch_assoc();
+
+                    // Almacenar datos de la caja abierta
+                    $_SESSION['numCaja'] = $num_caja;
+                    $_SESSION['fechaApertura'] = $datos_caja['fechaApertura'];
+                    $_SESSION['saldoApertura'] = $datos_caja['saldoApertura'];
+                    $_SESSION['registro'] = $datos_caja['registro'];
                     
                     // Registrar auditoría
                     registrarAuditoriaCaja($conn, $id_empleado, 'APERTURA_CAJA', 
@@ -333,7 +346,7 @@
         // Registrar egreso con transacción (estructura similar a ingreso)
         if (isset($_POST['registrar_egreso']) && $caja_abierta) {
             $monto = filter_input(INPUT_POST, 'monto_egreso', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-            $metodo = $_POST['metodo_ingreso'];
+            $metodo = $_POST['metodo_egreso'];
             $razon = filter_input(INPUT_POST, 'razon_egreso', FILTER_SANITIZE_STRING);
             $num_caja = filter_input(INPUT_POST, 'num_caja', FILTER_SANITIZE_STRING);
             
@@ -401,7 +414,6 @@
             }
         }
     }
-    
 ?>
 
 <!DOCTYPE html>
@@ -410,6 +422,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Sistema de Caja</title>
+    <link rel="icon" type="image/png" href="img/logo-blanco.png">
     <link rel="stylesheet" href="css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Librería de iconos -->
     <style>
@@ -667,7 +680,7 @@
                                 <label for="razon_ingreso">Razón:</label>
                                 <input type="text" id="razon_ingreso" name="razon_ingreso" required>
                                 
-                                <input type="hidden" name="num_caja" value="<?php echo $datos_caja['numCaja']; ?>">
+                                <input type="hidden" name="num_caja" value="<?php echo $_SESSION['numCaja']; ?>">
                                 <button type="submit" name="registrar_ingreso">Registrar Ingreso</button>
                             </form>
                         </div>
@@ -714,8 +727,8 @@
                             
                             <input type="hidden" name="num_caja" value="<?php echo $datos_caja['numCaja']; ?>">
                             <input type="hidden" name="registro" value="<?php echo $datos_caja['registro']; ?>">
-                            <input type="hidden" name="fecha_apertura" value="<?php echo $datos_caja['fechaApertura12']; ?>">
-                            <input type="hidden" name="saldo_inicial" value="<?php echo $datos_caja['saldoApertura']; ?>">
+                            <input type="hidden" name="fecha_apertura" value="<?php echo $_SESSION['fechaApertura']; ?>">
+                            <input type="hidden" name="saldo_inicial" value="<?php echo $_SESSION['saldoApertura']; ?>">
                             
                             <button type="submit" name="cerrar_caja">Cerrar Caja</button>
                         </form>

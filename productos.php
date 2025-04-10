@@ -291,6 +291,12 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                                     <div class="mobile-label">Reorden:</div>
                                     <div class="mobile-value"><?php echo htmlspecialchars($row['reorden']); ?></div>
                                 </div>
+
+                                <?php 
+                                    // Verificar si el usuario tiene permisos de administrador
+                                    if ($_SESSION['idPuesto'] <= 2):
+                                ?>
+                                
                                 <div class="mobile-actions">
                                     <button class="btn btn-update" 
                                             data-id="<?php echo $row['idProducto']; ?>" 
@@ -311,6 +317,7 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                                         <span>Editar</span>
                                     </button>
                                 </div>
+                                <?php endif ?>
                             </div>
                         </div>
                     </div>

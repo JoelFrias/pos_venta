@@ -33,7 +33,8 @@ try {
     // Verificar si la factura existe y no está ya cancelada
     $sql = "SELECT
                 f.estado AS estado,
-                f.total AS total
+                f.total AS total,
+                f.idCliente AS idCliente
             FROM
                 facturas AS f
             WHERE
@@ -64,7 +65,8 @@ try {
                         ELSE 0
                     END AS caja_abierta,
                     fm.metodo,
-                    fm.noCaja
+                    fm.noCaja,
+                    fm.monto
                 FROM
                     facturas_metodopago AS fm
                 WHERE
@@ -95,7 +97,7 @@ try {
     }
     
     // Cambiar el estado de la factura a "Cancelada"
-    $sql = "UPDATE facturas SET estado = 'Cancelada' WHERE numFactura = ?";
+    $sql = "UPDATE facturas SET estado = 'Cancelada', balance = 0 WHERE numFactura = ?";
     
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $numFactura);
@@ -106,19 +108,80 @@ try {
     
     // Si la caja sigue activa y el metodo fue efectivo, registrar un egreso
     if ($cajaActiva && $cajaFactura['metodo'] == 'efectivo') {
-        $monto = $factura['total'];
+        $monto = $cajaFactura['monto'];
         $concepto = "Devolución por cancelación de factura #" . $numFactura;
         
         $sql = "INSERT INTO cajaegresos (metodo, monto, idEmpleado, numCaja, razon, fecha) 
                 VALUES ('efectivo', ?, ?, ?, ?, NOW())";
         
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("diss", $monto, $idEmpleado, $cajaFactura['numCaja'], $concepto);
+        $stmt->bind_param("diss", $monto, $idEmpleado, $cajaFactura['noCaja'], $concepto);
         
         if (!$stmt->execute()) {
             throw new Exception('Error al registrar el egreso en caja');
         }
     }
+
+    // Actualizar balance del cliente
+
+    $idCliente = $factura['idCliente'];
+
+    $stmt = $conn->prepare("SELECT limite_credito FROM clientes_cuenta WHERE idCliente = ?");
+
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de límite de crédito: " . $conn->error);
+    }
+
+    $stmt->bind_param('i', $idCliente);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+
+    if (!$row) {
+        throw new Exception("Cliente no encontrado: " . $idCliente);
+    }
+
+    $limiteCredito = $row['limite_credito'];
+
+    // Obtener la suma de todos los balances pendientes de facturas
+    $stmt = $conn->prepare("SELECT IFNULL(SUM(balance), 0) as balance_pendiente FROM facturas WHERE idCliente = ?");
+    if (!$stmt) {
+        throw new Exception("Error preparando consulta de balance pendiente: " . $conn->error);
+    }
+
+    $stmt->bind_param('i', $idCliente);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+
+    $balancePendiente = $row['balance_pendiente'];
+
+    // Calcular el nuevo balance disponible
+    $balanceDisponible = $limiteCredito - $balancePendiente;
+
+    // Actualizar el balance disponible en clientes_cuenta
+    $stmt = $conn->prepare("UPDATE clientes_cuenta SET balance = ? WHERE idCliente = ?");
+
+    if (!$stmt) {
+        throw new Exception("Error preparando actualización de balance: " . $conn->error);
+    }
+
+    $stmt->bind_param('di', $balanceDisponible, $idCliente);
+
+    if (!$stmt->execute()) {
+        throw new Exception("Error actualizando balance del cliente: " . $stmt->error);
+    }
+
+    // Registrar auditoria de acciones de usuario
+    require_once 'auditorias.php';
+
+    $usuario = $_SESSION['idEmpleado'];
+    $accion = 'Cancelacion de factura';
+    $descripcion = "Motivos: " . $motivo;
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'DESCONOCIDA';
+    registrarAuditoriaUsuarios($conn, $usuario, $accion, $descripcion, $ip);
     
     // Confirmar los cambios
     $conn->commit();

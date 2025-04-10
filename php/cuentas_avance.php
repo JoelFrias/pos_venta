@@ -352,13 +352,13 @@ try {
      *  3. Registrar el pago en la tabla de pagos
      */
 
-    $sqlPago = "INSERT INTO `clientes_historialpagos`(`idCliente`, `fecha`, `numCaja`, `idEmpleado`, `metodo`, `monto`, `numAutorizacion`, `referencia`, `idBanco`, `idDestino`) VALUES (?,NOW(),1,?,?,?,?,?,?,?)";
+    $sqlPago = "INSERT INTO `clientes_historialpagos`(`idCliente`, `fecha`, `numCaja`, `idEmpleado`, `metodo`, `monto`, `numAutorizacion`, `referencia`, `idBanco`, `idDestino`) VALUES (?,NOW(),?,?,?,?,?,?,?,?)";
     $pstPago = $conn->prepare($sqlPago);
     if (!$pstPago) {
         throw new Exception("Error al preparar inserción de pago: " . $conn->error, 4001);
     }
     
-    $pstPago->bind_param("iisdssss", $idCliente, $idEmpleado, $formaPago, $montoPagado1, $numeroAutorizacion, $numeroTarjeta, $banco, $destino);
+    $pstPago->bind_param("isisdssss", $idCliente, $_SESSION['numCaja'],$idEmpleado, $formaPago, $montoPagado1, $numeroAutorizacion, $numeroTarjeta, $banco, $destino);
     if (!$pstPago->execute()) {
         throw new Exception("Error al registrar el pago: " . $pstPago->error, 4002);
     }

@@ -878,7 +878,7 @@ if ($result->num_rows > 0) {
                                     </div>
 
                                     <?php
-                                    if ($factura['estado'] == "Cancelada" && $_SESSION['idEmpleado'] <= 2):
+                                    if ($factura['estado'] == "Cancelada" && $_SESSION['idPuesto'] <= 2):
 
                                         $sqlfc = "SELECT
                                                     fc.motivo AS motivofc,
@@ -906,7 +906,7 @@ if ($result->num_rows > 0) {
                                                 <label for="fechafc">Fecha de Cancelación:</label>
                                                 <span id="fechafc"><?php echo $datosfc['fechafc']; ?></span>
 
-                                                <label for="empleadofc">Empleado que Canceló:</label>
+                                                <label for="empleadofc">Empleado:</label>
                                                 <span id="empleadofc"><?php echo $datosfc['empleadofc']; ?></span>
                                             </div>
                                     <?php
@@ -921,7 +921,7 @@ if ($result->num_rows > 0) {
                                             Reimprimir
                                         </button>
 
-                                        <?php if($factura['estado'] !== "Cancelada"): ?>
+                                        <?php if($factura['estado'] !== "Cancelada" && $_SESSION['idPuesto'] <= 2): ?>
                                             <button class="btn-secondary-cancel" id="cancel-btn">
                                                 <spa class="printer-icon"><i class="fa-solid fa-ban">  </i></span>
                                                 Cancelar Factura
@@ -1019,7 +1019,7 @@ if ($result->num_rows > 0) {
                                     // Mensaje de éxito con detalles
                                     let mensaje = `Factura #${numFactura} cancelada correctamente.`;
                                     if (data.caja_activa) {
-                                        mensaje += ' Se ha registrado un egreso por el monto de la factura.';
+                                        mensaje += ' Se ha registrado un egreso por el pago inicial de la factura.';
                                     } else {
                                         mensaje += ' No se registró egreso porque la caja ya está cerrada.';
                                     }

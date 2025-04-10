@@ -113,7 +113,7 @@ function caja($conn){
         $datos_caja = $resultado->fetch_assoc();
 
         // Almacenar datos de la caja abierta
-        $_SESSION['numCaja'] = $datos_caja['numCaja'];
+        $_SESSION['numCaja'] = strval($datos_caja['numCaja']);
         $_SESSION['fechaApertura'] = $datos_caja['fechaApertura'];
         $_SESSION['saldoApertura'] = $datos_caja['saldoApertura'];
         $_SESSION['registro'] = $datos_caja['registro'];

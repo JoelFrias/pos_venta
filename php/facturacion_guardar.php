@@ -445,7 +445,7 @@ try {
     if (!$stmt) {
         throw new Exception("Error preparando inserción de método de pago: " . $conn->error);
     }
-    $stmt->bind_param('ssdssiii', $numFactura, $formaPago, $montoNeto, $numeroAutorizacion, $numeroTarjeta, $banco, $destino, $_SESSION['numCaja']);
+    $stmt->bind_param('ssdssiis', $numFactura, $formaPago, $montoNeto, $numeroAutorizacion, $numeroTarjeta, $banco, $destino, $_SESSION['numCaja']);
     if (!$stmt->execute()) {
         throw new Exception("Error insertando método de pago: " . $stmt->error);
     }
