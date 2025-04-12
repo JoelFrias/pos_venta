@@ -195,6 +195,9 @@
                         "Fallo al abrir caja: " . $mensaje);
                 }
             }
+
+            header('location: caja.php');
+
         }
         
         // Cerrar caja con transacción
@@ -213,7 +216,7 @@
                 
                 try {
                     // Calcular diferencia
-                    $diferencia = ($saldo_inicial + $total_ingresos - $total_egresos) - $saldo_final;
+                    $diferencia = $saldo_final - ($saldo_inicial + $total_ingresos - $total_egresos);
                     
                     // Insertar en cajas cerradas
                     $sql = "INSERT INTO cajascerradas (numCaja, idEmpleado, fechaApertura, fechaCierre, saldoInicial, saldoFinal, diferencia) 
@@ -269,6 +272,9 @@
                         "Fallo al cerrar caja #$num_caja: " . $mensaje);
                 }
             }
+
+            header('location: caja.php');
+
         }
         
         // Registrar ingreso con transacción
@@ -341,9 +347,12 @@
                         "Fallo al registrar ingreso: " . $mensaje);
                 }
             }
+
+            header('location: caja.php');
+
         }
         
-        // Registrar egreso con transacción (estructura similar a ingreso)
+        // Registrar egreso con transacción
         if (isset($_POST['registrar_egreso']) && $caja_abierta) {
             $monto = filter_input(INPUT_POST, 'monto_egreso', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
             $metodo = $_POST['metodo_egreso'];
@@ -412,6 +421,9 @@
                         "Fallo al registrar egreso: " . $mensaje);
                 }
             }
+
+            header('location: caja.php');
+            
         }
     }
 ?>
@@ -422,7 +434,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Sistema de Caja</title>
-    <link rel="icon" type="image/png" href="img/logo-blanco.png">
+    <link rel="icon" type="image/png" href="../../assets/img/logo-blanco.png">
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Librería de iconos -->
     <style>
@@ -437,7 +449,7 @@
             width: 100%;
             margin: 0 auto;
             padding: 10px;
-            background-color: #f5f5f5;
+            background-color: #f5f6fa;
             font-size: 16px;
         }
         

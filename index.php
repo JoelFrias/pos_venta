@@ -29,6 +29,8 @@ $_SESSION['last_activity'] = time();
 
 /* Fin de verificacion de sesion */
 
+require_once 'models/conexion.php';
+
 ?>
 
 <!DOCTYPE html>

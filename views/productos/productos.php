@@ -34,7 +34,35 @@ require '../../models/conexion.php';
 // Inicializar variables de búsqueda
 $search = isset($_GET['search']) ? htmlspecialchars(trim($_GET['search'])) : "";
 
-// Construir la consulta SQL con filtros de búsqueda
+// Configuración de paginación
+$items_per_page = 10; // Número de productos por página
+$current_page = isset($_GET['page']) ? intval($_GET['page']) : 1; // Página actual
+$offset = ($current_page - 1) * $items_per_page; // Desplazamiento para la consulta SQL
+
+// Construir la consulta SQL para contar el total de registros
+$count_query = "SELECT COUNT(*) as total FROM productos AS p WHERE 1 = 1";
+
+// Añadir condición de búsqueda si se proporciona un término de búsqueda
+if (!empty($search)) {
+    $count_query .= " AND p.descripcion LIKE '%$search%'";
+}
+
+// Ejecutar la consulta de conteo
+$count_result = $conn->query($count_query);
+$count_row = $count_result->fetch_assoc();
+$total_records = $count_row['total'];
+
+// Calcular el número total de páginas
+$total_pages = ceil($total_records / $items_per_page);
+
+// Asegurarse de que current_page esté dentro de los límites válidos
+if ($current_page < 1) {
+    $current_page = 1;
+} elseif ($current_page > $total_pages && $total_pages > 0) {
+    $current_page = $total_pages;
+}
+
+// Construir la consulta SQL con filtros de búsqueda y paginación
 $query = "SELECT
             p.id AS idProducto,
             p.descripcion AS descripcion,
@@ -61,7 +89,7 @@ if (!empty($search)) {
     $query .= " AND p.descripcion LIKE '%$search%'";
 }
 
-$query .= " LIMIT 50"; // Limitar la cantidad de resultados a 50
+$query .= " LIMIT $offset, $items_per_page"; // Aplicar límites para paginación
 
 // Ejecutar la consulta
 $result = $conn->query($query);
@@ -100,6 +128,59 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+    <style>
+        /* Estilos para la paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .pagination li {
+            margin: 0 5px;
+        }
+        
+        .pagination li a, .pagination li span {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-decoration: none;
+            color: #333;
+            background-color: #f5f5f5;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination li a:hover {
+            background-color: #ddd;
+        }
+        
+        .pagination li.active span {
+            background-color: #009688;
+            color: white;
+        }
+        
+        .pagination li.disabled span {
+            color: #aaa;
+            cursor: not-allowed;
+        }
+        
+        /* Estilos para dispositivos móviles */
+        @media (max-width: 768px) {
+            .pagination li.number {
+                display: none;
+            }
+            
+            .pagination li.active {
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body>
     
@@ -243,6 +324,74 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                         </div>
                     </div>
                 </div>
+                
+                <!-- Paginación -->
+                <div class="pagination-container">
+                    <ul class="pagination">
+                        <!-- Botón Anterior -->
+                        <li class="<?php echo ($current_page <= 1) ? 'disabled' : ''; ?>">
+                            <?php if ($current_page > 1): ?>
+                                <a href="?page=<?php echo $current_page - 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?>">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            <?php else: ?>
+                                <span><i class="fas fa-chevron-left"></i></span>
+                            <?php endif; ?>
+                        </li>
+                        
+                        <!-- Páginas -->
+                        <?php
+                        // Determinar cuántas páginas mostrar
+                        $pages_to_show = 5;
+                        $start_page = max(1, $current_page - floor($pages_to_show / 2));
+                        $end_page = min($total_pages, $start_page + $pages_to_show - 1);
+                        
+                        // Ajustar si estamos cerca del principio o final
+                        if ($end_page - $start_page + 1 < $pages_to_show) {
+                            $start_page = max(1, $end_page - $pages_to_show + 1);
+                        }
+                        
+                        // Primera página siempre visible si no está en el rango inicial
+                        if ($start_page > 1) {
+                            echo '<li class="number"><a href="?page=1' . (!empty($search) ? '&search=' . urlencode($search) : '') . '">1</a></li>';
+                            if ($start_page > 2) {
+                                echo '<li class="disabled"><span>...</span></li>';
+                            }
+                        }
+                        
+                        // Páginas numeradas
+                        for ($i = $start_page; $i <= $end_page; $i++) {
+                            echo '<li class="number ' . ($i == $current_page ? 'active' : '') . '">';
+                            if ($i == $current_page) {
+                                echo '<span>' . $i . '</span>';
+                            } else {
+                                echo '<a href="?page=' . $i . (!empty($search) ? '&search=' . urlencode($search) : '') . '">' . $i . '</a>';
+                            }
+                            echo '</li>';
+                        }
+                        
+                        // Última página siempre visible si no está en el rango final
+                        if ($end_page < $total_pages) {
+                            if ($end_page < $total_pages - 1) {
+                                echo '<li class="disabled"><span>...</span></li>';
+                            }
+                            echo '<li class="number"><a href="?page=' . $total_pages . (!empty($search) ? '&search=' . urlencode($search) : '') . '">' . $total_pages . '</a></li>';
+                        }
+                        ?>
+                        
+                        <!-- Botón Siguiente -->
+                        <li class="<?php echo ($current_page >= $total_pages) ? 'disabled' : ''; ?>">
+                            <?php if ($current_page < $total_pages): ?>
+                                <a href="?page=<?php echo $current_page + 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?>">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            <?php else: ?>
+                                <span><i class="fas fa-chevron-right"></i></span>
+                            <?php endif; ?>
+                        </li>
+                    </ul>
+                </div>
+                
                 <div class="mobile-table">
                     <?php 
                     $result->data_seek(0);
@@ -322,6 +471,38 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                         </div>
                     </div>
                     <?php endwhile; ?>
+                    
+                    <!-- Paginación móvil -->
+                    <div class="pagination-container">
+                        <ul class="pagination">
+                            <!-- Botón Anterior -->
+                            <li class="<?php echo ($current_page <= 1) ? 'disabled' : ''; ?>">
+                                <?php if ($current_page > 1): ?>
+                                    <a href="?page=<?php echo $current_page - 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?>">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <span><i class="fas fa-chevron-left"></i></span>
+                                <?php endif; ?>
+                            </li>
+                            
+                            <!-- Página actual -->
+                            <li class="active">
+                                <span><?php echo $current_page; ?></span>
+                            </li>
+                            
+                            <!-- Botón Siguiente -->
+                            <li class="<?php echo ($current_page >= $total_pages) ? 'disabled' : ''; ?>">
+                                <?php if ($current_page < $total_pages): ?>
+                                    <a href="?page=<?php echo $current_page + 1; ?><?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?>">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <span><i class="fas fa-chevron-right"></i></span>
+                                <?php endif; ?>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </main>
 
@@ -429,7 +610,7 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
         };
     </script>
 
-    <script src="js/deslizar.js"></script>
+    <script src="../../assets/js/deslizar.js"></script>
        
 </body>
 </html>

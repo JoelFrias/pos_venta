@@ -8,7 +8,11 @@
 }
 
 body {
-  background-color: #F9FAFB;
+  background-color: #f5f6fa;
+}
+
+.pagecontent{
+  background-color: #f5f6fa;
 }
 
 .facturacion-container {
@@ -16,7 +20,10 @@ body {
   margin: 0 auto;
   position: relative;
   position: relative;
-  overflow-x: hidden;
+  background-color: #f5f6fa;
+  flex: 1;
+  transition: margin-left 0.3s ease;
+  overflow: auto;
 }
 
 .title {
@@ -24,13 +31,6 @@ body {
   font-weight: 500;
   margin-bottom: 20px;
   color: #1F2937;
-}
-/* nueva clase */
-.facturacion-container {
-  flex: 1;
-  background-color: #f9fafb;
-  transition: margin-left 0.3s ease;
-  overflow: auto;
 }
 /*--------------------------------------------*/
 /* Asegurar que la facturación se ajuste cuando el menú está expandido */

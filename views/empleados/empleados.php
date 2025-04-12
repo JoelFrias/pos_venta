@@ -133,6 +133,7 @@ if (isset($_GET['editar'])) {
 
         body{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f6fa;
         }
 
         /* Estilos para el formulario de búsqueda */

@@ -27,11 +27,16 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 // Actualizar el tiempo de la última actividad
 $_SESSION['last_activity'] = time();
 
-/* Fin de verificacion de sesion */
+/* Fin de verificacion de sesion */
 
 require_once '../../models/conexion.php';
 
-$sql = "SELECT
+// Configuración de paginación
+$registros_por_pagina = 10;
+$pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+$inicio = ($pagina_actual - 1) * $registros_por_pagina;
+
+$sql_base = "SELECT
             f.numFactura AS numf,
             f.tipoFactura AS tipof,
             DATE_FORMAT(f.fecha, '%d/%m/%Y %l:%i %p') AS fechaf,
@@ -49,48 +54,119 @@ $sql = "SELECT
 $params = [];
 $types = "";
 
+// Procesar filtros
+$filtros = [];
+
+// Si hay POST, usamos los valores de POST; si no, verificamos GET para mantener los filtros en la paginación
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (!empty($_POST['tipo'])) {
-        $sql .= " AND f.tipoFactura = ?";
-        $params[] = $_POST['tipo'];
-        $types .= "s";
-    }
-    if (!empty($_POST['estado'])) {
-        $sql .= " AND f.estado = ?";
-        $params[] = $_POST['estado'];
-        $types .= "s";
-    }
-    if (!empty($_POST['desde'])) {
-        $sql .= " AND f.fecha >= ?";
-        $params[] = $_POST['desde'];
-        $types .= "s";
-    }
-    if (!empty($_POST['hasta'])) {
-        $sql .= " AND f.fecha <= ?";
-        $params[] = $_POST['hasta'];
-        $types .= "s";
-    }
-    if (!empty($_POST['buscador'])) {
-        $sql .= " AND (f.numFactura LIKE ? OR CONCAT(c.nombre, ' ', c.apellido) LIKE ? OR CONCAT(e.nombre, ' ', e.apellido) LIKE ?)";
-        $searchTerm = "%" . $_POST['buscador'] . "%";
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $types .= "sss";
-    }
+    // Usar valores de POST
+    $filtro_tipo = !empty($_POST['tipo']) ? $_POST['tipo'] : '';
+    $filtro_estado = !empty($_POST['estado']) ? $_POST['estado'] : '';
+    $filtro_desde = !empty($_POST['desde']) ? $_POST['desde'] : '';
+    $filtro_hasta = !empty($_POST['hasta']) ? $_POST['hasta'] : '';
+    $filtro_buscador = !empty($_POST['buscador']) ? $_POST['buscador'] : '';
+} else {
+    // Usar valores de GET si existen
+    $filtro_tipo = !empty($_GET['tipo']) ? $_GET['tipo'] : '';
+    $filtro_estado = !empty($_GET['estado']) ? $_GET['estado'] : '';
+    $filtro_desde = !empty($_GET['desde']) ? $_GET['desde'] : '';
+    $filtro_hasta = !empty($_GET['hasta']) ? $_GET['hasta'] : '';
+    $filtro_buscador = !empty($_GET['buscador']) ? $_GET['buscador'] : '';
 }
 
-$sql .= " GROUP BY f.numFactura ORDER BY f.fecha DESC LIMIT 30";
+// Aplicar filtros a la consulta SQL
+if (!empty($filtro_tipo)) {
+    $sql_base .= " AND f.tipoFactura = ?";
+    $params[] = $filtro_tipo;
+    $types .= "s";
+    $filtros['tipo'] = $filtro_tipo;
+}
+if (!empty($filtro_estado)) {
+    $sql_base .= " AND f.estado = ?";
+    $params[] = $filtro_estado;
+    $types .= "s";
+    $filtros['estado'] = $filtro_estado;
+}
+if (!empty($filtro_desde)) {
+    $sql_base .= " AND f.fecha >= ?";
+    $params[] = $filtro_desde;
+    $types .= "s";
+    $filtros['desde'] = $filtro_desde;
+}
+if (!empty($filtro_hasta)) {
+    $sql_base .= " AND f.fecha <= ?";
+    $params[] = $filtro_hasta;
+    $types .= "s";
+    $filtros['hasta'] = $filtro_hasta;
+}
+if (!empty($filtro_buscador)) {
+    $sql_base .= " AND (f.numFactura LIKE ? OR CONCAT(c.nombre, ' ', c.apellido) LIKE ? OR CONCAT(e.nombre, ' ', e.apellido) LIKE ?)";
+    $searchTerm = "%" . $filtro_buscador . "%";
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
+    $types .= "sss";
+    $filtros['buscador'] = $filtro_buscador;
+}
 
-$stmt = $conn->prepare($sql);
-if (!empty($params)) {$stmt->bind_param($types, ...$params);}
-$stmt->execute();
-$results = $stmt->get_result();
+// Consulta para el total de registros (para paginación)
+$sql_count = "SELECT COUNT(*) as total FROM ($sql_base GROUP BY f.numFactura) AS subquery";
 
-$stmt1 = $conn->prepare($sql);
-if (!empty($params)) {$stmt1->bind_param($types, ...$params);}
-$stmt1->execute();
-$results1 = $stmt1->get_result();
+// Preparar y ejecutar consulta para conteo
+if (!empty($params)) {
+    $stmt_count = $conn->prepare($sql_count);
+    $stmt_count->bind_param($types, ...$params);
+    $stmt_count->execute();
+    $result_count = $stmt_count->get_result();
+    $row_count = $result_count->fetch_assoc();
+} else {
+    $result_count = $conn->query($sql_count);
+    $row_count = $result_count->fetch_assoc();
+}
+
+$total_registros = $row_count['total'];
+$total_paginas = ceil($total_registros / $registros_por_pagina);
+
+// Consulta principal con paginación
+$sql = "$sql_base GROUP BY f.numFactura ORDER BY f.fecha DESC LIMIT ?, ?";
+
+// Preparar y ejecutar consulta principal
+if (!empty($params)) {
+    $stmt = $conn->prepare($sql);
+    $types .= "ii"; // Tipos para LIMIT
+    $all_params = array_merge($params, [$inicio, $registros_por_pagina]);
+    $stmt->bind_param($types, ...$all_params);
+    $stmt->execute();
+    $results = $stmt->get_result();
+    
+    // Para vista móvil (misma consulta)
+    $stmt1 = $conn->prepare($sql);
+    $stmt1->bind_param($types, ...$all_params);
+    $stmt1->execute();
+    $results1 = $stmt1->get_result();
+} else {
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $inicio, $registros_por_pagina);
+    $stmt->execute();
+    $results = $stmt->get_result();
+    
+    // Para vista móvil (misma consulta)
+    $stmt1 = $conn->prepare($sql);
+    $stmt1->bind_param("ii", $inicio, $registros_por_pagina);
+    $stmt1->execute();
+    $results1 = $stmt1->get_result();
+}
+
+// Función para construir la URL con los filtros actuales
+function construirQueryFiltros($filtros) {
+    $query = '';
+    foreach ($filtros as $key => $value) {
+        if (!empty($value)) {
+            $query .= "&{$key}=" . urlencode($value);
+        }
+    }
+    return $query;
+}
 
 ?>
 
@@ -110,7 +186,7 @@ $results1 = $stmt1->get_result();
         :root {
             --primary-blue: #4285f4;
             --hover-blue: #2b7de9;
-            --background:rgb(252, 252, 252);
+            --background: #f5f6fa;
             --card-bg::rgb(252, 252, 252);
             --border: #e0e4ec;
             --text-secondary: #718096;
@@ -158,6 +234,7 @@ $results1 = $stmt1->get_result();
             box-shadow: var(--shadow);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
+            background-color: white;
         }
 
         .filters {
@@ -253,6 +330,7 @@ $results1 = $stmt1->get_result();
             box-shadow: var(--shadow);
             overflow: hidden;
             display: block;
+            background-color: white;
         }
 
         .mobile-cards {
@@ -329,10 +407,6 @@ $results1 = $stmt1->get_result();
             padding: 1rem;
             border-bottom: 1px solid var(--border);
             font-size: 0.875rem;
-        }
-
-        tr:hover {
-            background: var(--background);
         }
 
         .status {
@@ -437,7 +511,68 @@ $results1 = $stmt1->get_result();
                 justify-content: flex-end;
             }
         }
+
+        /* Estilos para la paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .pagination li {
+            display: inline-block;
+            margin: 0 2px;
+        }
+        
+        .pagination a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            color: #555;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .pagination a:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .pagination a.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .pagination a.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Estilos para la información de paginación */
+        .pagination-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        /* Ajustes responsivos */
+        @media (max-width: 768px) {
+            .pagination a {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+        }
     </style>
+    
 </head>
 <body>
 
@@ -460,18 +595,18 @@ $results1 = $stmt1->get_result();
                         <div class="filters">
                             <div class="filter-group">
                                 <label>Desde</label>
-                                <input type="date" name="desde" value="<?php echo isset($_POST['desde']) ? $_POST['desde'] : ''; ?>">
+                                <input type="date" name="desde" value="<?php echo $filtro_desde; ?>">
                             </div>
                             <div class="filter-group">
                                 <label>Hasta</label>
-                                <input type="date" name="hasta" value="<?php echo isset($_POST['hasta']) ? $_POST['hasta'] : ''; ?>">
+                                <input type="date" name="hasta" value="<?php echo $filtro_hasta; ?>">
                             </div>
                             <div class="filter-group">
                                 <label>Tipo de Factura</label>
                                 <select name="tipo" id="tipo">
                                     <option value="" disabled selected>Seleccionar</option>
-                                    <option value="credito" <?php echo (isset($_POST['tipo']) && $_POST['tipo'] == 'credito') ? 'selected' : ''; ?>>Crédito</option>
-                                    <option value="contado" <?php echo (isset($_POST['tipo']) && $_POST['tipo'] == 'contado') ? 'selected' : ''; ?>>Contado</option>
+                                    <option value="credito" <?php echo ($filtro_tipo == 'credito') ? 'selected' : ''; ?>>Crédito</option>
+                                    <option value="contado" <?php echo ($filtro_tipo == 'contado') ? 'selected' : ''; ?>>Contado</option>
                                 </select>
 
                             </div>
@@ -479,9 +614,9 @@ $results1 = $stmt1->get_result();
                                 <label>Estado de Factura</label>
                                 <select name="estado" id="estado">
                                     <option value="" disabled selected>Seleccionar</option>
-                                    <option value="Pagada" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Pagada') ? 'selected' : ''; ?>>Pagada</option>
-                                    <option value="Pendiente" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Pendiente') ? 'selected' : ''; ?>>Pendiente</option>
-                                    <option value="Cancelada" <?php echo (isset($_POST['estado']) && $_POST['estado'] == 'Cancelada') ? 'selected' : ''; ?>>Cancelada</option>
+                                    <option value="Pagada" <?php echo ($filtro_estado == 'Pagada') ? 'selected' : ''; ?>>Pagada</option>
+                                    <option value="Pendiente" <?php echo ($filtro_estado == 'Pendiente') ? 'selected' : ''; ?>>Pendiente</option>
+                                    <option value="Cancelada" <?php echo ($filtro_estado == 'Cancelada') ? 'selected' : ''; ?>>Cancelada</option>
                                 </select>
                             </div>
                         </div>
@@ -489,7 +624,7 @@ $results1 = $stmt1->get_result();
                         <div class="search-bar">
                             <div class="search-input">
                                 <i class="fas fa-search"></i>
-                                <input type="text" id="buscador" name="buscador" value="<?php echo isset($_POST['buscador']) ? $_POST['buscador'] : ''; ?>" placeholder="Buscar factura por número, cliente o vendedor">
+                                <input type="text" id="buscador" name="buscador" value="<?php echo $filtro_buscador; ?>" placeholder="Buscar factura por número, cliente o vendedor">
                             </div>
                             <button class="btn btn-primary" type="submit">
                                 <i class="fas fa-search"></i>
@@ -564,7 +699,6 @@ $results1 = $stmt1->get_result();
                 </div>
 
                 <!-- Mobile Cards View -->
-                <!-- Mobile Cards View -->
                 <div class="mobile-cards">
                     <div class="mobile-cards-grid">
                         <?php
@@ -628,6 +762,59 @@ $results1 = $stmt1->get_result();
                         ?>
                     </div>
                 </div>
+                
+                <!-- Paginación -->
+                <?php if ($total_paginas > 1): ?>
+
+                <!-- Información adicional de paginación -->
+                <div class="pagination-info">
+                    Página <?php echo $pagina_actual; ?> de <?php echo $total_paginas; ?>
+                </div>
+
+                <div class="pagination">
+                    <!-- Botón primera página -->
+                    <li>
+                        <a href="?pagina=1<?php echo construirQueryFiltros($filtros); ?>" <?php echo ($pagina_actual == 1) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Botón página anterior -->
+                    <li>
+                        <a href="?pagina=<?php echo max(1, $pagina_actual - 1); ?><?php echo construirQueryFiltros($filtros); ?>" <?php echo ($pagina_actual == 1) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Páginas numeradas -->
+                    <?php 
+                    $start_page = max(1, min($pagina_actual - 2, $total_paginas - 4));
+                    $end_page = min($total_paginas, max(5, $pagina_actual + 2));
+                    
+                    for ($i = $start_page; $i <= $end_page; $i++): 
+                    ?>
+                        <li>
+                            <a href="?pagina=<?php echo $i; ?><?php echo construirQueryFiltros($filtros); ?>" <?php echo ($i == $pagina_actual) ? 'class="active"' : ''; ?>>
+                                <?php echo $i; ?>
+                            </a>
+                        </li>
+                    <?php endfor; ?>
+                    
+                    <!-- Botón página siguiente -->
+                    <li>
+                        <a href="?pagina=<?php echo min($total_paginas, $pagina_actual + 1); ?><?php echo construirQueryFiltros($filtros); ?>" <?php echo ($pagina_actual == $total_paginas) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Botón última página -->
+                    <li>
+                        <a href="?pagina=<?php echo $total_paginas; ?><?php echo construirQueryFiltros($filtros); ?>" <?php echo ($pagina_actual == $total_paginas) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                </div>
+                <?php endif; ?>
             </div>
 
         <!-- TODO EL CONTENIDO DE LA PAGINA ARRIBA DE ESTA LINEA -->

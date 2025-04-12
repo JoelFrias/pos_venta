@@ -46,7 +46,7 @@
             --primary-color-inventario: #2c3e50;
             --secondary-color-inventario: #2c3e50;
             --text-color-inventario: #333333;
-            --bg-color-inventario: #f8f9fa;
+            --bg-color-inventario: #f5f6fa;
             --input-bg-inventario: #ffffff;
             --border-color-inventario: #ced4da;
             --success-color-inventario: #28a745;

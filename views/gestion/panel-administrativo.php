@@ -702,7 +702,7 @@
                     <button id="manager-employees" onclick="redirectEmployee()">Administrar Empleados</button>
                 </div>
                 <div id="div-cashiers">
-                    <button id="manager-cashiers">Cuadres de Caja</button>
+                    <button id="manager-cashiers" onclick="redirectCuadre()">Cuadres de Caja</button>
                 </div>
                 <div id="div-transactions-inventory">
                     <button id="transactions-inventory" onclick="inventario_transaccion()">Trasancciones de Inventario</button>
@@ -1251,6 +1251,19 @@
                 });
             } else {
                 navigateTo('../../views/inventario/inventario-gestion.php');
+            }
+        }
+
+        function redirectCuadre() {
+            if (idPuesto > 2) {
+                Swal.fire({
+                    title: 'Acceso bloqueado',
+                    text: 'No tienes permiso para realizar esta acción.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            } else {
+                window.location.href = "../../views/caja/cuadre-caja.php";
             }
         }
 

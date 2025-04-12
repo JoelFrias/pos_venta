@@ -138,7 +138,7 @@ if ($result->num_rows > 0) {
 
         body {
             font-family: system-ui, -apple-system, sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f5f6fa;
             min-height: 100vh;
             overflow-x: hidden;
         }
