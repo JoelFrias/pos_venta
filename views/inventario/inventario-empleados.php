@@ -30,19 +30,45 @@ require "../../models/conexion.php";
 
 // Inicializar variables
 $result = false;
+$result_mobile = false;
 $totalProductos = $totalCategorias = $casiAgotados = "N/A";
 $idEmpleado = null;
+$search = isset($_GET['search']) ? htmlspecialchars(trim($_GET['search'])) : "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['seleccionar-empleado'])) {
-    $idEmpleado = intval($_POST['seleccionar-empleado']);
+// Configuración de paginación
+$registros_por_pagina = 10;
+$pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+$inicio = ($pagina_actual - 1) * $registros_por_pagina;
+$total_registros = 0;
+$total_paginas = 0;
+
+// Función para construir la URL con los filtros actuales
+function construirQueryFiltros($filtros) {
+    $query = '';
+    foreach ($filtros as $key => $value) {
+        if (!empty($value)) {
+            $query .= "&{$key}=" . urlencode($value);
+        }
+    }
+    return $query;
+}
+
+if (($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['seleccionar-empleado'])) || 
+    (isset($_GET['empleado']))) {
+    
+    // Determinar el ID del empleado ya sea de POST o GET
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['seleccionar-empleado'])) {
+        $idEmpleado = intval($_POST['seleccionar-empleado']);
+    } else if (isset($_GET['empleado'])) {
+        $idEmpleado = intval($_GET['empleado']);
+    }
 
     if ($_SESSION['idPuesto'] > 2){
         $idEmpleado = intval($_SESSION['idPuesto']);
     }
     
-    // Usar consultas preparadas para evitar inyección SQL
-    // Consulta principal
-    $stmt = $conn->prepare("SELECT
+    // Construir la consulta SQL base
+    $sql_base = "SELECT
         p.id,
         p.descripcion AS producto,
         pt.descripcion AS tipo_producto,
@@ -59,12 +85,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['seleccionar-empleado']
         FROM productos AS p
         INNER JOIN inventarioempleados AS ie ON p.id = ie.idProducto
         LEFT JOIN productos_tipo AS pt ON p.idTipo = pt.id
-        WHERE p.activo = TRUE AND ie.idEmpleado = ?
-        ORDER BY p.descripcion ASC");
+        WHERE p.activo = TRUE AND ie.idEmpleado = ?";
     
-    $stmt->bind_param("i", $idEmpleado);
+    // Parámetros para la consulta
+    $params = [$idEmpleado];
+    $types = "i";
+    
+    // Agregar filtro de búsqueda si se proporciona
+    if (!empty($search)) {
+        $sql_base .= " AND (p.descripcion LIKE ? OR pt.descripcion LIKE ?)";
+        $params[] = "%$search%";
+        $params[] = "%$search%";
+        $types .= "ss";
+        $filtros['search'] = $search;
+    }
+    
+    // Consulta para el total de registros (para paginación)
+    $sql_count = "SELECT COUNT(*) as total FROM ($sql_base) AS subquery";
+    
+    // Preparar y ejecutar consulta para conteo
+    $stmt_count = $conn->prepare($sql_count);
+    $stmt_count->bind_param($types, ...$params);
+    $stmt_count->execute();
+    $result_count = $stmt_count->get_result();
+    $row_count = $result_count->fetch_assoc();
+    $total_registros = $row_count['total'];
+    $total_paginas = ceil($total_registros / $registros_por_pagina);
+    
+    // Consulta principal con paginación
+    $sql = "$sql_base ORDER BY p.descripcion ASC LIMIT ?, ?";
+    
+    // Preparar y ejecutar consulta principal
+    $stmt = $conn->prepare($sql);
+    $types .= "ii"; // Agregar tipos para LIMIT
+    $all_params = array_merge($params, [$inicio, $registros_por_pagina]);
+    $stmt->bind_param($types, ...$all_params);
     $stmt->execute();
     $result = $stmt->get_result();
+    
+    // Para vista móvil (misma consulta)
+    $stmt_mobile = $conn->prepare($sql);
+    $stmt_mobile->bind_param($types, ...$all_params);
+    $stmt_mobile->execute();
+    $result_mobile = $stmt_mobile->get_result();
     
     // Consultas para estadísticas - usando consultas preparadas
     $stmtTotal = $conn->prepare("SELECT COUNT(*) as total FROM inventarioempleados 
@@ -114,6 +177,97 @@ $resultEmpleados = $stmtEmp->get_result();
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+    
+    <style>
+        /* Estilos para la paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .pagination li {
+            display: inline-block;
+            margin: 0 2px;
+        }
+        
+        .pagination a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            color: #555;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .pagination a:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .pagination a.active {
+            background-color: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+        
+        .pagination a.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Estilos para la información de paginación */
+        .pagination-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        /* Ajustes responsivos */
+        @media (max-width: 768px) {
+            .pagination a {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Estilo para la búsqueda con formulario */
+        .search-container form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .search-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .search-button:hover {
+            background-color: #2980b9;
+        }
+        
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 
@@ -138,9 +292,7 @@ $resultEmpleados = $stmtEmp->get_result();
                                         <?php
                                         if ($resultEmpleados && $resultEmpleados->num_rows > 0) {
                                             while ($fila = $resultEmpleados->fetch_assoc()) {
-                                                $selected = ($_SERVER['REQUEST_METHOD'] == "POST" && 
-                                                            isset($_POST['seleccionar-empleado']) && 
-                                                            $idEmpleado == $fila['id']) ? " selected" : "";
+                                                $selected = (($idEmpleado == $fila['id']) ? " selected" : "");
                                                 echo "<option value='" . $fila['id'] . "'" . $selected . ">" . htmlspecialchars($fila['nombre'], ENT_QUOTES, 'UTF-8') . "</option>";
                                             }
                                         } else {
@@ -154,8 +306,14 @@ $resultEmpleados = $stmtEmp->get_result();
                         </form>
                     </div>
                     <div class="search-container">
-                        <i class="lucide-search"></i>
-                        <input type="text" id="searchInput" placeholder="Buscar productos...">
+                        <form method="GET" action="" class="search-form">
+                            <i class="lucide-search"></i>
+                            <input type="text" id="searchInput" name="search" value="<?php echo htmlspecialchars($search ?? ''); ?>" placeholder="Buscar productos...">
+                            <?php if($idEmpleado): ?>
+                            <input type="hidden" name="empleado" value="<?php echo $idEmpleado; ?>">
+                            <?php endif; ?>
+                            <button type="submit" class="search-button">Buscar</button>
+                        </form>
                     </div>
                 </div>
 
@@ -238,9 +396,8 @@ $resultEmpleados = $stmtEmp->get_result();
                 <!-- Vista móvil -->
                 <div class="mobile-view">
                     <?php
-                    if ($result && $result->num_rows > 0) {
-                        mysqli_data_seek($result, 0); // Reset pointer to start
-                        while ($row = $result->fetch_assoc()) {
+                    if ($result_mobile && $result_mobile->num_rows > 0) {
+                        while ($row = $result_mobile->fetch_assoc()) {
                             $productName = htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8');
                             $productNameUpper = htmlspecialchars(strtoupper($row["producto"]), ENT_QUOTES, 'UTF-8');
                             $statusClass = htmlspecialchars(str_replace(' ', '-', $row["disponiblidad_inventario"]), ENT_QUOTES, 'UTF-8');
@@ -274,6 +431,58 @@ $resultEmpleados = $stmtEmp->get_result();
                     }
                     ?>
                 </div>
+                
+                <!-- Paginación -->
+                <?php if ($idEmpleado && $total_paginas > 1): ?>
+                <!-- Información adicional de paginación -->
+                <div class="pagination-info">
+                    Página <?php echo $pagina_actual; ?> de <?php echo $total_paginas; ?>
+                </div>
+
+                <div class="pagination">
+                    <!-- Botón primera página -->
+                    <li>
+                        <a href="?pagina=1<?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>&empleado=<?php echo $idEmpleado; ?>" <?php echo ($pagina_actual == 1) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Botón página anterior -->
+                    <li>
+                        <a href="?pagina=<?php echo max(1, $pagina_actual - 1); ?><?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>&empleado=<?php echo $idEmpleado; ?>" <?php echo ($pagina_actual == 1) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Páginas numeradas -->
+                    <?php 
+                    $start_page = max(1, min($pagina_actual - 2, $total_paginas - 4));
+                    $end_page = min($total_paginas, max(5, $pagina_actual + 2));
+                    
+                    for ($i = $start_page; $i <= $end_page; $i++): 
+                    ?>
+                        <li>
+                            <a href="?pagina=<?php echo $i; ?><?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>&empleado=<?php echo $idEmpleado; ?>" <?php echo ($i == $pagina_actual) ? 'class="active"' : ''; ?>>
+                                <?php echo $i; ?>
+                            </a>
+                        </li>
+                    <?php endfor; ?>
+                    
+                    <!-- Botón página siguiente -->
+                    <li>
+                        <a href="?pagina=<?php echo min($total_paginas, $pagina_actual + 1); ?><?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>&empleado=<?php echo $idEmpleado; ?>" <?php echo ($pagina_actual == $total_paginas) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Botón última página -->
+                    <li>
+                        <a href="?pagina=<?php echo $total_paginas; ?><?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>&empleado=<?php echo $idEmpleado; ?>" <?php echo ($pagina_actual == $total_paginas) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                </div>
+                <?php endif; ?>
             </div>
 
         <!-- TODO EL CONTENIDO DE LA PAGINA ENCIMA DE ESTA LINEA -->
@@ -283,34 +492,6 @@ $resultEmpleados = $stmtEmp->get_result();
     <script>
         // Esperar a que se cargue el DOM completamente
         document.addEventListener('DOMContentLoaded', function() {
-            // Función de búsqueda optimizada
-            const searchInput = document.getElementById('searchInput');
-            const inventarioTable = document.getElementById('inventarioTable');
-            const mobileCards = document.querySelectorAll('.mobile-card');
-            
-            searchInput.addEventListener('input', function() {
-                const filter = this.value.toUpperCase();
-                
-                // Búsqueda en la tabla de escritorio
-                if (inventarioTable) {
-                    const trs = inventarioTable.querySelectorAll('tbody tr');
-                    
-                    trs.forEach(tr => {
-                        const productCell = tr.querySelector('td:nth-child(2)');
-                        if (productCell) {
-                            const txtValue = productCell.textContent || productCell.innerText;
-                            tr.style.display = txtValue.toUpperCase().includes(filter) ? '' : 'none';
-                        }
-                    });
-                }
-                
-                // Búsqueda en las tarjetas móviles
-                mobileCards.forEach(card => {
-                    const productName = card.getAttribute('data-product');
-                    card.style.display = productName.includes(filter) ? '' : 'none';
-                });
-            });
-            
             // Manejador del overlay y menú móvil
             const mobileToggle = document.getElementById('mobileToggle');
             const overlay = document.getElementById('overlay');

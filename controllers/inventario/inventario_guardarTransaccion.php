@@ -79,7 +79,7 @@ try {
     }
 
     // Sanitización y asignación de variables
-    $idEmpleado = (int)$data['idEmpleado'];
+    $idEmpleado = $data['idEmpleado'];
     $productos = $data['productos'];
 
     logDebug("Variables procesadas", [
@@ -216,13 +216,13 @@ try {
      *      2. Registrar trasacciones de inventario
      */
 
-    $stmt = $conn->prepare("INSERT INTO inventariotransacciones (tipo, idProducto, cantidad, fecha, descripcion) VALUES ( 'transferencia', ?, ?, NOW(), 'Movimiento a inventario de empleado')");
+    $stmt = $conn->prepare("INSERT INTO inventariotransacciones (tipo, idProducto, cantidad, fecha, descripcion, idEmpleado) VALUES ( 'transferencia', ?, ?, NOW(), 'Movimiento a inventario de empleado id:" . $idEmpleado . "' , ?)");
     if (!$stmt) {
         throw new Exception("Error registrando las transacciones de inventario: " . $conn->error);
     }
     
     foreach ($productos as $producto) {
-        $stmt->bind_param('ii', $producto['id'], $producto['cantidad']);
+        $stmt->bind_param('iii', $producto['id'], $producto['cantidad'], $_SESSION['idEmpleado']);
         if (!$stmt->execute()) {
             throw new Exception("Error registrar las transacciones de inventario del producto -> {$producto['id']}: " . $stmt->error);
         }

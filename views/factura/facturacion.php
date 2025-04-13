@@ -681,7 +681,7 @@ if ($result->num_rows > 0) {
             // Validar que el total sea un número válido
             if (Number.isNaN(total)) {
                 Swal.fire({
-                    icon: 'error',
+                    icon: 'warning',
                     title: 'Error',
                     text: 'El total de la factura no es válido.',
                     showConfirmButton: true,
@@ -693,7 +693,7 @@ if ($result->num_rows > 0) {
             // Validar que el monto pagado sea un número válido
             if (Number.isNaN(montoPagado)) {
                 Swal.fire({
-                    icon: 'error',
+                    icon: 'warning',
                     title: 'Error',
                     text: 'El monto pagado no es válido.',
                     showConfirmButton: true,

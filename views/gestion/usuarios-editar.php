@@ -188,6 +188,10 @@ if (isset($_GET['editar'])) {
         *{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
+        body{
+            background-color: #f5f6fa;
+        }
         
         /* Estilos para el formulario de búsqueda */
         .emp_search-form {
@@ -253,7 +257,6 @@ if (isset($_GET['editar'])) {
             max-width: 1200px;
             margin: 0 auto;
             padding: 1rem;
-            margin-top: 40px;
             flex: 1;
             overflow: auto;
         }

@@ -27,16 +27,28 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 // Actualizar el tiempo de la última actividad
 $_SESSION['last_activity'] = time();
 
-/* Fin de verificacion de sesion */
+/* Fin de verificacion de sesion */
 
 require "../../models/conexion.php";
 
-$sql = "SELECT
+// Inicializar la variable de búsqueda
+$search = isset($_GET['search']) ? htmlspecialchars(trim($_GET['search'])) : "";
+
+// Configuración de paginación
+$registros_por_pagina = 10;
+$pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+$inicio = ($pagina_actual - 1) * $registros_por_pagina;
+
+// Construir la consulta SQL base
+$sql_base = "SELECT
             p.id,
             p.descripcion AS producto,
             pt.descripcion AS tipo_producto,
             p.existencia AS existencia,
             i.existencia AS existencia_inventario,
+            p.precioCompra,
+            p.precioVenta1,
+            p.precioVenta2,
             CONCAT('$',p.precioCompra) AS Costo,
             CONCAT('$',p.precioVenta1, ', $',p.precioVenta2) AS PreciosVentas,
             CASE
@@ -51,11 +63,79 @@ $sql = "SELECT
         LEFT JOIN productos_tipo AS pt
             ON p.idTipo = pt.id
         WHERE
-            p.activo = TRUE
-        ORDER BY p.descripcion ASC";
+            p.activo = TRUE";
 
-$result = $conn->query($sql);
-// aca manejas el limine que quiere que cuente si meno a 5 etc
+// Agregar filtro de búsqueda si se proporciona un término de búsqueda
+$params = [];
+$types = "";
+
+if (!empty($search)) {
+    $sql_base .= " AND (p.descripcion LIKE ? OR pt.descripcion LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $types .= "ss";
+    $filtros['search'] = $search;
+}
+
+// Consulta para el total de registros (para paginación)
+$sql_count = "SELECT COUNT(*) as total FROM ($sql_base) AS subquery";
+
+// Preparar y ejecutar consulta para conteo
+if (!empty($params)) {
+    $stmt_count = $conn->prepare($sql_count);
+    $stmt_count->bind_param($types, ...$params);
+    $stmt_count->execute();
+    $result_count = $stmt_count->get_result();
+    $row_count = $result_count->fetch_assoc();
+} else {
+    $result_count = $conn->query($sql_count);
+    $row_count = $result_count->fetch_assoc();
+}
+
+$total_registros = $row_count['total'];
+$total_paginas = ceil($total_registros / $registros_por_pagina);
+
+// Consulta principal con paginación
+$sql = "$sql_base ORDER BY p.descripcion ASC LIMIT ?, ?";
+
+// Preparar y ejecutar consulta principal
+if (!empty($params)) {
+    $stmt = $conn->prepare($sql);
+    $types .= "ii"; // Agregar tipos para LIMIT
+    $all_params = array_merge($params, [$inicio, $registros_por_pagina]);
+    $stmt->bind_param($types, ...$all_params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    // Para vista móvil (misma consulta)
+    $stmt_mobile = $conn->prepare($sql);
+    $stmt_mobile->bind_param($types, ...$all_params);
+    $stmt_mobile->execute();
+    $result_mobile = $stmt_mobile->get_result();
+} else {
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $inicio, $registros_por_pagina);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    // Para vista móvil (misma consulta)
+    $stmt_mobile = $conn->prepare($sql);
+    $stmt_mobile->bind_param("ii", $inicio, $registros_por_pagina);
+    $stmt_mobile->execute();
+    $result_mobile = $stmt_mobile->get_result();
+}
+
+// Función para construir la URL con los filtros actuales
+function construirQueryFiltros($filtros) {
+    $query = '';
+    foreach ($filtros as $key => $value) {
+        if (!empty($value)) {
+            $query .= "&{$key}=" . urlencode($value);
+        }
+    }
+    return $query;
+}
+
 // Consultas para estadísticas
 $totalProductos = $conn->query("SELECT COUNT(*) as total FROM inventario")->fetch_assoc()['total'];
 
@@ -77,6 +157,68 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+    
+    <style>
+        /* Estilos para la paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .pagination li {
+            display: inline-block;
+            margin: 0 2px;
+        }
+        
+        .pagination a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            color: #555;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .pagination a:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .pagination a.active {
+            background-color: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+        
+        .pagination a.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Estilos para la información de paginación */
+        .pagination-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        /* Ajustes responsivos */
+        @media (max-width: 768px) {
+            .pagination a {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
  
@@ -92,9 +234,11 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                 <div class="header">
                     <h1>Almacén Principal de Productos</h1>
                     <div class="search-container">
-                        <i class="lucide-search"></i>
-                        <input type="text" id="searchInput" placeholder="Buscar productos...">
-                        <!--<button id="searchButton" class="search-button">Buscar</button>-->
+                        <form method="GET" action="" class="search-form">
+                            <i class="lucide-search"></i>
+                            <input type="text" id="searchInput" name="search" value="<?php echo htmlspecialchars($search ?? ''); ?>" placeholder="Buscar productos...">
+                            <button type="submit" class="search-button">Buscar</button>
+                        </form>
                     </div>
                 </div>
 
@@ -153,7 +297,7 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                             <button class="filter-button"><i class="lucide-filter"></i></button>
                         </div>
                         <div class="stat-info">
-                            <p>Agostados</p>
+                            <p>Agotados</p>
                             <h2><?php echo htmlspecialchars($noDisponibles, ENT_QUOTES, 'UTF-8'); ?></h2>
                         </div>
                         <!--
@@ -203,9 +347,8 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                 <!-- Vista móvil -->
                 <div class="mobile-view">
                     <?php
-                    if ($result->num_rows > 0) {
-                        $result->data_seek(0); // Reset pointer to start
-                        while ($row = $result->fetch_assoc()) {
+                    if ($result_mobile->num_rows > 0) {
+                        while ($row = $result_mobile->fetch_assoc()) {
                             echo '<div class="mobile-card" data-product="' . htmlspecialchars(strtoupper($row["producto"]), ENT_QUOTES, 'UTF-8') . '">
                                 <div class="mobile-card-header">
                                     <div class="mobile-card-title-section">
@@ -237,38 +380,63 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                     }
                     ?>
                 </div>
+                
+                <!-- Paginación -->
+                <?php if ($total_paginas > 1): ?>
+                <!-- Información adicional de paginación -->
+                <div class="pagination-info">
+                    Página <?php echo $pagina_actual; ?> de <?php echo $total_paginas; ?>
+                </div>
+
+                <div class="pagination">
+                    <!-- Botón primera página -->
+                    <li>
+                        <a href="?pagina=1<?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>" <?php echo ($pagina_actual == 1) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Botón página anterior -->
+                    <li>
+                        <a href="?pagina=<?php echo max(1, $pagina_actual - 1); ?><?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>" <?php echo ($pagina_actual == 1) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Páginas numeradas -->
+                    <?php 
+                    $start_page = max(1, min($pagina_actual - 2, $total_paginas - 4));
+                    $end_page = min($total_paginas, max(5, $pagina_actual + 2));
+                    
+                    for ($i = $start_page; $i <= $end_page; $i++): 
+                    ?>
+                        <li>
+                            <a href="?pagina=<?php echo $i; ?><?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>" <?php echo ($i == $pagina_actual) ? 'class="active"' : ''; ?>>
+                                <?php echo $i; ?>
+                            </a>
+                        </li>
+                    <?php endfor; ?>
+                    
+                    <!-- Botón página siguiente -->
+                    <li>
+                        <a href="?pagina=<?php echo min($total_paginas, $pagina_actual + 1); ?><?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>" <?php echo ($pagina_actual == $total_paginas) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Botón última página -->
+                    <li>
+                        <a href="?pagina=<?php echo $total_paginas; ?><?php echo !empty($search) ? '&search='.urlencode($search) : ''; ?>" <?php echo ($pagina_actual == $total_paginas) ? 'class="disabled"' : ''; ?>>
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                </div>
+                <?php endif; ?>
             </div>
 
         <!-- TODO EL CONTENIDO DE LA PAGINA ENCIMA DE ESTA LINEA -->
         </div>
     </div>
-
-    <script>
-        // Función de búsqueda que funciona tanto para la tabla como para las tarjetas móviles
-        document.getElementById('searchInput').addEventListener('keyup', function() {
-            const filter = this.value.toUpperCase();
-            
-            // Búsqueda en la tabla de escritorio
-            const table = document.getElementById('inventarioTable');
-            const trs = table.getElementsByTagName('tr');
-            
-            for (let i = 0; i < trs.length; i++) {
-                const td = trs[i].getElementsByTagName('td')[1]; // Columna del nombre del producto para obtener el nombre a buscar
-                if (td) {
-                    const txtValue = td.textContent || td.innerText;
-                    trs[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
-                }
-            }
-            
-            // Búsqueda en las tarjetas móviles
-            const cards = document.querySelectorAll('.mobile-card');
-            cards.forEach(card => {
-                const productName = card.getAttribute('data-product');
-                card.style.display = productName.indexOf(filter) > -1 ? '' : 'none';
-            });
-        });
-        
-    </script>
-
+    
 </body>
 </html>

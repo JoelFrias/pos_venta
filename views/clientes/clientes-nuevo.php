@@ -64,32 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Iniciar una transacción para asegurar la integridad de los datos
         $conn->begin_transaction();
 
-        // Verificar que no se repita el número de identificación
-        $stmt_verificar = $conn->prepare("SELECT COUNT(*) FROM clientes WHERE identificacion = ?");
-        $stmt_verificar->bind_param("s", $identificacion);
-        $stmt_verificar->execute();
-        $stmt_verificar->bind_result($count);
-        $stmt_verificar->fetch();
-        if ($count > 0) {
-            $_SESSION['errors'][] = "El número de identificación ya está registrado.";
-            header("Location: ../../views/clientes/clientes-nuevo.php");
-            exit;
-        }
-        $stmt_verificar->close();
-        
-        // Verificar que no se repita el número de teléfono
-        $stmt_verificar_telefono = $conn->prepare("SELECT COUNT(*) FROM clientes WHERE telefono = ?");
-        $stmt_verificar_telefono->bind_param("s", $telefono);
-        $stmt_verificar_telefono->execute();
-        $stmt_verificar_telefono->bind_result($count_telefono);
-        $stmt_verificar_telefono->fetch();
-        if ($count_telefono > 0) {
-            $_SESSION['errors'][] = "El número de teléfono ya está registrado.";
-            header("Location: ../../views/clientes/clientes-nuevo.php");
-            exit;
-        }
-        $stmt_verificar_telefono->close();
-
         // Insertar en la tabla 'clientes'
         $stmt_cliente = $conn->prepare("INSERT INTO clientes (nombre, apellido, empresa, tipo_identificacion, identificacion, telefono, notas, fechaRegistro, activo) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)");
         $stmt_cliente->bind_param("sssssss", $nombre, $apellido, $empresa, $tipo_identificacion, $identificacion, $telefono, $notas);
@@ -112,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          *  2. Auditoria de acciones de usuario
          */
 
-        require_once 'php/auditorias.php';
+        require_once '../../models/auditorias.php';
         $usuario_id = $_SESSION['idEmpleado'];
         $accion = 'Nuevo cliente';
         $detalle = 'ID del cliente: ' . $cliente_id;

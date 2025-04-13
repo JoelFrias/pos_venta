@@ -545,9 +545,9 @@ function construirQueryFiltros($filtros) {
         }
         
         .pagination a.active {
-            background-color: #4CAF50;
+            background-color: #2c3e50;
             color: white;
-            border-color: #4CAF50;
+            border-color: #2c3e50;
         }
         
         .pagination a.disabled {
