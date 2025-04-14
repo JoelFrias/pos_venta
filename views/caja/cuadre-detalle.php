@@ -141,7 +141,7 @@ while($row = $result_egresos->fetch_assoc()) {
 // Calcular diferencia
 $saldo_inicial = $caja['saldoInicial'] ?? 0;
 $saldo_final = $caja['saldoFinal'] ?? 0;
-$diferencia = ($saldo_inicial + $total_ingresos) - $total_egresos - $saldo_final;
+$diferencia = $caja['diferencia'] ?? 0;
 
 // Cerrar los statements restantes
 $stmt_ingresos->close();

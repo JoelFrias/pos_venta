@@ -195,9 +195,7 @@
 
         /* Container */
         .contenedor {
-            width: min(100% - 2rem, 1200px);
             margin-inline: auto;
-            padding: clamp(1rem, 3vw, 1.5rem);
         }
 
         /* Header */
