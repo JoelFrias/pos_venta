@@ -50,9 +50,9 @@
     if (isset($_GET['busqueda']) && !empty($_GET['busqueda'])) {
         $busqueda = $_GET['busqueda'];
         $where_clausulas[] = "(cc.registro LIKE ? OR 
-                              DATE_FORMAT(cc.fechaApertura, '%d/%m/%Y %H:%i') LIKE ? OR 
+                              cc.fechaApertura LIKE ? OR 
                               cc.saldoInicial LIKE ? OR 
-                              DATE_FORMAT(cc.fechaCierre, '%d/%m/%Y %H:%i') LIKE ? OR 
+                              cc.fechaCierre LIKE ? OR 
                               cc.saldoFinal LIKE ? OR 
                               CONCAT(e.nombre, ' ', e.apellido) LIKE ? OR 
                               cc.diferencia LIKE ? OR
@@ -113,9 +113,9 @@
     // Consulta SQL principal con paginación
     $sql = "SELECT 
                 cc.registro AS id,
-                DATE_FORMAT(cc.fechaApertura, '%d/%m/%Y %H:%i') AS fecha_inicio,
+                DATE_FORMAT(cc.fechaApertura, '%d/%m/%Y %l:%i %p') AS fecha_inicio,
                 FORMAT(cc.saldoInicial, 2) AS monto_inicial,
-                IFNULL(DATE_FORMAT(cc.fechaCierre, '%d/%m/%Y %H:%i'), 'No cerrado') AS fecha_cierre,
+                IFNULL(DATE_FORMAT(cc.fechaCierre, '%d/%m/%Y %l:%i %p'), 'No cerrado') AS fecha_cierre,
                 IFNULL(FORMAT(cc.saldoFinal, 2), 'N/A') AS monto_cierre,
                 CONCAT(e.nombre, ' ', e.apellido) AS empleado_nombre,
                 IFNULL(FORMAT(cc.diferencia, 2), 'N/A') AS diferencia_formateada,
@@ -794,10 +794,10 @@
                                                 {$row['diferencia_formateada']}
                                             </td>
                                             <td class='actions'>
-                                                <button class='action-btn print-btn' onclick='verDetalle({$row['id']})'>
+                                                <button class='action-btn print-btn' onclick=\"verDetalle('{$row['numCaja']}')\">
                                                     <i class=\"fa-regular fa-eye\"></i>
                                                 </button>
-                                                <button class='action-btn print-btn' onclick='imprimirReporte({$row['id']})'>
+                                                <button class='action-btn print-btn' onclick=\"imprimirReporte('{$row['numCaja']}')\">
                                                     <i class='fas fa-print'></i>
                                                 </button>
                                             </td>
@@ -864,10 +864,10 @@
                                     
                                     <div class='card-footer'>
                                         <div class='actions'>
-                                            <button class='action-btn print-btn' onclick='verDetalle({$row['id']})'>
+                                            <button class='action-btn print-btn' onclick=\"verDetalle('{$row['numCaja']}')\">
                                                 <i class=\"fa-regular fa-eye\"></i>
                                             </button>
-                                            <button class='action-btn print-btn' onclick='imprimirReporte({$row['id']})'>
+                                            <button class='action-btn print-btn' onclick=\"imprimirReporte('{$row['numCaja']}')\">
                                                 <i class='fas fa-print'></i>
                                             </button>
                                         </div>
@@ -958,7 +958,7 @@
 
         // Funciones para interacción
         function verDetalle(id) {
-            window.location.href = `detalle_cuadre.php?id=${id}`;
+            window.location.href = `cuadre-detalle.php?numCaja=${id}`;
         }
 
         function imprimirReporte(id) {

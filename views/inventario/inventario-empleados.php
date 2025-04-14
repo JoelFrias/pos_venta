@@ -267,6 +267,21 @@ $resultEmpleados = $stmtEmp->get_result();
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        
+        /* Estilo para mensaje de no empleado seleccionado */
+        .no-employee-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .no-employee-message i {
+            font-size: 30px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -301,10 +316,11 @@ $resultEmpleados = $stmtEmp->get_result();
                                         ?>
                                     </select>
                                 </div>
-                                <button type="submit" class="employee-submit-button">Buscar</button>
+                                <button type="submit" class="employee-submit-button">Seleccionar</button>
                             </div>
                         </form>
                     </div>
+                    <?php if(isset($idEmpleado) && $idEmpleado !== null): ?>
                     <div class="search-container">
                         <form method="GET" action="" class="search-form">
                             <i class="lucide-search"></i>
@@ -315,8 +331,10 @@ $resultEmpleados = $stmtEmp->get_result();
                             <button type="submit" class="search-button">Buscar</button>
                         </form>
                     </div>
+                    <?php endif; ?>
                 </div>
 
+                <?php if(isset($idEmpleado) && $idEmpleado !== null): ?>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-header">
@@ -357,6 +375,14 @@ $resultEmpleados = $stmtEmp->get_result();
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
+
+                <?php if(!isset($idEmpleado) || $idEmpleado === null): ?>
+                <div class="no-employee-message">
+                    <p><i class="fas fa-user-slash"></i></p>
+                    <p>Por favor seleccione un empleado para ver sus productos disponibles.</p>
+                </div>
+                <?php else: ?>
 
                 <!-- Vista de escritorio -->
                 <div class="table-card desktop-view">
@@ -428,6 +454,8 @@ $resultEmpleados = $stmtEmp->get_result();
                             </div>
                     HTML;
                         }
+                    } else {
+                        echo '<div class="no-results-message">No se encontraron productos</div>';
                     }
                     ?>
                 </div>
@@ -482,6 +510,7 @@ $resultEmpleados = $stmtEmp->get_result();
                         </a>
                     </li>
                 </div>
+                <?php endif; ?>
                 <?php endif; ?>
             </div>
 

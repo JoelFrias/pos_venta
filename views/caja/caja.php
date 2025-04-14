@@ -33,7 +33,7 @@
     require_once '../../models/conexion.php';
 
     // Variables
-    $mensaje = "";
+    $mensaje;
     $id_empleado = $_SESSION['idEmpleado'];
     $nombre_empleado = $_SESSION['nombre'];
 
@@ -196,8 +196,6 @@
                 }
             }
 
-            header('location: caja.php');
-
         }
         
         // Cerrar caja con transacción
@@ -273,8 +271,6 @@
                 }
             }
 
-            header('location: caja.php');
-
         }
         
         // Registrar ingreso con transacción
@@ -348,7 +344,6 @@
                 }
             }
 
-            header('location: caja.php');
 
         }
         
@@ -421,8 +416,6 @@
                         "Fallo al registrar egreso: " . $mensaje);
                 }
             }
-
-            header('location: caja.php');
             
         }
     }
@@ -436,6 +429,7 @@
     <title>Sistema de Caja</title>
     <link rel="icon" type="image/png" href="../../assets/img/logo-blanco.png">
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Libreria de alertas -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Librería de iconos -->
     <style>
         * {
@@ -632,6 +626,28 @@
 </head>
 <body>
 
+    <?php
+        if (isset($mensaje)) {
+            $icon = strpos($mensaje, 'Error') !== false ? 'error' : 'success';
+            $title = strpos($mensaje, 'Error') !== false ? 'ERROR' : 'Éxito';
+
+            echo "
+            <script>
+                Swal.fire({
+                    icon: '$icon',
+                    title: '$title',
+                    text: '$mensaje',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    window.location.href = 'caja.php';
+                });
+            </script>
+            ";
+        }
+    ?>
+
+
     <div class="navegator-nav">
 
         <!-- Menu-->
@@ -648,12 +664,6 @@
                         <p><strong>Fecha:</strong> <?php echo date('j/n/Y h:i A'); ?></p>
                     </div>
                 </div>
-                
-                <?php if(!empty($mensaje)): ?>
-                <div class="mensaje <?php echo strpos($mensaje, 'Error') !== false ? 'error' : ''; ?>">
-                    <?php echo $mensaje; ?>
-                </div>
-                <?php endif; ?>
                 
                 <?php if(!$caja_abierta): ?>
                     <!-- Panel para abrir caja -->

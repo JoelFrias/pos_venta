@@ -67,10 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
 
         // Insertar en la tabla 'inventariotransacciones'
-        $stmt = $conn->prepare("INSERT INTO `inventariotransacciones`(`tipo`, `idProducto`, `cantidad`, `fecha`, `descripcion`) VALUES (?,?,?,NOW(),?)");
+        $stmt = $conn->prepare("INSERT INTO `inventariotransacciones`(`tipo`, `idProducto`, `cantidad`, `fecha`, `descripcion`,`idEmpleado`) VALUES (?,?,?,NOW(),?,?)");
         $tipo = "ingreso";
         $descripcionTransaccion = "Ingreso por nuevo producto: ";
-        $stmt->bind_param("siis", $tipo, $idProducto, $cantidad, $descripcionTransaccion);
+        $stmt->bind_param("siisi", $tipo, $idProducto, $cantidad, $descripcionTransaccion, $_SESSION['idEmpleado']);
         $stmt->execute();
 
         /**
@@ -282,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ?>
 
     <!-- Scripts adicionales -->
-    <script src="js/producto_modal.js"></script>
+    <script src="../../assets/js/producto_modal.js"></script>
 
 </body>
 </html>

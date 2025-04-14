@@ -72,6 +72,35 @@ if ($result->num_rows > 0) {
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+    <style>
+        
+  #regresar {
+    background-color:rgb(62, 153, 250);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: auto;
+    display: inline-block;
+  }
+
+  #regresar:hover {
+    background-color: #0056b3;
+    transform: scale(1.02);
+  }
+
+  /* Responsive para pantallas pequeñas */
+  @media (max-width: 768px) {
+    #regresar {
+      width: 100%;
+      display: block;
+      margin-top: 10px;
+    }
+  }
+    </style>
 </head>
 <body>
 
@@ -107,6 +136,8 @@ if ($result->num_rows > 0) {
 
             <div class="facturacion-container">
                 <h2>Transacciones de Inventario</h2><br>
+                <button id="regresar" onclick="navigateTo('inventario-devAlmacen.php')">Devolver Productos a Almacén</button>
+                <br><br>
                 <h3>Seleccione los productos</h3><br>
                 <div class="search-container">
                     <input type="text" id="searchInput" class="search-input" placeholder="Buscar productos...">
