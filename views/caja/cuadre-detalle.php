@@ -79,14 +79,14 @@ $caja = $result_caja->fetch_assoc();
 $stmt_caja->close();
 
 // 4. Consultas seguras para ingresos/egresos
-$query_ingresos = "SELECT monto, metodo, razon, DATE_FORMAT(fecha, '%d/%m/%Y %l:%i %p') AS fecha 
+$query_ingresos = "SELECT monto, metodo, razon, fecha 
                    FROM cajaingresos 
                    WHERE numCaja = ? 
                    ORDER BY fecha DESC";
 $stmt_ingresos = executeSecureQuery($conn, $query_ingresos, [$numCaja], 's');
 $result_ingresos = $stmt_ingresos->get_result();
 
-$query_egresos = "SELECT monto, metodo, razon, DATE_FORMAT(fecha, '%d/%m/%Y %l:%i %p') AS fecha  
+$query_egresos = "SELECT monto, metodo, razon, fecha  
                   FROM cajaegresos 
                   WHERE numCaja = ? 
                   ORDER BY fecha DESC";

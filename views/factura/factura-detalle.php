@@ -583,9 +583,6 @@ if ($result->num_rows > 0) {
             .product-details div {
                 font-size: 14px;
             }
-            .container {
-                margin-top: 60px;
-            }
         }
 
         /* Estilos específicos para el selector de filtros */

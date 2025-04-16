@@ -826,8 +826,8 @@
                             echo "<div class='card'>
                                     <div class='card-header'>
                                         <div>
-                                            <div class='card-title'>Cuadre #{$row['id']}</div>
-                                            <div class='card-subtitle'>Caja N° {$row['numCaja']}</div>
+                                            <div class='card-title'>Caja N° {$row['numCaja']}</div>
+                                            <div class='card-subtitle'>Cuadre #{$row['id']}</div>
                                         </div>
                                     </div>
                                     

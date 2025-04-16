@@ -56,6 +56,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $identificacion = trim($_POST['identificacion']);
     $telefono = trim($_POST['telefono']);
     $idPuesto = intval($_POST['idPuesto']);
+    $estado = trim($_POST['estado']);
+
+    if($estado == "activo"){
+        $estado = 1;  // Using 1 instead of TRUE
+    } else if ($estado == "inactivo"){
+        $estado = 0;  // Using 0 instead of FALSE
+    } else {
+        $_SESSION['error_message'] = "Estado invalido";
+        header('Location: ../../views/empleados/empleados.php');
+        exit();
+    }
 
     // Actualizar el empleado en la base de datos
     $sql_update = "UPDATE empleados SET
@@ -64,16 +75,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                    tipo_identificacion = ?,
                    identificacion = ?,
                    telefono = ?,
-                   idPuesto = ?
+                   idPuesto = ?,
+                   activo = ?
                    WHERE id = ?";
     $stmt = $conn->prepare($sql_update);
-    $stmt->bind_param("sssssii", $nombre, $apellido, $tipo_identificacion, $identificacion, $telefono, $idPuesto, $id);
+    $stmt->bind_param("sssssiii", $nombre, $apellido, $tipo_identificacion, $identificacion, $telefono, $idPuesto, $estado, $id);
 
     if ($stmt->execute()) {
         $_SESSION['success_message'] = 'Empleado actualizado con éxito.';
     } else {
         $_SESSION['error_message'] = 'Error al actualizar el empleado: ' . $stmt->error;
     }
+
+    // Auditoria de Acciones de Usuario
+    require_once '../../models/auditorias.php';
+    $usuario_id = $_SESSION['idEmpleado'];
+    $accion = 'Actualizacion Empleado';
+    $detalle = 'IdEmpleado: ' . $id . ', Nombre: ' . $nombre . ', Apellido: ' . $apellido . ', tipo Identificacion: ' . $tipo_identificacion . ', identificacion: ' . $identificacion . ', telefono: ' . $telefono . ', id puesto: ' . $idPuesto . ', estado: ' . $estado;
+    $ip = $_SERVER['REMOTE_ADDR']; // Obtener la dirección IP del cliente
+    registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
 
     // Redirigir para evitar reenvío del formulario
     header('Location: ../../views/empleados/empleados.php');
@@ -87,10 +107,10 @@ if (isset($_GET['busqueda'])) {
 }
 
 // Obtener la lista de empleados con filtro de búsqueda si existe
-$sql = "SELECT e.id, e.nombre, e.apellido, e.tipo_identificacion, e.identificacion, e.telefono, p.descripcion AS puesto 
+$sql = "SELECT e.id, e.nombre, e.apellido, e.tipo_identificacion, e.identificacion, e.telefono, p.descripcion AS puesto , e.activo
         FROM empleados e 
         JOIN empleados_puestos p ON e.idPuesto = p.id 
-        WHERE e.activo = TRUE";
+        WHERE 1=1";
 
 // Agregar condición de búsqueda si se proporcionó un término
 if (!empty($busqueda)) {
@@ -655,6 +675,7 @@ if (isset($_GET['editar'])) {
                                     <th>Identificación</th>
                                     <th>Teléfono</th>
                                     <th>Puesto</th>
+                                    <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -668,6 +689,17 @@ if (isset($_GET['editar'])) {
                                             <td><?php echo htmlspecialchars($fila['identificacion']); ?></td>
                                             <td><?php echo htmlspecialchars($fila['telefono']); ?></td>
                                             <td><?php echo htmlspecialchars($fila['puesto']); ?></td>
+                                            
+                                            <?php 
+                                                if($fila['activo'] == 1){
+                                                    $var = "Activo";
+                                                } else {
+                                                    $var = "Inactivo";
+                                                }
+                                            ?>
+
+                                            <td><?php echo htmlspecialchars($var) ?></td>
+
                                             <td>
                                                 <a href="empleados.php?editar=<?php echo $fila['id']; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="emp_btn-edit">Modificar</a>
                                             </td>
@@ -711,6 +743,17 @@ if (isset($_GET['editar'])) {
                                     <div class="emp_mobile-card-item">
                                         <span class="emp_mobile-card-label">Teléfono</span>
                                         <span class="emp_mobile-card-value"><?php echo htmlspecialchars($fila['telefono']); ?></span>
+                                    </div>
+                                    <div class="emp_mobile-card-item">
+                                        <span class="emp_mobile-card-label">Estado</span>
+                                        <?php 
+                                            if($fila['activo'] == 1){
+                                                $var = "Activo";
+                                            } else {
+                                                $var = "Inactivo";
+                                            }
+                                        ?>
+                                        <span class="emp_mobile-card-value"><?php echo htmlspecialchars($var); ?></span>
                                     </div>
                                 </div>
                             </div>
@@ -776,6 +819,14 @@ if (isset($_GET['editar'])) {
                                             }
                                         }
                                         ?>
+                                    </select>
+                                </div>
+
+                                <div class="emp_form-group">
+                                    <label for="estado">Estado:</label>
+                                    <select id="estado" name="estado" required>
+                                        <option value="activo" <?php echo ($empleado_editar['activo'] == 1 ? 'selected' : ''); ?>>Activo</option>
+                                        <option value="inactivo" <?php echo ($empleado_editar['activo'] == 0 ? 'selected' : ''); ?>>Inactivo</option>
                                     </select>
                                 </div>
                                 

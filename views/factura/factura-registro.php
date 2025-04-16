@@ -187,7 +187,7 @@ function construirQueryFiltros($filtros) {
             --primary-blue: #4285f4;
             --hover-blue: #2b7de9;
             --background: #f5f6fa;
-            --card-bg::rgb(252, 252, 252);
+            --card-bg:rgb(252, 252, 252);
             --border: #e0e4ec;
             --text-secondary: #718096;
             --success: #48bb78;
