@@ -89,7 +89,6 @@ if ($result->num_rows > 0) {
 
                 <div class="search-container">
                     <input type="text" id="searchInput" class="search-input" placeholder="Buscar productos...">
-                    <button id="searchButton" class="search-button">Buscar</button>
                 </div>
                 <div class="products-grid" id="productsGrid">
                     <?php
@@ -787,6 +786,54 @@ if ($result->num_rows > 0) {
             });
         }
 
+    </script>
+
+    <!-- buscador en tiempo real -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById("searchInput");
+            const searchButton = document.getElementById("searchButton");
+            const productsGrid = document.getElementById("productsGrid");
+            const productCards = document.querySelectorAll(".product-card");
+            
+            // Función para filtrar productos
+            function filterProducts() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                
+                // Si no hay término de búsqueda, mostrar todos los productos
+                if (searchTerm === "") {
+                    productCards.forEach(card => {
+                        card.style.display = "block";
+                    });
+                    return;
+                }
+                
+                // Recorrer todas las tarjetas de producto
+                productCards.forEach(card => {
+                    const productInfo = card.querySelector(".product-name").textContent.toLowerCase();
+                    
+                    // Mostrar u ocultar según si coincide con la búsqueda
+                    if (productInfo.includes(searchTerm)) {
+                        card.style.display = "block";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            }
+            
+            // Filtrar al escribir en el campo (búsqueda en tiempo real)
+            searchInput.addEventListener("keyup", filterProducts);
+            
+            // Filtrar al hacer clic en el botón de búsqueda
+            searchButton.addEventListener("click", filterProducts);
+            
+            // También filtrar si se presiona Enter en el campo de búsqueda
+            searchInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    filterProducts();
+                }
+            });
+        });
     </script>
 
 </body>

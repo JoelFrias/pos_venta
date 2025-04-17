@@ -540,5 +540,7 @@ $resultEmpleados = $stmtEmp->get_result();
         });
     </script>
 
+    
+
 </body>
 </html>

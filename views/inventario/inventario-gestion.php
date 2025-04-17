@@ -770,7 +770,7 @@
                 };
                 
                 // Enviar datos al servidor
-                fetch('../../controllers/inventario/registrar-entrada.php', {
+                fetch('../../controllers/inventario/registrar-salida.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -93,6 +93,24 @@ $query_egresos = "SELECT monto, metodo, razon, fecha
 $stmt_egresos = executeSecureQuery($conn, $query_egresos, [$numCaja], 's');
 $result_egresos = $stmt_egresos->get_result();
 
+$query_efectivo = " SELECT IFNULL(SUM(monto), 0) AS total_efectivo
+                    FROM cajaingresos
+                    WHERE metodo = 'efectivo' AND numCaja = ? ";
+$stmt_efectivo = executeSecureQuery($conn, $query_efectivo, [$numCaja], 's');
+$result_efectivo = $stmt_efectivo->get_result();
+
+$query_transferencia = " SELECT IFNULL(SUM(monto), 0) AS total_transferencia
+                    FROM cajaingresos
+                    WHERE metodo = 'transferencia' AND numCaja = ? ";
+$stmt_transferencia = executeSecureQuery($conn, $query_transferencia, [$numCaja], 's');
+$result_transferencia = $stmt_transferencia->get_result();
+
+$query_tarjeta = " SELECT IFNULL(SUM(monto), 0) AS total_tarjeta
+                    FROM cajaingresos
+                    WHERE metodo = 'tarjeta' AND numCaja = ? ";
+$stmt_tarjeta = executeSecureQuery($conn, $query_tarjeta, [$numCaja], 's');
+$result_tarjeta = $stmt_tarjeta->get_result();
+
 // 5. Función segura para formatear fechas
 function formatDate($dateString) {
     if (empty($dateString)) {
@@ -455,6 +473,8 @@ $stmt_egresos->close();
                                                     <p class="info-value mb-0">$<?= number_format($caja['saldoInicial'], 2) ?></p>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="row g-3">
                                             <div class="col-12 col-sm-6">
                                                 <div class="info-section">
                                                     <p class="info-label mb-1"><i class="bi bi-box-arrow-right me-1"></i> Saldo Final:</p>

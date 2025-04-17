@@ -43,7 +43,7 @@ $conn->begin_transaction();
 
 try {
     // 1. Verificar si hay suficiente existencia
-    $sqlVerificar = "SELECT existencia FROM productos WHERE id = ?";
+    $sqlVerificar = "SELECT existencia FROM inventario WHERE idProducto = ?";
     $stmtVerificar = $conn->prepare($sqlVerificar);
     if (!$stmtVerificar) {
         throw new Exception("Error al preparar la verificación: " . $conn->error);
@@ -70,6 +70,26 @@ try {
     $sqlUpdateInventario = "UPDATE productos SET 
                           existencia = existencia - ?
                           WHERE id = ?";
+    
+    $stmtInventario = $conn->prepare($sqlUpdateInventario);
+    if (!$stmtInventario) {
+        throw new Exception("Error al preparar la actualización del inventario: " . $conn->error);
+    }
+
+    // 2. Actualizar existencia en inventario
+
+    $sqlito = "UPDATE inventario SET existencia = existencia - ?, ultima_actualizacion = NOW() WHERE idProducto = ?";
+    
+    $statement = $conn->prepare($sqlito);
+    if (!$statement) {
+        throw new Exception("Error al preparar la actualización del inventario: " . $conn->error);
+    }
+    
+    $statement->bind_param("di", $cantidad, $id_producto);
+    
+    if (!$statement->execute()) {
+        throw new Exception("Error al actualizar el inventario: " . $statement->error);
+    }
     
     $stmtInventario = $conn->prepare($sqlUpdateInventario);
     if (!$stmtInventario) {

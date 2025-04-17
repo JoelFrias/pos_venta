@@ -93,122 +93,122 @@ $resultEmpleados = $stmtEmp->get_result();
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
     <style>
         /* Estilos para el formulario de selección de empleados */
-.employee-selector-form {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+        .employee-selector-form {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-/* Etiqueta del selector */
-.employee-selector-label {
-  font-weight: 500;
-  margin-bottom: 5px;
-}
+        /* Etiqueta del selector */
+        .employee-selector-label {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
 
-/* Contenedor del select y el botón */
-.employee-selector-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-}
+        /* Contenedor del select y el botón */
+        .employee-selector-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
 
-/* Contenedor del select con flechita personalizada */
-.select-container {
-  position: relative;
-  width: 100%;
-}
+        /* Contenedor del select con flechita personalizada */
+        .select-container {
+            position: relative;
+            width: 100%;
+        }
 
-.employee-select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-  font-size: 14px;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  cursor: pointer;
-}
+        .employee-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            font-size: 14px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+        }
 
-.employee-select:focus {
-  border-color: #4a90e2;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-}
+        .employee-select:focus {
+            border-color: #4a90e2;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
 
-.select-container::after {
-  content: '▼';
-  font-size: 12px;
-  color: #777;
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
+        .select-container::after {
+            content: '▼';
+            font-size: 12px;
+            color: #777;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
 
-/* Botón de envío */
-.employee-submit-button {
-  padding: 8px 12px;
-  background-color: #28a745; /* Verde */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  flex-shrink: 0;
-  width: 100%;
-  text-align: center;
-}
+        /* Botón de envío */
+        .employee-submit-button {
+            padding: 8px 12px;
+            background-color: #28a745; /* Verde */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            width: 100%;
+            text-align: center;
+        }
 
-.employee-submit-button:hover {
-  background-color: #218838;
-}
+        .employee-submit-button:hover {
+            background-color: #218838;
+        }
 
-/* Estilo para pantallas mayores a 600px (modo escritorio) */
-@media (min-width: 601px) {
-  .employee-selector-controls {
-    flex-direction: row;
-    align-items: center;
-  }
+        /* Estilo para pantallas mayores a 600px (modo escritorio) */
+        @media (min-width: 601px) {
+            .employee-selector-controls {
+                flex-direction: row;
+                align-items: center;
+            }
 
-  .select-container {
-    flex: 1;
-  }
+            .select-container {
+                flex: 1;
+            }
 
-  .employee-submit-button {
-    width: auto;
-  }
-}
+            .employee-submit-button {
+                width: auto;
+            }
+        }
 
-  #regresar {
-    background-color:rgb(62, 153, 250);
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    width: auto; /* por defecto */
-    display: inline-block;
-  }
+        #regresar {
+            background-color:rgb(62, 153, 250);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: auto; /* por defecto */
+            display: inline-block;
+        }
 
-  #regresar:hover {
-    background-color: #0056b3;
-    transform: scale(1.02);
-  }
+        #regresar:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
 
-  /* Responsive para pantallas pequeñas */
-  @media (max-width: 768px) {
-    #regresar {
-      width: 100%;
-      display: block;
-      margin-top: 10px;
-    }
-  }
+        /* Responsive para pantallas pequeñas */
+        @media (max-width: 768px) {
+            #regresar {
+            width: 100%;
+            display: block;
+            margin-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -244,7 +244,7 @@ $resultEmpleados = $stmtEmp->get_result();
             <button class="toggle-menu" id="toggleMenuFacturacion">☰</button>
 
             <div class="facturacion-container">
-                <h2>Devolucion de Productos a Inventario</h2><br>
+                <h2>Devolución de Productos al Almacén</h2><br>
                 <button id="regresar" onclick="navigateTo('inventario-transaccion.php')">Regresar a Transacciones</button>
                 <br><br>
                 <div class="seleccionEmpleado">
@@ -276,7 +276,6 @@ $resultEmpleados = $stmtEmp->get_result();
                 <h3>Buscardor de Productos:</h3><br>
                 <div class="search-container">
                     <input type="text" id="searchInput" class="search-input" placeholder="Buscar productos...">
-                    <button id="searchButton" class="search-button">Buscar</button>
                 </div>
                 <div class="products-grid" id="productsGrid">
                     <?php
@@ -514,6 +513,54 @@ $resultEmpleados = $stmtEmp->get_result();
             });
         }
 
+    </script>
+
+    <!-- buscador en tiempo real -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById("searchInput");
+            const searchButton = document.getElementById("searchButton");
+            const productsGrid = document.getElementById("productsGrid");
+            const productCards = document.querySelectorAll(".product-card");
+            
+            // Función para filtrar productos
+            function filterProducts() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                
+                // Si no hay término de búsqueda, mostrar todos los productos
+                if (searchTerm === "") {
+                    productCards.forEach(card => {
+                        card.style.display = "block";
+                    });
+                    return;
+                }
+                
+                // Recorrer todas las tarjetas de producto
+                productCards.forEach(card => {
+                    const productInfo = card.querySelector(".product-name").textContent.toLowerCase();
+                    
+                    // Mostrar u ocultar según si coincide con la búsqueda
+                    if (productInfo.includes(searchTerm)) {
+                        card.style.display = "block";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            }
+            
+            // Filtrar al escribir en el campo (búsqueda en tiempo real)
+            searchInput.addEventListener("keyup", filterProducts);
+            
+            // Filtrar al hacer clic en el botón de búsqueda
+            searchButton.addEventListener("click", filterProducts);
+            
+            // También filtrar si se presiona Enter en el campo de búsqueda
+            searchInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    filterProducts();
+                }
+            });
+        });
     </script>
 
 </body>

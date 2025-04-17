@@ -38,7 +38,7 @@ $sql = "SELECT
             id LIKE ? OR descripcion LIKE ?
         ORDER BY
             descripcion
-        LIMIT 50";
+        LIMIT 10";
 
 // Preparar la declaración
 $stmt = $conn->prepare($sql);

@@ -45,6 +45,7 @@ if ($conn->connect_error) {
 $conn->begin_transaction();
 
 try {
+
     // 1. Actualizar el inventario (tabla productos)
     $sqlUpdateInventario = "UPDATE productos SET 
                           existencia = existencia + ?,
@@ -72,15 +73,30 @@ try {
     );
     
     if (!$stmtInventario->execute()) {
-        throw new Exception("Error al actualizar el inventario: " . $stmtInventario->error);
+        throw new Exception("Error al actualizar el producto: " . $stmtInventario->error);
     }
     
     // Verificar si se actualizó algún registro
     if ($stmtInventario->affected_rows === 0) {
-        throw new Exception("No se encontró el producto con ID: $id_producto");
+        throw new Exception("No se encontró el producto con ID: $id_producto en productos");
+    }
+
+    // 2. Actualizar existencia en inventario
+
+    $sqlito = "UPDATE inventario SET existencia = existencia + ?, ultima_actualizacion = NOW() WHERE idProducto = ?";
+    
+    $statement = $conn->prepare($sqlito);
+    if (!$statement) {
+        throw new Exception("Error al preparar la actualización del inventario: " . $conn->error);
     }
     
-    // 2. Registrar la transaccion de inventario (tabla inventariotransacciones)
+    $statement->bind_param("di", $cantidad, $id_producto);
+    
+    if (!$statement->execute()) {
+        throw new Exception("Error al actualizar el inventario: " . $statement->error);
+    }
+    
+    // 3. Registrar la transaccion de inventario (tabla inventariotransacciones)
     $sqlTransacciones = "INSERT INTO inventariotransacciones
                         (tipo, idProducto, cantidad, fecha, descripcion, idEmpleado)
                         VALUES ('entrada', ?, ?, NOW(), ?, ?)";
@@ -105,7 +121,7 @@ try {
         throw new Exception("Error al registrar en transacciones: " . $stmtTransacciones->error);
     }
 
-    // 3. Registrar auditoria de acciones de usuario
+    // 4. Registrar auditoria de acciones de usuario
     require_once '../../models/auditorias.php';
 
     $accion = 'Entrada de producto a inventario';
@@ -128,7 +144,6 @@ try {
 
 // Cerrar conexiones
 if (isset($stmtInventario)) $stmtInventario->close();
-if (isset($stmtHistorial)) $stmtHistorial->close();
 if (isset($stmtTransacciones)) $stmtTransacciones->close();
 $conn->close();
 ?>
