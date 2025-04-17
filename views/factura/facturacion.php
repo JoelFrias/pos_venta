@@ -248,8 +248,8 @@ if ($result->num_rows > 0) {
                     </div>
                 </div>
                 <div id="botones-facturas">
-                    <button id="guardar-factura" class="footer-button" onclick="guardarFactura()">Guardar Factura</button>
-                    <button id="guardar-imprimir-factura" class="footer-button">Guardar e Imprimir</button>
+                    <button id="guardar-factura" class="footer-button" onclick="guardarFactura(false)">Guardar Factura</button>
+                    <button id="guardar-imprimir-factura" class="footer-button" onclick="guardarFactura(true)">Guardar e Imprimir</button>
                 </div>
             </div>
         
@@ -599,7 +599,7 @@ if ($result->num_rows > 0) {
 
     <script>
 
-        function guardarFactura() {
+        function guardarFactura(print) {
             let idCliente = document.getElementById("id-cliente").value.trim();
             let tipoFactura = document.getElementById("tipo-factura").value.trim();
             let formaPago = document.getElementById("forma-pago").value.trim();
@@ -654,7 +654,7 @@ if ($result->num_rows > 0) {
             }
 
             // Validar campos con tarjeta
-            if (formaPago == "tarjeta" && (!numeroTarjeta || !numeroAutorizacion || banco == "1" || destino  == "1")){
+            if (formaPago == "tarjeta" && (!numeroTarjeta || !numeroAutorizacion || banco == "1" || destino == "1")){
                 Swal.fire({
                     icon: 'warning',
                     title: 'Validación',
@@ -666,7 +666,7 @@ if ($result->num_rows > 0) {
             }
 
             // Validar campos por transferencia
-            if (formaPago == "transferencia" && (!numeroAutorizacion || banco == "1" || banco == "1")){
+            if (formaPago == "transferencia" && (!numeroAutorizacion || banco == "1" || destino == "1")){
                 Swal.fire({
                     icon: 'warning',
                     title: 'Validación',
@@ -700,6 +700,7 @@ if ($result->num_rows > 0) {
                 });
                 return;
             }
+            
             // Validar que el monto pagado sea mayor o igual al total
             if (montoPagado < total && tipoFactura == "contado") {
                 Swal.fire({
@@ -725,7 +726,9 @@ if ($result->num_rows > 0) {
                 productos
             };
 
-            // console.log("Enviando datos:", datos);
+            // Deshabilitar botones para evitar doble envío
+            document.getElementById("guardar-factura").disabled = true;
+            document.getElementById("guardar-imprimir-factura").disabled = true;
 
             fetch("../../controllers/facturacion/facturacion_guardar.php", {
                 method: "POST",
@@ -734,36 +737,52 @@ if ($result->num_rows > 0) {
             })
             .then(response => response.text())
             .then(text => {
-                // console.log("Respuesta completa del servidor:", text);
                 try {
                     let data = JSON.parse(text);
                     if (data.success) {
-
                         // Cerrar el modal de procesar factura
                         document.getElementById("modal-procesar-factura").style.display = "none";
                         
-                        // Mostrar mensaje de éxito
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Factura #' + data.numFactura,
-                            text: 'Factura Guardada Exitosamente',
-                            showConfirmButton: true,
-                            confirmButtonText: 'Aceptar'
-                        }).then(() => {
-                            location.reload();
-                        });
-
+                        if (!print) {
+                            // Solo mostrar mensaje de éxito si no se imprime
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Factura #' + data.numFactura,
+                                text: 'Factura Guardada Exitosamente',
+                                showConfirmButton: true,
+                                confirmButtonText: 'Aceptar'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            // Abrir el reporte en una nueva ventana y recargar la página actual
+                            const invoiceUrl = `../../pdf/factura.php?factura=${data.numFactura}`;
+                            window.open(invoiceUrl, '_blank');
+                            
+                            // Pequeña demora antes de recargar para asegurar que la ventana se abra
+                            setTimeout(() => {
+                                location.reload();
+                            }, 500);
+                        }
                     } else {
+                        // Rehabilitar botones en caso de error
+                        document.getElementById("guardar-factura").disabled = false;
+                        document.getElementById("guardar-imprimir-factura").disabled = false;
+                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: data.error,
+                            text: data.error || 'Error al guardar la factura',
                             showConfirmButton: true,
                             confirmButtonText: 'Aceptar'
                         });
                         console.log("Error al guardar la factura:", data.error);
                     }
                 } catch (error) {
+                    // Rehabilitar botones en caso de error
+                    document.getElementById("guardar-factura").disabled = false;
+                    document.getElementById("guardar-imprimir-factura").disabled = false;
+                    
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -775,6 +794,10 @@ if ($result->num_rows > 0) {
                 }
             })
             .catch(error => {
+                // Rehabilitar botones en caso de error
+                document.getElementById("guardar-factura").disabled = false;
+                document.getElementById("guardar-imprimir-factura").disabled = false;
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -823,9 +846,6 @@ if ($result->num_rows > 0) {
             
             // Filtrar al escribir en el campo (búsqueda en tiempo real)
             searchInput.addEventListener("keyup", filterProducts);
-            
-            // Filtrar al hacer clic en el botón de búsqueda
-            searchButton.addEventListener("click", filterProducts);
             
             // También filtrar si se presiona Enter en el campo de búsqueda
             searchInput.addEventListener("keypress", function(event) {

@@ -531,9 +531,6 @@ if ($result->num_rows > 0) {
             // Filtrar al escribir en el campo (búsqueda en tiempo real)
             searchInput.addEventListener("keyup", filterProducts);
             
-            // Filtrar al hacer clic en el botón de búsqueda
-            searchButton.addEventListener("click", filterProducts);
-            
             // También filtrar si se presiona Enter en el campo de búsqueda
             searchInput.addEventListener("keypress", function(event) {
                 if (event.key === "Enter") {
