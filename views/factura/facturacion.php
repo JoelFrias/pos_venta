@@ -756,7 +756,7 @@ if ($result->num_rows > 0) {
                             });
                         } else {
                             // Abrir el reporte en una nueva ventana y recargar la página actual
-                            const invoiceUrl = `../../pdf/factura.php?factura=${data.numFactura}`;
+                            const invoiceUrl = `../../pdf/factura/factura.php?factura=${data.numFactura}`;
                             window.open(invoiceUrl, '_blank');
                             
                             // Pequeña demora antes de recargar para asegurar que la ventana se abra

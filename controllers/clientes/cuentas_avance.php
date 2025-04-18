@@ -358,14 +358,18 @@ try {
         throw new Exception("Error al preparar inserción de pago: " . $conn->error, 4001);
     }
     
-    $pstPago->bind_param("isisdssss", $idCliente, $_SESSION['numCaja'],$idEmpleado, $formaPago, $montoPagado1, $numeroAutorizacion, $numeroTarjeta, $banco, $destino);
+    $pstPago->bind_param("isisdssss", $idCliente, $_SESSION['numCaja'], $idEmpleado, $formaPago, $montoPagado1, $numeroAutorizacion, $numeroTarjeta, $banco, $destino);
     if (!$pstPago->execute()) {
         throw new Exception("Error al registrar el pago: " . $pstPago->error, 4002);
     }
-
+    
     if ($pstPago->affected_rows === 0) {
         throw new Exception("No se pudo registrar el pago en el historial", 4003);
     }
+    
+    // Obtener el ID autoincremental del campo 'registro'
+    $idRegistro = $conn->insert_id;
+    
 
     /**
      *      4. Registrar ingreso en caja
@@ -419,7 +423,8 @@ try {
         'data' => [
             'idCliente' => $idCliente,
             'balance_disponible' => $balanceDisponible,
-            'monto_aplicado' => $data['montoPagado']
+            'monto_aplicado' => $data['montoPagado'],
+            'idRegistro' => $idRegistro
         ]
     ]);
 

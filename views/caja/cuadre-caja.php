@@ -960,8 +960,10 @@
         }
 
         function imprimirReporte(id) {
-            window.open(`imprimir_cuadre.php?id=${id}`, '_blank');
+            const invoiceUrl = `../../pdf/cuadre/cuadre.php?numCaja=${id}`;
+            window.open(invoiceUrl, '_blank');
         }
+
     </script>
 
 <?php

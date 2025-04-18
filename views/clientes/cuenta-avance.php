@@ -270,8 +270,8 @@
                             <span id="devuelta">RD$ .00</span>
                         </div>
                         <div class="button-group">
-                            <button class="btn btn-primary" onclick="procesarPago()">Procesar Pago</button>
-                            <button class="btn btn-secondary">Procesar e Imprimir</button>
+                            <button class="btn btn-primary" onclick="procesarPago(false)">Procesar Pago</button>
+                            <button class="btn btn-secondary" onclick="procesarPago(true)">Procesar e Imprimir</button>
                         </div>
                     </div>
                 </div>
@@ -539,7 +539,7 @@
             }
         }
 
-        function procesarPago() {
+        function procesarPago(print) {
             let idCliente = <?php echo $idCliente ?>;
             let formaPago = document.getElementById("forma-pago").value;
             let numeroTarjeta = document.getElementById("num-tarjeta").value;
@@ -615,10 +615,10 @@
                 numeroTarjeta: numeroTarjeta || null, 
                 numeroAutorizacion: numeroAutorizacion || null, 
                 banco: banco || null,
-                destino: destino || null,
+                destino: destino || null
             };
 
-            fetch("../../controllers/gestion/cuentas_avance.php", {
+            fetch("../../controllers/clientes/cuentas_avance.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(datos)
@@ -630,16 +630,23 @@
                     let data = JSON.parse(text);
                     if (data.success) {
 
-                        // Mostrar mensaje de éxito
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Éxito',
-                            text: 'Pago realizado exitosamente.',
-                            showConfirmButton: true,
-                            confirmButtonText: 'Aceptar'
-                        }).then(() => {
+                        if(print) {
+                            const invoiceUrl = `../../pdf/cliente/avance.php?registro=${data.data.idRegistro}`;
+                            window.open(invoiceUrl, '_blank');
+                            
                             location.reload();
-                        });
+                        } else {
+                            // Mostrar mensaje de éxito
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Éxito',
+                                text: 'Pago realizado exitosamente.',
+                                showConfirmButton: true,
+                                confirmButtonText: 'Aceptar'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        }
 
                     } else {
                         Swal.fire({

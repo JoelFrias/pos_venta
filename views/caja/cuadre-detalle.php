@@ -603,7 +603,7 @@ $stmt_egresos->close();
                         </div>
 
                         <div class="actions-container mt-4 text-center">
-                            <button class="btn btn-primary me-2 mb-2 mb-md-0" onclick="window.print()"><i class="bi bi-printer me-2"></i> Imprimir Reporte</button>
+                            <button class="btn btn-primary me-2 mb-2 mb-md-0" onclick="imprimirReporte('<?= $numCaja ?>')"><i class="bi bi-printer me-2"></i> Imprimir Reporte</button>
                             <a href="javascript:history.back()" class="btn btn-secondary mb-2 mb-md-0"><i class="bi bi-arrow-left me-2"></i> Volver</a>
                         </div>
                         <?php else: ?>
@@ -626,6 +626,14 @@ $stmt_egresos->close();
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function imprimirReporte(id) {
+            const invoiceUrl = `../../pdf/caja/cuadre.php?numCaja=${id}`;
+            window.open(invoiceUrl, '_blank');
+        }
+    </script>
+
 </body>
 </html>
 <?php

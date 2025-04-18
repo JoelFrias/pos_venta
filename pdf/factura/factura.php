@@ -1,9 +1,9 @@
 <?php
 // Set proper header for PDF output
 header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="factura_ysapelli.pdf"');
+header('Content-Disposition: inline; filename="refactura_ysapelli.pdf"');
 
-require('../libs/fpdf/fpdf.php');
+require('../../libs/fpdf/fpdf.php');
 
 // Custom PDF class for narrow receipts (3 inches = 76.2mm)
 class ReceiptPDF extends FPDF {
@@ -22,7 +22,12 @@ class ReceiptPDF extends FPDF {
 }
 
 // Database connection
-require('../models/conexion.php');
+require('../../models/conexion.php');
+
+// Ensure database connection is UTF-8
+if (method_exists($conn, 'set_charset')) {
+    $conn->set_charset("utf8");
+}
 
 // Validate and sanitize input - Use prepared statements for all queries
 $invoice_id = isset($_GET['factura']) ? intval($_GET['factura']) : 0;
@@ -114,7 +119,7 @@ try {
         $pdf = new ReceiptPDF('P', 'mm', array(76.2, 297)); // 3 inches width (76.2mm)
         
         // Set PDF document properties (will appear in PDF reader's title bar)
-        $pdf->SetDocumentTitle("YSAPELLI Factura #" . $invoice['numf']);
+        $pdf->SetDocumentTitle("YSAPELLI ReFactura #" . $invoice['numf']);
         $pdf->SetAuthor('YSAPELLI');
         $pdf->SetCreator('YSAPELLI Sistema de Facturación');
         
@@ -123,10 +128,10 @@ try {
         $pdf->SetFont('Arial', 'B', 12);
         
         // Store name and info
-        $pdf->Cell(66, 6, '              ' . htmlspecialchars($info['name']), 0, 1, 'L');
+        $pdf->Cell(66, 6, '              ' . utf8_decode(htmlspecialchars($info['name'])), 0, 1, 'L');
         $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(66, 4, htmlspecialchars($info['text1']), 0, 1, 'C');
-        $pdf->Cell(66, 4, htmlspecialchars($info['text2']), 0, 1, 'C');
+        $pdf->Cell(66, 4, utf8_decode(htmlspecialchars($info['text1'])), 0, 1, 'C');
+        $pdf->Cell(66, 4, utf8_decode(htmlspecialchars($info['text2'])), 0, 1, 'C');
         
         // Date and invoice number
         $pdf->Cell(66, 4, date('d/m/Y h:i A', strtotime($invoice['fecha'])), 0, 1, 'R');
@@ -134,11 +139,11 @@ try {
         
         // Customer info
         $pdf->Cell(33, 4, 'Nombre Cliente:', 0, 0);
-        $pdf->Cell(33, 4, htmlspecialchars($invoice['nombrec']), 0, 1);
+        $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['nombrec'])), 0, 1);
         $pdf->Cell(33, 4, 'NCF:', 0, 0);
         $pdf->Cell(33, 4, '0', 0, 1);
         $pdf->Cell(33, 4, 'Tipo de Factura:', 0, 0);
-        $pdf->Cell(33, 4, htmlspecialchars($invoice['tipof']), 0, 1);
+        $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['tipof'])), 0, 1);
         $pdf->Ln(3);
     
         // Numero de Factura
@@ -148,8 +153,8 @@ try {
         
         // Header for items
         $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(40, 4, 'DESCRIPCION', 0, 0);
-        $pdf->Cell(13, 4, 'IMPORTE', 0, 1, 'R');
+        $pdf->Cell(40, 4, utf8_decode('Productos Facturados:'), 0, 0);
+        $pdf->Cell(13, 4, '', 0, 1, 'R');
         $pdf->Line(5, $pdf->GetY(), 71.2, $pdf->GetY());
         $pdf->Ln(1);
         
@@ -159,14 +164,14 @@ try {
         
         if ($result_items->num_rows > 0) {
             while($item = $result_items->fetch_assoc()) {
-                $pdf->Cell(40, 4, htmlspecialchars($item['descripcionp']), 0, 0);
-                $pdf->Cell(13, 4, number_format($item['importep'], 2), 0, 1, 'R');
-                $pdf->Cell(66, 4, $item['cantidadp'] . ' x ' . number_format($item['precioVenta'], 2), 0, 1);
+                $pdf->Cell(40, 4, utf8_decode(htmlspecialchars($item['descripcionp'])), 0, 0);
+                $pdf->Ln(3);
+                $pdf->Cell(26, 4, $item['cantidadp'].' x '.number_format($item['precioVenta'], 2).' = '.number_format($item['importep'], 2), 0, 1, 'R');
                 
                 $subtotal += $item['importep'];
             }
         }
-        
+
         $pdf->Ln(1);
         $pdf->Line(5, $pdf->GetY(), 71.2, $pdf->GetY());
         $pdf->Ln(1);
@@ -190,7 +195,7 @@ try {
     
         $pdf->Cell(40, 4, '', 0, 0);
         $pdf->Cell(13, 4, 'Meto.:', 0, 0, 'L');
-        $pdf->Cell(13, 4, htmlspecialchars($invoice['metodof']), 0, 1, 'R');
+        $pdf->Cell(13, 4, utf8_decode(htmlspecialchars($invoice['metodof'])), 0, 1, 'R');
     
         $pdf->Cell(40, 4, '', 0, 0);
         $pdf->Cell(13, 4, 'Monto.:', 0, 0, 'L');
@@ -203,11 +208,11 @@ try {
         // Footer text
         $pdf->Ln(5);
         $pdf->SetFont('Arial', '', 7);
-        $pdf->MultiCell(66, 3, htmlspecialchars($info['text3']), 0, 'C');
+        $pdf->MultiCell(66, 3, utf8_decode(htmlspecialchars($info['text3'])), 0, 'C');
         
         $pdf->Ln(5);
-        $pdf->Cell(33, 4, 'Le atendio:', 0, 0);
-        $pdf->Cell(33, 4, htmlspecialchars($invoice['nombree']), 0, 1);
+        $pdf->Cell(33, 4, utf8_decode('Le atendió:'), 0, 0);
+        $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['nombree'])), 0, 1);
         
         // Close statement
         $stmt_items->close();

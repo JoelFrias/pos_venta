@@ -913,7 +913,7 @@ if ($result->num_rows > 0) {
                                     ?>
 
                                     <div class="action-buttons">
-                                        <button class="btn-secondary">
+                                        <button class="btn-secondary" onclick="reimprimir()">
                                             <span class="printer-icon">🖨️</span>
                                             Reimprimir
                                         </button>
@@ -925,7 +925,7 @@ if ($result->num_rows > 0) {
                                             </button>
                                         <?php endif ?>
 
-                                        <button class="btn-primary" onclick="navigateTo('../../views/gestion/cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
+                                        <button class="btn-primary" onclick="navigateTo('../../views/clientes/cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
                                         
                                     </div>
                                 </div>
@@ -1063,6 +1063,12 @@ if ($result->num_rows > 0) {
                 });
             }
         });
+
+        function reimprimir(){
+            const invoiceUrl = `../../pdf/factura/refactura.php?factura=` + <?= $numFactura ?>;
+            window.open(invoiceUrl, '_blank');
+        }
+
     </script>
 </body>
 </html>
