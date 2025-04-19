@@ -41,6 +41,12 @@
     $stmtd->execute();
     $resultsd = $stmtd->get_result();
 
+    // info factura
+    $stmtif = $conn->prepare("SELECT * FROM infofactura");
+    $stmtif->execute();
+    $resultsif = $stmtif->get_result();
+    $rowif = $resultsif->fetch_assoc()
+
 ?>
 
 <!DOCTYPE html>
@@ -647,6 +653,168 @@
                 display: none;
             }
         }
+
+        .open-modal-btn-infoInvoice {
+            padding: 12px 24px;
+            background-color: #4361ee;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 50px auto;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        
+        .open-modal-btn-infoInvoice:hover {
+            background-color: #3a56d4;
+        }
+        
+        /* Fondo del modal */
+        .modal-overlay-infoInvoice {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        /* Contenedor del modal */
+        .modal-container-infoInvoice {
+            background-color: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            position: relative;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        
+        .modal-active-infoInvoice .modal-container-infoInvoice {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* Encabezado del modal */
+        .modal-header-infoInvoice {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title-infoInvoice {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .close-modal-btn-infoInvoice {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        /* Cuerpo del modal */
+        .modal-body-infoInvoice {
+            margin-bottom: 20px;
+        }
+        
+        .input-group-infoInvoice {
+            margin-bottom: 18px;
+        }
+        
+        .input-group-infoInvoice label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: #555;
+        }
+        
+        .input-group-infoInvoice input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group-infoInvoice input:focus {
+            outline: none;
+            border-color: #4361ee;
+        }
+        
+        /* Pie del modal */
+        .modal-footer-infoInvoice {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .submit-btn-infoInvoice {
+            padding: 12px 24px;
+            background-color: #4361ee;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-btn-infoInvoice:hover {
+            background-color: #3a56d4;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modal-container-infoInvoice {
+                padding: 20px;
+            }
+            
+            .modal-title-infoInvoice {
+                font-size: 20px;
+            }
+            
+            .input-group-infoInvoice input, 
+            .submit-btn-infoInvoice {
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .modal-container-infoInvoice {
+                padding: 16px;
+            }
+            
+            .modal-title-infoInvoice {
+                font-size: 18px;
+            }
+            
+            .modal-footer-infoInvoice {
+                justify-content: center;
+            }
+            
+            .submit-btn-infoInvoice {
+                width: 100%;
+            }
+        }
+        
+        /* Clases para mostrar el modal */
+        .modal-active-infoInvoice {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -700,6 +868,9 @@
                 </div>
                 <div id="div-employees">
                     <button id="manager-employees" onclick="redirectEmployee()">Administrar Empleados</button>
+                </div>
+                <div id="div-infoInvoice">
+                    <button class="manager-infoInvoice">Informacion en Factura</button>
                 </div>
                 <div id="div-cashiers">
                     <button id="manager-cashiers" onclick="redirectCuadre()">Cuadres de Caja</button>
@@ -898,6 +1069,33 @@
                 <button id="update-edit-destination" onclick="updateDestination()">Actualizar</button>
                 <button id="cancel-edit-destination">Cancelar</button>
 
+            </div>
+
+            <!-- Modal para info Factura -->
+            <div class="modal-overlay-infoInvoice" id="modal-overlay-infoInvoice">
+                <div class="modal-container-infoInvoice">
+                    <div class="modal-header-infoInvoice">
+                        <h2 class="modal-title-infoInvoice">Informacion en Factura</h2>
+                        <button class="close-modal-btn-infoInvoice" id="closeModalBtn-infoInvoice">&times;</button>
+                    </div>
+                    <div class="modal-body-infoInvoice">
+                        <div class="input-group-infoInvoice">
+                            <label for="texto1-infoInvoice">Texto 1</label>
+                            <input type="text" id="texto1-infoInvoice" placeholder="Ingrese el primer texto" value="<?= $rowif['text1'] ?>">
+                        </div>
+                        <div class="input-group-infoInvoice">
+                            <label for="texto2-infoInvoice">Texto 2</label>
+                            <input type="text" id="texto2-infoInvoice" placeholder="Ingrese el segundo texto" value="<?= $rowif['text2'] ?>">
+                        </div>
+                        <div class="input-group-infoInvoice">
+                            <label for="texto3-infoInvoice">Texto 3</label>
+                            <input type="text" id="texto3-infoInvoice" placeholder="Ingrese el tercer texto" value="<?= $rowif['text3'] ?>">
+                        </div>
+                    </div>
+                    <div class="modal-footer-infoInvoice">
+                        <button class="submit-btn-infoInvoice" id="submitBtn-infoInvoice">Enviar</button>
+                    </div>
+                </div>
             </div>
 
             <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR POR ENCIMA DE ESTA LINEA -->
@@ -1172,6 +1370,67 @@
                             confirmButtonText: 'Aceptar'
                         });
                         console.log("Error al actualizar destino:", data.error);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Se produjo un error inesperado en el servidor.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                    console.error("Error: Respuesta no es JSON válido:", text);
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Se produjo un error de red o en el servidor. Por favor, inténtelo de nuevo.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+                console.error("Error de red o servidor:", error);
+            });
+        }
+
+        function updateInfoInvoice(text1, text2, text3){
+            
+            const datos = {
+                text1: text1,
+                text2: text2,
+                text3: text3
+            };
+
+            fetch("../../controllers/admin/info-factura.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    let data = JSON.parse(text);
+                    if (data.success) {
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Éxito',
+                            text: 'Informacion Actualizada Correctamente.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error,
+                            showConfirmButton: true,
+                            confirmButtonText: 'Aceptar'
+                        });
+                        console.log("Error al borrar el destino:", data.error);
                     }
                 } catch (error) {
                     Swal.fire({
@@ -1694,6 +1953,64 @@
                     removeOverlay();
                 }
             });
+
+            // MODAL INFO FACT
+
+            // Referencias a elementos DOM
+            const openModalBtn = document.querySelector('.manager-infoInvoice');
+            const modalOverlay = document.getElementById('modal-overlay-infoInvoice');
+            const closeModalBtn = document.getElementById('closeModalBtn-infoInvoice');
+            const submitBtn = document.getElementById('submitBtn-infoInvoice');
+            
+            // Función para abrir el modal
+            function openModal() {
+                modalOverlay.classList.add('modal-active-infoInvoice');
+            }
+            
+            // Función para cerrar el modal
+            function closeModal() {
+                modalOverlay.classList.remove('modal-active-infoInvoice');
+                
+                // Limpia los campos al cerrar
+                document.getElementById('texto1-infoInvoice').value = '';
+                document.getElementById('texto2-infoInvoice').value = '';
+                document.getElementById('texto3-infoInvoice').value = '';
+            }
+            
+            // Función para manejar el envío
+            function handleSubmit() {
+                // Capturar los valores de los campos
+                const texto1 = document.getElementById('texto1-infoInvoice').value;
+                const texto2 = document.getElementById('texto2-infoInvoice').value;
+                const texto3 = document.getElementById('texto3-infoInvoice').value;
+                
+                // Opcional: Cerrar el modal después de enviar
+                closeModal();
+                
+                // Funcion para procesar datos
+                updateInfoInvoice(texto1, texto2, texto3);
+
+            }
+            
+            // Event listeners
+            openModalBtn.addEventListener('click', openModal);
+            closeModalBtn.addEventListener('click', closeModal);
+            submitBtn.addEventListener('click', handleSubmit);
+            
+            // Cerrar el modal al hacer clic fuera de él
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+            
+            // Cerrar con la tecla Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modalOverlay.classList.contains('modal-active-infoInvoice')) {
+                    closeModal();
+                }
+            });
+            
         });
     </script>
 

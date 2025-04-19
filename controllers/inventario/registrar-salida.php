@@ -22,12 +22,6 @@ if (!isset($data['id_producto']) || !isset($data['cantidad']) || $data['cantidad
     exit();
 }
 
-// Limpiar y preparar los datos
-$id_producto = filter_var($data['id_producto'], FILTER_SANITIZE_NUMBER_INT);
-$cantidad = filter_var($data['cantidad'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-$motivo = filter_var($data['motivo'], FILTER_SANITIZE_STRING);
-$detalles = isset($data['detalles']) ? filter_var($data['detalles'], FILTER_SANITIZE_STRING) : '';
-
 // Configuración de la conexión a la base de datos
 require_once '../../models/conexion.php';
 
@@ -42,7 +36,25 @@ if ($conn->connect_error) {
 $conn->begin_transaction();
 
 try {
-    // 1. Verificar si hay suficiente existencia
+    // Validaciones esenciales
+    $requiredFields = ['id_producto','cantidad','motivo', 'detalles'];
+    $missingFields = [];
+    foreach ($requiredFields as $field) {
+        if (empty($data[$field])) {
+            $missingFields[] = $field;
+        }
+    }
+    if (!empty($missingFields)) {
+        throw new Exception("Campos obligatorios faltantes: " . implode(', ', $missingFields), 1001);
+    }
+
+    // Limpiar y preparar los datos
+    $id_producto = filter_var($data['id_producto'], FILTER_SANITIZE_NUMBER_INT);
+    $cantidad = filter_var($data['cantidad'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+    $motivo = filter_var($data['motivo'], FILTER_SANITIZE_STRING);
+    $detalles = isset($data['detalles']) ? filter_var($data['detalles'], FILTER_SANITIZE_STRING) : '';
+
+    // 1. Verificar si hay suficiente existencia - CORREGIDO el método de obtener resultado
     $sqlVerificar = "SELECT existencia FROM inventario WHERE idProducto = ?";
     $stmtVerificar = $conn->prepare($sqlVerificar);
     if (!$stmtVerificar) {
@@ -54,11 +66,14 @@ try {
         throw new Exception("Error al verificar existencia: " . $stmtVerificar->error);
     }
     
-    $stmtVerificar->bind_result($existencia);
-    if (!$stmtVerificar->fetch()) {
+    // Cambio en la forma de obtener el resultado - usando get_result() en lugar de bind_result()
+    $resultVerificar = $stmtVerificar->get_result();
+    if ($resultVerificar->num_rows === 0) {
         throw new Exception("No se encontró el producto con ID: $id_producto");
     }
     
+    $row = $resultVerificar->fetch_assoc();
+    $existencia = $row['existencia'];
     $stmtVerificar->close();
     
     // Verificar si hay suficiente stock
@@ -73,11 +88,16 @@ try {
     
     $stmtInventario = $conn->prepare($sqlUpdateInventario);
     if (!$stmtInventario) {
-        throw new Exception("Error al preparar la actualización del inventario: " . $conn->error);
+        throw new Exception("Error al preparar la actualización del inventario de productos: " . $conn->error);
     }
-
-    // 2. Actualizar existencia en inventario
-
+    
+    $stmtInventario->bind_param("di", $cantidad, $id_producto);
+    
+    if (!$stmtInventario->execute()) {
+        throw new Exception("Error al actualizar el inventario de productos: " . $stmtInventario->error);
+    }
+    
+    // 3. Actualizar existencia en tabla inventario
     $sqlito = "UPDATE inventario SET existencia = existencia - ?, ultima_actualizacion = NOW() WHERE idProducto = ?";
     
     $statement = $conn->prepare($sqlito);
@@ -91,18 +111,7 @@ try {
         throw new Exception("Error al actualizar el inventario: " . $statement->error);
     }
     
-    $stmtInventario = $conn->prepare($sqlUpdateInventario);
-    if (!$stmtInventario) {
-        throw new Exception("Error al preparar la actualización del inventario: " . $conn->error);
-    }
-    
-    $stmtInventario->bind_param("di", $cantidad, $id_producto);
-    
-    if (!$stmtInventario->execute()) {
-        throw new Exception("Error al actualizar el inventario: " . $stmtInventario->error);
-    }
-    
-    // 3. Registrar la salida en el historial
+    // 4. Registrar la salida en el historial
     $sqlHistorial = "INSERT INTO inventariotransacciones 
                     (idProducto, tipo, cantidad, idEmpleado, fecha, descripcion)
                     VALUES (?, 'salida', ?, ?, NOW(), ?)";
@@ -114,13 +123,13 @@ try {
     
     $usuario = $_SESSION['idEmpleado'];
     $descripcion = "Motivo: " . $motivo . " Detalles: " . $detalles;
-    $stmtHistorial->bind_param("idss", $id_producto, $cantidad, $usuario, $descripcion);
+    $stmtHistorial->bind_param("idis", $id_producto, $cantidad, $usuario, $descripcion);
     
     if (!$stmtHistorial->execute()) {
         throw new Exception("Error al registrar en historial: " . $stmtHistorial->error);
     }
 
-    // 4. Registrar auditoria de acciones de usuario
+    // 5. Registrar auditoria de acciones de usuario
     require_once '../../models/auditorias.php';
 
     $accion = 'Salida de productos de Inventario';
@@ -143,6 +152,7 @@ try {
 
 // Cerrar conexiones
 if (isset($stmtInventario)) $stmtInventario->close();
+if (isset($statement)) $statement->close();
 if (isset($stmtHistorial)) $stmtHistorial->close();
 $conn->close();
 ?>

@@ -27,15 +27,18 @@ if ($conn->connect_error) {
 $sql = "SELECT
             p.id,
             p.descripcion,
-            p.existencia,
+            i.existencia,
             p.precioCompra,
             p.precioVenta1,
             p.precioVenta2,
             p.reorden
         FROM
             productos AS p
+        JOIN inventario AS i ON
+            i.idProducto = p.id
         WHERE
-            id LIKE ? OR descripcion LIKE ?
+            (id LIKE ? OR descripcion LIKE ?) AND
+            i.existencia > 0
         ORDER BY
             descripcion
         LIMIT 10";

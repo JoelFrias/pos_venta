@@ -34,7 +34,8 @@ try {
     $sql = "SELECT
                 f.estado AS estado,
                 f.total AS total,
-                f.idCliente AS idCliente
+                f.idCliente AS idCliente,
+                f.idEmpleado AS idEmpleado
             FROM
                 facturas AS f
             WHERE
@@ -54,6 +55,8 @@ try {
     if ($factura['estado'] === 'Cancelada') {
         throw new Exception('Esta factura ya ha sido cancelada');
     }
+
+    $idEmpleadoi = $factura['idEmpleado'];
 
     $sqlCaja = "SELECT
                     CASE 
@@ -174,8 +177,101 @@ try {
         throw new Exception("Error actualizando balance del cliente: " . $stmt->error);
     }
 
-    // Registrar auditoria de acciones de usuario
+    // Devolver productos al inventario del empleado
+    $sqldevb = "SELECT
+                    fd.idProducto as id,
+                    fd.cantidad as cantidad
+                FROM
+                    facturas_detalles fd
+                WHERE
+                    fd.numFactura = ?";
+
+    $stmtdevb = $conn->prepare($sqldevb);
+    if (!$stmtdevb) {
+        throw new Exception("Error preparando consulta de productos: " . $conn->error);
+    }
+
+    $stmtdevb->bind_param("i", $numFactura);
+    if (!$stmtdevb->execute()) {
+        throw new Exception("Error ejecutando consulta de productos: " . $stmtdevb->error);
+    }
+
+    $resultdevb = $stmtdevb->get_result();
+    if ($resultdevb->num_rows === 0) {
+        throw new Exception('Error buscando los productos a devolver');
+    }
+
+    // Requerir Auditoria
     require_once '../../models/auditorias.php';
+
+    foreach ($resultdevb as $resultb) {
+        // Actualizar inventario de empleados
+        $sqlCheck = "SELECT idProducto FROM inventarioempleados WHERE idProducto = ? AND idEmpleado = ? LIMIT 1";
+        $stmtCheck = $conn->prepare($sqlCheck);
+        if (!$stmtCheck) {
+            throw new Exception("Error preparando verificación de inventario: " . $conn->error);
+        }
+
+        $stmtCheck->bind_param("ii", $resultb['id'], $idEmpleadoi);
+        $stmtCheck->execute();
+        $resultCheck = $stmtCheck->get_result();
+
+        if ($resultCheck->num_rows > 0) {
+            // Existe, entonces actualizar
+            $sqldeva = "UPDATE inventarioempleados SET cantidad = cantidad + ? WHERE idProducto = ? AND idEmpleado = ?";
+            $stmtdeva = $conn->prepare($sqldeva);
+            if (!$stmtdeva) {
+                throw new Exception("Error preparando actualización de inventario de empleado: " . $conn->error);
+            }
+            
+            $stmtdeva->bind_param("iii", $resultb['cantidad'], $resultb['id'], $idEmpleadoi);
+            if (!$stmtdeva->execute()) {
+                throw new Exception("Error actualizando inventario de empleado: " . $stmtdeva->error);
+            }
+        } else {
+            // No existe, entonces insertar
+            $sqlInsert = "INSERT INTO inventarioempleados (idProducto, idEmpleado, cantidad) VALUES (?, ?, ?)";
+            $stmtInsert = $conn->prepare($sqlInsert);
+            if (!$stmtInsert) {
+                throw new Exception("Error preparando inserción en inventario: " . $conn->error);
+            }
+            
+            $stmtInsert->bind_param("iii", $resultb['id'], $idEmpleadoi, $resultb['cantidad']);
+            if (!$stmtInsert->execute()) {
+                throw new Exception("Error insertando en inventario de empleado: " . $stmtInsert->error);
+            }
+        }
+
+        // Actualizar existencia en productos
+        $sqldevp = "UPDATE productos SET existencia = existencia + ? WHERE id = ?";
+        $stmtdevp = $conn->prepare($sqldevp);
+        if (!$stmtdevp) {
+            throw new Exception("Error preparando actualización de existencia: " . $conn->error);
+        }
+        
+        $stmtdevp->bind_param("ii", $resultb['cantidad'], $resultb['id']);
+        if (!$stmtdevp->execute()) {
+            throw new Exception("Error actualizando existencia del producto: " . $stmtdevp->error);
+        }
+
+        // Registrar transacción en inventario
+        $stmtdevit = $conn->prepare("INSERT INTO inventariotransacciones (tipo, idProducto, cantidad, fecha, descripcion, idEmpleado) VALUES ('retorno', ?, ?, NOW(), 'Retorno por factura cancelada #".$numFactura."', ?)");
+        if (!$stmtdevit) {
+            throw new Exception("Error preparando registro de transacción de inventario: " . $conn->error);
+        }
+
+        $stmtdevit->bind_param('iii', $resultb['id'], $resultb['cantidad'], $_SESSION['idEmpleado']);
+        if (!$stmtdevit->execute()) {
+            throw new Exception("Error al registrar la transacción de inventario del producto ID: " . $resultb['id'] . " - " . $stmtdevit->error);
+        }
+
+        // Verificar si se realizó la inserción
+        if ($stmtdevit->affected_rows === 0) {
+            throw new Exception("No se registró la transacción de inventario para el producto ID: " . $resultb['id']);
+        }
+    }
+
+    // Registrar auditoria de acciones de usuario
 
     $usuario = $_SESSION['idEmpleado'];
     $accion = 'Cancelacion de factura';

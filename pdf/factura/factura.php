@@ -63,6 +63,7 @@ try {
                 f.numFactura AS numf,
                 f.descuento AS descuentof,
                 CONCAT(e.nombre, ' ', e.apellido) AS nombree,
+                c.empresa AS empresac,
                 f.tipoFactura AS tipof,
                 fm.metodo AS metodof,
                 fm.monto AS montof,
@@ -140,6 +141,8 @@ try {
         // Customer info
         $pdf->Cell(33, 4, 'Nombre Cliente:', 0, 0);
         $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['nombrec'])), 0, 1);
+        $pdf->Cell(33, 4, 'Empresa:', 0, 0);
+        $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['empresac'])), 0, 1);
         $pdf->Cell(33, 4, 'NCF:', 0, 0);
         $pdf->Cell(33, 4, '0', 0, 1);
         $pdf->Cell(33, 4, 'Tipo de Factura:', 0, 0);
@@ -166,7 +169,7 @@ try {
             while($item = $result_items->fetch_assoc()) {
                 $pdf->Cell(40, 4, utf8_decode(htmlspecialchars($item['descripcionp'])), 0, 0);
                 $pdf->Ln(3);
-                $pdf->Cell(26, 4, $item['cantidadp'].' x '.number_format($item['precioVenta'], 2).' = '.number_format($item['importep'], 2), 0, 1, 'R');
+                $pdf->Cell(26, 4, $item['cantidadp'].' x '.number_format($item['precioVenta'], 2).' = '.number_format($item['importep'], 2), 0, 1, 'L');
                 
                 $subtotal += $item['importep'];
             }

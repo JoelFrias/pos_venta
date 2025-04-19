@@ -74,32 +74,32 @@ if ($result->num_rows > 0) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
     <style>
         
-  #regresar {
-    background-color:rgb(62, 153, 250);
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    width: auto;
-    display: inline-block;
-  }
+        #regresar {
+            background-color:rgb(62, 153, 250);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: auto;
+            display: inline-block;
+        }
 
-  #regresar:hover {
-    background-color: #0056b3;
-    transform: scale(1.02);
-  }
+        #regresar:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
 
-  /* Responsive para pantallas pequeñas */
-  @media (max-width: 768px) {
-    #regresar {
-      width: 100%;
-      display: block;
-      margin-top: 10px;
-    }
-  }
+        /* Responsive para pantallas pequeñas */
+        @media (max-width: 768px) {
+            #regresar {
+            width: 100%;
+            display: block;
+            margin-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
