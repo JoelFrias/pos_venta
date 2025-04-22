@@ -179,34 +179,45 @@ try {
         $pdf->Line(5, $pdf->GetY(), 71.2, $pdf->GetY());
         $pdf->Ln(1);
         
-        // Totals
-        $pdf->Cell(40, 4, '', 0, 0);
-        $pdf->Cell(13, 4, 'Subt.:', 0, 0, 'L');
-        $pdf->Cell(13, 4, number_format($subtotal, 2), 0, 1, 'R');
-        
-        $pdf->Cell(40, 4, '', 0, 0);
-        $pdf->Cell(13, 4, 'Desc.:', 0, 0, 'L');
-        $pdf->Cell(13, 4, number_format($invoice['descuentof'], 2), 0, 1, 'R');
-        
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(40, 4, '', 0, 0);
-        $pdf->Cell(13, 4, 'Total:', 0, 0, 'L');
-        $pdf->Cell(13, 4, number_format(($subtotal - $invoice['descuentof']), 2), 0, 1, 'R');
-    
-        // Method Payment
-        $pdf->SetFont('Arial', '', 8);
-    
-        $pdf->Cell(40, 4, '', 0, 0);
-        $pdf->Cell(13, 4, 'Meto.:', 0, 0, 'L');
-        $pdf->Cell(13, 4, utf8_decode(htmlspecialchars($invoice['metodof'])), 0, 1, 'R');
-    
-        $pdf->Cell(40, 4, '', 0, 0);
-        $pdf->Cell(13, 4, 'Monto.:', 0, 0, 'L');
-        $pdf->Cell(13, 4, number_format($invoice['montof'], 2), 0, 1, 'R');
-    
-        $pdf->Cell(40, 4, '', 0, 0);
-        $pdf->Cell(13, 4, 'Pend.:', 0, 0, 'L');
-        $pdf->Cell(13, 4, number_format($invoice['balancef'], 2), 0, 1, 'R');
+         // Totals and Payment Method
+         $pdf->SetFont('Arial', 'B', 8);
+         $pdf->Cell(66, 4, 'TOTALES', 0, 1, 'C');
+         $pdf->SetFont('Arial', '', 8);
+ 
+         // Subtotal
+         $pdf->Cell(33, 4, 'Subtotal:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format($subtotal, 2), 0, 1, 'R');
+ 
+         // Descuento
+         $pdf->Cell(33, 4, 'Descuento:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format($invoice['descuentof'], 2), 0, 1, 'R');
+ 
+         // Total en negrita
+         $pdf->SetFont('Arial', 'B', 8);
+         $pdf->Cell(33, 4, 'TOTAL:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format(($subtotal - $invoice['descuentof']), 2), 0, 1, 'R');
+ 
+         // Separación
+         $pdf->Ln(2);
+         $pdf->Line(5, $pdf->GetY(), 71.2, $pdf->GetY());
+         $pdf->Ln(2);
+ 
+         // Método de pago
+         $pdf->SetFont('Arial', 'B', 8);
+         $pdf->Cell(66, 4, utf8_decode('MÉTODO DE PAGO'), 0, 1, 'C');
+         $pdf->SetFont('Arial', '', 8);
+ 
+         // Método
+         $pdf->Cell(33, 4, utf8_decode('Método:'), 0, 0, 'L');
+         $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['metodof'])), 0, 1, 'R');
+ 
+         // Monto
+         $pdf->Cell(33, 4, 'Monto:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format($invoice['montof'], 2), 0, 1, 'R');
+ 
+         // Pendiente
+         $pdf->Cell(33, 4, 'Pendiente:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format($invoice['balancef'], 2), 0, 1, 'R');
         
         // Footer text
         $pdf->Ln(5);

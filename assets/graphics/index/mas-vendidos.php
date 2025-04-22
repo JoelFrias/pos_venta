@@ -34,7 +34,7 @@ $sql = "SELECT
         ORDER BY
             cantidad_vendida DESC
         LIMIT
-            15";
+            10";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $_SESSION['idEmpleado']);

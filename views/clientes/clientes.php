@@ -104,7 +104,7 @@ $total_registros = $row_count['total'];
 $total_paginas = ceil($total_registros / $registros_por_pagina);
 
 // Consulta principal con paginación
-$sql = "$sql_base ORDER BY c.id DESC LIMIT ?, ?";
+$sql = "$sql_base ORDER BY nombreCompleto ASC LIMIT ?, ?";
 
 // Preparar y ejecutar consulta principal
 if (!empty($params)) {
