@@ -530,58 +530,158 @@
 
         /* Estilos para el dashboard de gráficos */
         
-        #dashboard h2 {
-            margin-bottom: 25px;
-            color: #2c3e50;
-            font-size: 24px;
-            font-weight: 600;
+        /* #dashboard {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        } */
+
+        .dashboard-header {
             text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 15px;
         }
-        
+
+        .dashboard-header h2 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .dashboard-subtitle {
+            color: #6c757d;
+            font-size: 16px;
+            margin-top: 0;
+        }
+
+        .filters-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .select-styled {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            background-color: #fff;
+            font-size: 14px;
+            min-width: 150px;
+            cursor: pointer;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+        .select-styled:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .filter-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .filter-button:hover {
+            background-color: #2980b9;
+        }
+
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 25px;
         }
-        
+
         .chart-container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            background-color: #fff;
+            border-radius: 10px;
             padding: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
         .chart-container:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
-        
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .chart-header i {
+            font-size: 20px;
+            color: #3498db;
+        }
+
         .chart-title {
-            font-size: 16px;
-            font-weight: 600;
+            margin: 0;
             color: #2c3e50;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .chart-description {
+            color: #6c757d;
+            font-size: 14px;
             margin-bottom: 15px;
-            text-align: center;
         }
-        
+
         .chart-wrapper {
+            height: 280px;
             position: relative;
-            height: 300px;
-            width: 100%;
         }
-        
-        /* Responsive */
-        @media (max-width: 992px) {
+
+        /* Ajustes para pantallas pequeñas */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
             
-            .chart-container {
-                margin-bottom: 15px;
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
             }
         }
-
         /* Estilos para el menú móvil */
         .mobile-menu-toggle {
             display: none;
@@ -814,7 +914,30 @@
         /* Clases para mostrar el modal */
         .modal-active-infoInvoice {
             display: flex;
+        };
+
+        /* Mejoras para la impresión del dashboard */
+        @media print {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .chart-wrapper {
+                height: 200px;
+            }
+            
+            .filters-container,
+            .mobile-menu-toggle,
+            #buttons {
+                display: none !important;
+            }
+            
+            .chart-container {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
         }
+        </style>
     </style>
 </head>
 <body>
@@ -885,23 +1008,34 @@
 
             <!-- Dashboard de estadisticas -->
             <div id="dashboard">
-                <h2>Dashboard de Estadísticas Administrativas</h2>
+                <div class="dashboard-header">
+                    <h2>Panel de Estadísticas</h2>
+                    <p class="dashboard-subtitle">Visualización del rendimiento del negocio</p>
+                </div>
 
-                <div id="filters">
-                    <label for="months">Periodo:</label>
-                    <select name="months" id="months">
-                        <option value="current" <?php echo (isset($_GET['periodo']) && $_GET['periodo'] == 'current') ? 'selected' : ''; ?>>Mes Actual</option>
-                        <option value="previous" <?php echo (isset($_GET['periodo']) && $_GET['periodo'] == 'previous') ? 'selected' : ''; ?>>Mes Anterior</option>
-
-                    </select>
-
-                    <button id="btn-filters" name="btn-filters" onclick="recargar()"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <div id="filters" class="filters-container">
+                    <div class="filter-group">
+                        <label for="months">
+                            <i class="fas fa-calendar-alt"></i> Periodo:
+                        </label>
+                        <select name="months" id="months" class="select-styled">
+                            <option value="current" <?php echo (isset($_GET['periodo']) && $_GET['periodo'] == 'current') ? 'selected' : ''; ?>>Mes Actual</option>
+                            <option value="previous" <?php echo (isset($_GET['periodo']) && $_GET['periodo'] == 'previous') ? 'selected' : ''; ?>>Mes Anterior</option>
+                        </select>
+                        <button id="btn-filters" name="btn-filters" onclick="recargar()" class="filter-button">
+                            <i class="fa-solid fa-magnifying-glass"></i> Aplicar
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="dashboard-grid">
                     <!-- Gráfico 1: Ventas Totales -->
                     <div class="chart-container">
-                        <div class="chart-title">Ventas Totales</div>
+                        <div class="chart-header">
+                            <i class="fas fa-chart-line"></i>
+                            <h3 class="chart-title">Ventas Totales</h3>
+                        </div>
+                        <div class="chart-description">Seguimiento de las ventas diarias en el período seleccionado</div>
                         <div class="chart-wrapper">
                             <canvas id="ventas-totales"></canvas>
                         </div>
@@ -909,7 +1043,11 @@
                     
                     <!-- Gráfico 2: Ganancias Totales -->
                     <div class="chart-container">
-                        <div class="chart-title">Ganancias Totales</div>
+                        <div class="chart-header">
+                            <i class="fas fa-coins"></i>
+                            <h3 class="chart-title">Ganancias Totales</h3>
+                        </div>
+                        <div class="chart-description">Evolución de las ganancias obtenidas en el período</div>
                         <div class="chart-wrapper">
                             <canvas id="ganancias-totales"></canvas>
                         </div>
@@ -917,7 +1055,11 @@
                     
                     <!-- Gráfico 3: Ventas por Empleado -->
                     <div class="chart-container">
-                        <div class="chart-title">Ventas por Empleado</div>
+                        <div class="chart-header">
+                            <i class="fas fa-user-tag"></i>
+                            <h3 class="chart-title">Ventas por Empleado</h3>
+                        </div>
+                        <div class="chart-description">Comparación de ventas ($) generadas por cada empleado</div>
                         <div class="chart-wrapper">
                             <canvas id="ventas-empleados"></canvas>
                         </div>
@@ -925,7 +1067,11 @@
                     
                     <!-- Gráfico 4: Número de Ventas por Empleado -->
                     <div class="chart-container">
-                        <div class="chart-title">Número de Ventas por Empleado</div>
+                        <div class="chart-header">
+                            <i class="fas fa-users"></i>
+                            <h3 class="chart-title">Número de Ventas por Empleado</h3>
+                        </div>
+                        <div class="chart-description">Distribución de la cantidad de ventas realizadas</div>
                         <div class="chart-wrapper">
                             <canvas id="num-ventas-empleado"></canvas>
                         </div>
@@ -933,7 +1079,11 @@
                     
                     <!-- Gráfico 5: Productos más Vendidos -->
                     <div class="chart-container">
-                        <div class="chart-title">Productos más Vendidos</div>
+                        <div class="chart-header">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3 class="chart-title">Productos más Vendidos</h3>
+                        </div>
+                        <div class="chart-description">Ranking de productos con mayor volumen de ventas</div>
                         <div class="chart-wrapper">
                             <canvas id="productos-vendidos"></canvas>
                         </div>
@@ -941,7 +1091,11 @@
                     
                     <!-- Gráfico 6: Productos en Reorden -->
                     <div class="chart-container">
-                        <div class="chart-title">Productos en Punto de Reorden</div>
+                        <div class="chart-header">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3 class="chart-title">Productos en Punto de Reorden</h3>
+                        </div>
+                        <div class="chart-description">Productos que requieren atención en inventario</div>
                         <div class="chart-wrapper">
                             <canvas id="productos-reorden"></canvas>
                         </div>
@@ -1563,17 +1717,26 @@
 
     </script>
 
-    <!-- Script para graficos -->
+    <!-- Script para los graficos -->
     <script>
-
         function recargar() {
             window.location.href = "?periodo="+document.getElementById("months").value;
         }
 
         function cargarGraficos() {
-
             let periodo = "<?php echo isset($_GET['periodo']) ? $_GET['periodo'] : 'current'; ?>";
+            let periodoNombre = periodo === 'current' ? 'mes actual' : 'mes anterior';
+            
+            // Configuración global de Chart.js para mejorar la presentación
+            Chart.defaults.font.family = "'Poppins', 'Helvetica', 'Arial', sans-serif";
+            Chart.defaults.font.size = 12;
+            Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            Chart.defaults.plugins.tooltip.padding = 10;
+            Chart.defaults.plugins.tooltip.cornerRadius = 6;
+            Chart.defaults.plugins.tooltip.titleFont = { weight: 'bold', size: 13 };
+            Chart.defaults.plugins.legend.labels.usePointStyle = true;
 
+            // Gráfico para ventas totales
             fetch(`../../assets/graphics/admin/ventas-totales.php?periodo=${periodo}`)
             .then(response => response.json())
             .then(data => {
@@ -1588,9 +1751,11 @@
                         datasets: [{
                             label: 'Ventas Totales ($)',
                             data: ventas,
-                            backgroundColor: 'rgba(54, 150, 214, 0.92)',
-                            borderColor: 'rgba(62, 101, 127, 0.92)',
-                            borderWidth: 1
+                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                            borderColor: 'rgb(54, 162, 235)',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.7,
                         }]
                     },
                     options: {
@@ -1598,12 +1763,40 @@
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false,
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
                             }
                         },
                         plugins: {
                             legend: {
                                 display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(context.parsed.y);
+                                        }
+                                        return label;
+                                    }
+                                }
                             }
                         }
                     }
@@ -1619,6 +1812,12 @@
                 const ganancias = data.map(item => item.ganancias);
 
                 const ctx = document.getElementById('ganancias-totales').getContext('2d');
+                
+                // Crear un degradado para el área bajo la línea
+                const gradientFill = ctx.createLinearGradient(0, 0, 0, 400);
+                gradientFill.addColorStop(0, 'rgba(46, 204, 113, 0.4)');
+                gradientFill.addColorStop(1, 'rgba(46, 204, 113, 0.05)');
+                
                 new Chart(ctx, {
                     type: 'line',
                     data: {
@@ -1626,11 +1825,17 @@
                         datasets: [{
                             label: 'Ganancias Totales ($)',
                             data: ganancias,
-                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            backgroundColor: gradientFill,
                             borderColor: 'rgba(39, 174, 96, 1)',
-                            borderWidth: 2,
+                            borderWidth: 3,
                             fill: true,
-                            tension: 0.3
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: 'rgba(39, 174, 96, 1)',
+                            pointHoverRadius: 6,
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderWidth: 3
                         }]
                     },
                     options: {
@@ -1638,12 +1843,39 @@
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
                             }
                         },
                         plugins: {
                             legend: {
                                 display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(context.parsed.y);
+                                        }
+                                        return label;
+                                    }
+                                }
                             }
                         }
                     }
@@ -1666,22 +1898,59 @@
                         datasets: [{
                             label: 'Ventas Totales ($)',
                             data: ventas,
-                            backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                            backgroundColor: [
+                                'rgba(155, 89, 182, 0.8)',
+                                'rgba(142, 68, 173, 0.8)',
+                                'rgba(125, 60, 152, 0.8)',
+                                'rgba(175, 122, 197, 0.8)',
+                                'rgba(165, 105, 189, 0.8)',
+                                'rgba(195, 155, 211, 0.8)'
+                            ],
                             borderColor: 'rgba(142, 68, 173, 1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.7
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        indexAxis: 'y',  // Gráfico horizontal para mejor visualización de nombres
                         scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            },
                             y: {
-                                beginAtZero: true
+                                grid: {
+                                    display: false
+                                }
                             }
                         },
                         plugins: {
                             legend: {
                                 display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null) {
+                                            label += new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(context.parsed.x);
+                                        }
+                                        return label;
+                                    }
+                                }
                             }
                         }
                     }
@@ -1698,19 +1967,19 @@
 
                 const ctx = document.getElementById('num-ventas-empleado').getContext('2d');
                 new Chart(ctx, {
-                    type: 'pie',
+                    type: 'doughnut',  // Cambiado a doughnut para mejor visualización
                     data: {
                         labels: empleados,
                         datasets: [{
                             label: 'Número de Ventas',
                             data: ventas,
                             backgroundColor: [
-                                'rgba(255, 183, 77, 0.7)',  // Naranja suave pero vibrante
-                                'rgba(129, 199, 132, 0.7)', // Verde menta elegante
-                                'rgba(100, 181, 246, 0.7)', // Azul cielo armónico
-                                'rgba(244, 143, 177, 0.7)', // Rosa coral sutil
-                                'rgba(77, 182, 172, 0.7)',  // Verde azulado moderno
-                                'rgba(171, 71, 188, 0.7)'   // Morado pastel sofisticado
+                                'rgba(255, 183, 77, 0.8)',
+                                'rgba(129, 199, 132, 0.8)',
+                                'rgba(100, 181, 246, 0.8)',
+                                'rgba(244, 143, 177, 0.8)',
+                                'rgba(77, 182, 172, 0.8)',
+                                'rgba(171, 71, 188, 0.8)'
                             ],
                             borderColor: [
                                 'rgba(255, 183, 77, 1)',
@@ -1720,17 +1989,38 @@
                                 'rgba(77, 182, 172, 1)',
                                 'rgba(171, 71, 188, 1)'
                             ],
-                            borderWidth: 1
+                            borderWidth: 2,
+                            hoverOffset: 15
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        cutout: '65%',  // Control del tamaño del agujero interno
                         plugins: {
                             legend: {
-                                display: true,
-                                position: 'right'
+                                position: 'right',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.formattedValue;
+                                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((context.raw / total) * 100);
+                                        return `${label}: ${value} ventas (${percentage}%)`;
+                                    }
+                                }
                             }
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
                         }
                     }
                 });
@@ -1750,19 +2040,30 @@
                     data: {
                         labels: productos,
                         datasets: [{
-                            label: 'Cantidad Vendida',
+                            label: 'Unidades Vendidas',
                             data: ventas,
-                            backgroundColor: 'rgba(230, 126, 34, 0.7)',
+                            backgroundColor: 'rgba(230, 126, 34, 0.8)',
                             borderColor: 'rgba(211, 84, 0, 1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.7
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        indexAxis: 'y',  // Gráfico horizontal para mejor visualización de nombres
                         scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
                             y: {
-                                beginAtZero: true
+                                grid: {
+                                    display: false
+                                }
                             }
                         },
                         plugins: {
@@ -1788,33 +2089,71 @@
                     type: 'bar',
                     data: {
                         labels: productos,
-                        datasets: [{
+                        datasets: [
+                        {
                             label: 'Stock Actual',
                             data: stock,
-                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            backgroundColor: 'rgba(231, 76, 60, 0.8)',
                             borderColor: 'rgba(192, 57, 43, 1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.7,
+                            categoryPercentage: 0.6
                         },
                         {
                             label: 'Stock Mínimo',
                             data: stockMinimo,
-                            backgroundColor: 'rgba(241, 196, 15, 0.7)',
+                            backgroundColor: 'rgba(241, 196, 15, 0.8)',
                             borderColor: 'rgba(243, 156, 18, 1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.7,
+                            categoryPercentage: 0.6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        indexAxis: 'y',  // Gráfico horizontal para mejor visualización
                         scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                stacked: false
+                            },
                             y: {
-                                beginAtZero: true
+                                grid: {
+                                    display: false
+                                },
+                                stacked: false
                             }
                         },
                         plugins: {
                             legend: {
-                                display: true,
-                                position: 'top'
+                                position: 'top',
+                                align: 'end',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterBody: function(context) {
+                                        // Agregar información sobre el estado del producto
+                                        const index = context[0].dataIndex;
+                                        const stockActual = stock[index];
+                                        const minimo = stockMinimo[index];
+                                        if (stockActual <= minimo) {
+                                            return `⚠️ Este producto requiere reabastecimiento urgente`;
+                                        } else if (stockActual <= minimo * 1.2) {
+                                            return `⚠️ Este producto está próximo al nivel mínimo`;
+                                        }
+                                        return '';
+                                    }
+                                }
                             }
                         }
                     }
@@ -1823,8 +2162,19 @@
             .catch(error => console.error('Error cargando los datos:', error));
         }
 
-        cargarGraficos(); // Cargar graficos al entrar a la pagina
-
+        // Cargar graficos al entrar a la pagina
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarGraficos();
+            
+            // Añadir animación de entrada a los contenedores de gráficos
+            const chartContainers = document.querySelectorAll('.chart-container');
+            chartContainers.forEach((container, index) => {
+                setTimeout(() => {
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                }, 100 * index); // Efecto escalonado
+            });
+        });
     </script>
 
     <!-- Script para manipular los modales -->

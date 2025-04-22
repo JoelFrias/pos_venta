@@ -40,18 +40,24 @@ require_once 'models/conexion.php';
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>YSAPELLI</title>
     <link rel="icon" type="image/png" href="assets/img/logo-blanco.png">
-    <link rel="stylesheet" href="assets/css/menu.css"> <!-- CSS menu -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Librería de iconos -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Librería para gráficos -->
+    <link rel="stylesheet" href="assets/css/menu.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* General styles */
         :root {
-            --primary-colors: #4a6fa5;
-            --secondary-colors: #6c757d;
-            --dark-colors: #212529;
-            --border-radiuss: 8px;
-            --box-shadows: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --primary-color-i: #4a6fa5;
+            --secondary-color-i: #6c757d;
+            --accent-color-i: #3498db;
+            --success-color-i: #2ecc71;
+            --warning-color-i: #f39c12;
+            --danger-color-i: #e74c3c;
+            --dark-color-i: #2c3e50;
+            --light-color-i: #f9fafb;
+            --border-radius-i: 12px;
+            --box-shadow-i: 0 8px 15px rgba(0, 0, 0, 0.1);
+            --transition-i: all 0.3s ease;
         }
 
         body {
@@ -59,7 +65,7 @@ require_once 'models/conexion.php';
             margin: 0;
             padding: 0;
             background-color: #f9fafb;
-            color: #333;
+            color: var(--dark-color-i);
         }
 
         /* Welcome section con botón */
@@ -75,20 +81,20 @@ require_once 'models/conexion.php';
         .welcome h1 {
             font-size: 1.8rem;
             font-weight: 500;
-            color: var(--primary-colors);
+            color: var(--primary-color-i);
             margin: 0;
         }
 
         #btn-edit-profile {
             background-color: white;
             border: 1px solid #ddd;
-            border-radius: 6px;
+            border-radius: var(--border-radius-i);
             padding: 8px 16px;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition-i);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            color: var(--primary-colors);
+            color: var(--primary-color-i);
             font-weight: 500;
         }
 
@@ -102,75 +108,86 @@ require_once 'models/conexion.php';
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
-        /* Responsive adjustments para el botón */
-        @media (max-width: 992px) {
-            .welcome {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            #btn-edit-profile {
-                margin-top: 15px;
-                align-self: flex-end;
-            }
+        /* Dashboard title */
+        .dashboard-title {
+            font-size: 1.8rem;
+            color: var(--dark-color-i);
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+            font-weight: 600;
         }
 
-        /* Headings */
-        .page-content h2 {
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: var(--dark-colors);
-            margin-top: 0;
-            margin-bottom: 20px;
+        .dashboard-title:after {
+            content: '';
+            display: block;
+            width: 70px;
+            height: 3px;
+            background: var(--primary-color-i);
+            margin: 10px auto;
+            border-radius: 2px;
         }
 
         /* Filters section */
         #filters {
             display: flex;
             align-items: center;
-            padding: 15px;
-            border-radius: var(--border-radiuss);
+            padding: 15px 20px;
+            border-radius: var(--border-radius-i);
             margin-bottom: 25px;
+            background: white;
+            box-shadow: var(--box-shadow-i);
         }
 
         #filters label {
             margin-right: 10px;
-            font-weight: 500;
-            color: var(--secondary-colors);
+            font-weight: 600;
+            color: var(--dark-color-i);
         }
 
         #filters select {
-            padding: 8px 12px;
+            padding: 10px 15px;
             border: 1px solid #ddd;
-            border-radius: 6px;
+            border-radius: var(--border-radius-i);
             background-color: white;
             margin-right: 15px;
             font-size: 0.9rem;
             min-width: 150px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: var(--transition-i);
+        }
+
+        #filters select:focus {
+            border-color: var(--primary-color-i);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+            outline: none;
         }
 
         #btn-filters {
-            background-color: var(--primary-colors);
+            background-color: var(--primary-color-i);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 10px 20px;
+            border-radius: var(--border-radius-i);
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition-i);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
         }
 
         #btn-filters:hover {
             background-color: #3a5885;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
         }
 
         #btn-filters i {
-            margin-right: 5px;
+            margin-right: 8px;
         }
 
-        /* Graphics containers */
+        /* Graphics section */
         .graphics {
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
         .containers {
@@ -188,30 +205,77 @@ require_once 'models/conexion.php';
             margin-left: -15px;
         }
 
-        .col-md-6 {
+        /* Tarjetas de gráficos */
+        .chart-card {
             flex: 0 0 calc(50% - 30px);
             max-width: calc(50% - 30px);
-            padding-right: 15px;
-            padding-left: 15px;
-            margin-bottom: 30px;
-            position: relative;
+            margin: 0 15px 30px;
+            background-color: white;
+            border-radius: var(--border-radius-i);
+            box-shadow: var(--box-shadow-i);
+            overflow: hidden;
+            transition: var(--transition-i);
         }
 
-        /* Canvas containerss for charts */
-        canvas {
-            background-color: white;
-            border-radius: var(--border-radiuss);
-            box-shadow: var(--box-shadows);
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .chart-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            align-items: center;
+        }
+
+        .chart-icon {
+            margin-right: 12px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(74, 111, 165, 0.12);
+            color: var(--primary-color-i);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .chart-title {
+            margin: 0;
+            color: var(--dark-color-i);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .chart-body {
             padding: 15px;
+            position: relative;
+            height: 300px;
+        }
+
+        .no-data {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--secondary-color-i);
+        }
+
+        /* Canvas para gráficos */
+        canvas {
             width: 100% !important;
-            height: 300px !important;
+            height: 100% !important;
         }
 
         /* Responsive adjustments */
         @media (max-width: 992px) {
-            .col-md-6 {
+            .chart-card {
                 flex: 0 0 100%;
                 max-width: 100%;
+                margin: 0 0 25px;
             }
             
             #filters {
@@ -220,8 +284,9 @@ require_once 'models/conexion.php';
             }
             
             #filters select {
-                margin-bottom: 10px;
+                margin-bottom: 15px;
                 width: 100%;
+                margin-right: 0;
             }
             
             #btn-filters {
@@ -229,7 +294,7 @@ require_once 'models/conexion.php';
             }
         }
 
-        /* Estilos para el modal de editar usuario */
+        /* Modal styles (mantuvimos los mismos) */
         .modal {
             display: none;
             position: fixed;
@@ -256,7 +321,7 @@ require_once 'models/conexion.php';
             padding: 30px;
             width: 90%;
             max-width: 500px;
-            border-radius: 10px;
+            border-radius: var(--border-radius-i);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             transform: translateY(-20px);
             transition: transform 0.3s ease;
@@ -286,11 +351,11 @@ require_once 'models/conexion.php';
             font-weight: 300;
             color: #aaa;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: var(--transition-i);
         }
 
         .close:hover {
-            color: var(--primary-colors);
+            color: var(--primary-color-i);
         }
 
         .modal h2 {
@@ -298,7 +363,7 @@ require_once 'models/conexion.php';
             margin-bottom: 25px;
             font-size: 1.6rem;
             font-weight: 500;
-            color: var(--primary-colors);
+            color: var(--primary-color-i);
             padding-bottom: 15px;
             border-bottom: 1px solid #eaeaea;
         }
@@ -319,28 +384,28 @@ require_once 'models/conexion.php';
             padding: 12px 15px;
             margin-bottom: 20px;
             border: 1px solid #e1e1e1;
-            border-radius: 6px;
+            border-radius: var(--border-radius-i);
             font-size: 1rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: var(--transition-i);
         }
 
         .modal input:focus {
             outline: none;
-            border-color: var(--primary-colors);
+            border-color: var(--primary-color-i);
             box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.15);
         }
 
         .modal button[type="submit"] {
             margin-top: 10px;
             padding: 12px;
-            background-color: var(--primary-colors);
+            background-color: var(--primary-color-i);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: var(--border-radius-i);
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+            transition: var(--transition-i);
         }
 
         .modal button[type="submit"]:hover {
@@ -351,24 +416,15 @@ require_once 'models/conexion.php';
             transform: translateY(1px);
         }
 
-        /* Estilo para indicar campos de formulario con error */
         .modal input.error {
-            border-color: #e74c3c;
+            border-color: var(--danger-color-i);
         }
 
         .error-message {
-            color: #e74c3c;
+            color: var(--danger-color-i);
             font-size: 0.85rem;
             margin-top: -15px;
             margin-bottom: 15px;
-        }
-
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            .modal-content {
-                margin: 20% auto;
-                padding: 20px;
-            }
         }
     </style>
 </head>
@@ -382,17 +438,10 @@ require_once 'models/conexion.php';
         <div class="page-content">
         <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
 
-            <!-- Switch para modo oscuro 
-            <label class="switch">
-                <input id="toggleDarkMode" type="checkbox" />
-                <span class="slider"></span>
-            </label>
-            -->
-
             <!-- Mensaje de bienvenida -->
             <div class="welcome">
                 <h1 id="mensaje"></h1>
-                <button id="btn-edit-profile">Editar Usuario</button>
+                <button id="btn-edit-profile"><i class="fas fa-user-edit"></i> Editar Usuario</button>
             </div>
 
             <!-- modal para editar Usuario -->
@@ -412,99 +461,185 @@ require_once 'models/conexion.php';
                 </div>
             </div>
 
-            <h2>Dashboard de Estadísticas Personal</h2>
+            <!-- Título principal del Dashboard -->
+            <h1 class="dashboard-title">Dashboard de Estadísticas Personal</h1>
             
             <!-- filters -->
             <div id="filters">
-                <label for="months">Periodo:</label>
+                <label for="months"><i class="fas fa-calendar-alt"></i> Periodo:</label>
                 <select name="months" id="months">
                     <option value="current" <?php echo (isset($_GET['periodo']) && $_GET['periodo'] == 'current') ? 'selected' : ''; ?>>Mes Actual</option>
                     <option value="previous" <?php echo (isset($_GET['periodo']) && $_GET['periodo'] == 'previous') ? 'selected' : ''; ?>>Mes Anterior</option>
                 </select>
 
-                <button id="btn-filters" name="btn-filters" onclick="recargar()"><i class="fa-solid fa-magnifying-glass"></i> Aplicar</button>
+                <button id="btn-filters" name="btn-filters" onclick="recargar()"><i class="fa-solid fa-magnifying-glass"></i> Aplicar Filtros</button>
             </div>
 
             <!-- graphics -->
             <div class="graphics">
                 <div class="containers">
                     <div class="row">
-                        <div class="col-md-6">
-                            <canvas id="ventas"></canvas>
+                        <!-- Gráfico 1: Número de Ventas -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <div class="chart-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <h3 class="chart-title">Número de Ventas por Día</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="ventas"></canvas>
+                                <div class="no-data" id="no-data-ventas" style="display:none;">
+                                    <i class="fas fa-exclamation-circle fa-3x"></i>
+                                    <p>No hay datos disponibles</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <canvas id="no-ventas"></canvas>
+
+                        <!-- Gráfico 2: Total de Ventas -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <div class="chart-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h3 class="chart-title">Total de Ventas ($) por Día</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="no-ventas"></canvas>
+                                <div class="no-data" id="no-data-total-ventas" style="display:none;">
+                                    <i class="fas fa-exclamation-circle fa-3x"></i>
+                                    <p>No hay datos disponibles</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <canvas id="clientes-populares"></canvas>
+
+                        <!-- Gráfico 3: Clientes Populares -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <div class="chart-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h3 class="chart-title">Clientes Más Frecuentes</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="clientes-populares"></canvas>
+                                <div class="no-data" id="no-data-clientes" style="display:none;">
+                                    <i class="fas fa-exclamation-circle fa-3x"></i>
+                                    <p>No hay datos disponibles</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <canvas id="mas-vendidos"></canvas>
+
+                        <!-- Gráfico 4: Productos Más Vendidos -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <div class="chart-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <h3 class="chart-title">Productos Más Vendidos</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="mas-vendidos"></canvas>
+                                <div class="no-data" id="no-data-productos" style="display:none;">
+                                    <i class="fas fa-exclamation-circle fa-3x"></i>
+                                    <p>No hay datos disponibles</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-
         <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR ENCIMA DE ESTA LINEA -->
         </div>
     </div>
 
-    <!-- graphics -->
+    <!-- scripts de gráficos -->
     <script>
         function cargarVentasPorDia(periodo) {
             fetch(`assets/graphics/index/no-ventas.php?periodo=${periodo}`)
                 .then(response => response.json())
                 .then(data => {
-                    const dias = data.map(item => item.dia);
-                    const ventas = data.map(item => item.cantidad_ventas);
+                    if (data && data.length > 0) {
+                        document.getElementById('no-data-ventas').style.display = 'none';
+                        
+                        const dias = data.map(item => item.dia);
+                        const ventas = data.map(item => item.cantidad_ventas);
 
-                    const ctx = document.getElementById('ventas').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: dias,
-                            datasets: [{
-                                label: 'Número de Ventas',
-                                data: ventas,
-                                backgroundColor: 'rgba(54, 162, 235, 0.92)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
+                        const ctx = document.getElementById('ventas').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: dias,
+                                datasets: [{
+                                    label: 'Número de Ventas',
+                                    data: ventas,
+                                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    borderWidth: 1,
+                                    borderRadius: 5,
+                                    maxBarThickness: 40
+                                }]
                             },
-                            plugins: {
-                                title: {
-                                    display: true,
-                                    text: 'Número de Ventas por Día',
-                                    font: {
-                                        size: 16
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        grid: {
+                                            color: 'rgba(0, 0, 0, 0.05)'
+                                        },
+                                        ticks: {
+                                            font: {
+                                                size: 12
+                                            }
+                                        }
                                     },
-                                    padding: {
-                                        top: 10,
-                                        bottom: 20
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        },
+                                        ticks: {
+                                            font: {
+                                                size: 12
+                                            }
+                                        }
                                     }
                                 },
-                                legend: {
-                                    display: false
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                        padding: 10,
+                                        titleFont: {
+                                            size: 14
+                                        },
+                                        bodyFont: {
+                                            size: 13
+                                        },
+                                        displayColors: false,
+                                        callbacks: {
+                                            title: function(tooltipItems) {
+                                                return 'Día: ' + tooltipItems[0].label;
+                                            },
+                                            label: function(context) {
+                                                return 'Ventas: ' + context.raw;
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        document.getElementById('no-data-ventas').style.display = 'flex';
+                    }
                 })
                 .catch(error => {
-                    console.error('Error detallado:', error);
-                    // Opcional: Muestra un indicador visual en el gráfico
-                    const ctx = document.getElementById('ventas').getContext('2d');
-                    ctx.font = '14px Arial';
-                    ctx.fillText('Error al cargar datos', 10, 20);
+                    console.error('Error:', error);
+                    document.getElementById('no-data-ventas').style.display = 'flex';
                 });
         }
 
@@ -513,114 +648,173 @@ require_once 'models/conexion.php';
             fetch(`assets/graphics/index/total-ventas.php?periodo=${periodo}`)
                 .then(response => response.json())
                 .then(data => {
-                    const dias = data.map(item => item.dia);
-                    const ventas = data.map(item => item.total_ventas);
+                    if (data && data.length > 0) {
+                        document.getElementById('no-data-total-ventas').style.display = 'none';
+                        
+                        const dias = data.map(item => item.dia);
+                        const ventas = data.map(item => item.total_ventas);
 
-                    const ctx = document.getElementById('no-ventas').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: dias,
-                            datasets: [{
-                                label: 'Total de Ventas ($)',
-                                data: ventas,
-                                backgroundColor: 'rgba(46, 204, 113, 0.2)',
-                                borderColor: 'rgba(39, 174, 96, 1)',
-                                borderWidth: 2,
-                                fill: true,
-                                tension: 0.3
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
+                        const ctx = document.getElementById('no-ventas').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: dias,
+                                datasets: [{
+                                    label: 'Total de Ventas ($)',
+                                    data: ventas,
+                                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                                    borderColor: 'rgba(39, 174, 96, 1)',
+                                    borderWidth: 2.5,
+                                    fill: true,
+                                    tension: 0.3,
+                                    pointBackgroundColor: 'white',
+                                    pointBorderColor: 'rgba(39, 174, 96, 1)',
+                                    pointBorderWidth: 2,
+                                    pointRadius: 5,
+                                    pointHoverRadius: 7
+                                }]
                             },
-                            plugins: {
-                                title: {
-                                    display: true,
-                                    text: 'Total de Ventas ($) por Día',
-                                    font: {
-                                        size: 16
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        grid: {
+                                            color: 'rgba(0, 0, 0, 0.05)'
+                                        },
+                                        ticks: {
+                                            callback: function(value) {
+                                                return '$' + value;
+                                            }
+                                        }
                                     },
-                                    padding: {
-                                        top: 10,
-                                        bottom: 20
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        }
                                     }
                                 },
-                                legend: {
-                                    display: false
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                        padding: 10,
+                                        titleFont: {
+                                            size: 14
+                                        },
+                                        bodyFont: {
+                                            size: 13
+                                        },
+                                        callbacks: {
+                                            title: function(tooltipItems) {
+                                                return 'Día: ' + tooltipItems[0].label;
+                                            },
+                                            label: function(context) {
+                                                return 'Total: $' + context.raw.toFixed(2);
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        document.getElementById('no-data-total-ventas').style.display = 'flex';
+                    }
                 })
                 .catch(error => {
-                    console.error('Error detallado:', error);
-                    // Opcional: Muestra un indicador visual en el gráfico
-                    const ctx = document.getElementById('no-ventas').getContext('2d');
-                    ctx.font = '14px Arial';
-                    ctx.fillText('Error al cargar datos', 10, 20);
+                    console.error('Error:', error);
+                    document.getElementById('no-data-total-ventas').style.display = 'flex';
                 });
         }
 
-        // Función para obtener los datos de clientes más populares (por cantidad de compras)
+        // Función para obtener los datos de clientes más populares
         function cargarClientesPopulares(periodo) {
             fetch(`assets/graphics/index/clientes-popular.php?periodo=${periodo}`)
                 .then(response => response.json())
                 .then(data => {
-                    const clientes = data.map(item => item.nombre_cliente);
-                    const compras = data.map(item => item.ventas);
+                    if (data && data.length > 0) {
+                        document.getElementById('no-data-clientes').style.display = 'none';
+                        
+                        const clientes = data.map(item => item.nombre_cliente);
+                        const compras = data.map(item => item.ventas);
 
-                    const ctx = document.getElementById('clientes-populares').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: clientes,
-                            datasets: [{
-                                label: 'Compras por Cliente',
-                                data: compras,
-                                backgroundColor: 'rgba(255, 99, 132, 0.92)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
+                        const ctx = document.getElementById('clientes-populares').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: clientes,
+                                datasets: [{
+                                    label: 'Compras por Cliente',
+                                    data: compras,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.8)',
+                                        'rgba(255, 159, 64, 0.8)',
+                                        'rgba(255, 205, 86, 0.8)',
+                                        'rgba(75, 192, 192, 0.8)',
+                                        'rgba(54, 162, 235, 0.8)',
+                                        'rgba(153, 102, 255, 0.8)'
+                                    ],
+                                    borderColor: [
+                                        'rgb(255, 99, 132)',
+                                        'rgb(255, 159, 64)',
+                                        'rgb(255, 205, 86)',
+                                        'rgb(75, 192, 192)',
+                                        'rgb(54, 162, 235)',
+                                        'rgb(153, 102, 255)'
+                                    ],
+                                    borderWidth: 1,
+                                    borderRadius: 5,
+                                    maxBarThickness: 40
+                                }]
                             },
-                            plugins: {
-                                title: {
-                                    display: true,
-                                    text: 'Clientes Más Frecuentes',
-                                    font: {
-                                        size: 16
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                indexAxis: 'y',  // Barras horizontales para mejor visualización
+                                scales: {
+                                    x: {
+                                        beginAtZero: true,
+                                        grid: {
+                                            color: 'rgba(0, 0, 0, 0.05)'
+                                        }
                                     },
-                                    padding: {
-                                        top: 10,
-                                        bottom: 20
+                                    y: {
+                                        grid: {
+                                            display: false
+                                        }
                                     }
                                 },
-                                legend: {
-                                    display: false
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                        padding: 10,
+                                        displayColors: false,
+                                        callbacks: {
+                                            title: function(tooltipItems) {
+                                                return tooltipItems[0].label;
+                                            },
+                                            label: function(context) {
+                                                let label = context.raw === 1 ? ' compra' : ' compras';
+                                                return context.raw + label;
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        document.getElementById('no-data-clientes').style.display = 'flex';
+                    }
                 })
                 .catch(error => {
-                    console.error('Error detallado:', error);
-                    // Opcional: Muestra un indicador visual en el gráfico
-                    const ctx = document.getElementById('clientes-populares').getContext('2d');
-                    ctx.font = '14px Arial';
-                    ctx.fillText('Error al cargar datos', 10, 20);
+                    console.error('Error:', error);
+                    document.getElementById('no-data-clientes').style.display = 'flex';
                 });
         }
 
@@ -629,86 +823,141 @@ require_once 'models/conexion.php';
             fetch(`assets/graphics/index/mas-vendidos.php?periodo=${periodo}`)
                 .then(response => response.json())
                 .then(data => {
-                    const productos = data.map(item => item.descripcion);
-                    const cantidades = data.map(item => item.cantidad_vendida);
+                    if (data && data.length > 0) {
+                        document.getElementById('no-data-productos').style.display = 'none';
+                        
+                        const productos = data.map(item => item.descripcion);
+                        const cantidades = data.map(item => item.cantidad_vendida);
 
-                    const ctx = document.getElementById('mas-vendidos').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: productos,
-                            datasets: [{
-                                label: 'Cantidad Vendida',
-                                data: cantidades,
-                                backgroundColor: [
-                                    'rgba(255, 183, 77, 0.7)',  // Naranja suave pero vibrante
-                                    'rgba(129, 199, 132, 0.7)', // Verde menta elegante
-                                    'rgba(100, 181, 246, 0.7)', // Azul cielo armónico
-                                    'rgba(244, 143, 177, 0.7)', // Rosa coral sutil
-                                    'rgba(77, 182, 172, 0.7)',  // Verde azulado moderno
-                                    'rgba(171, 71, 188, 0.7)'   // Morado pastel sofisticado
-                                ],
-                                borderColor: [
-                                    'rgba(255, 183, 77, 1)',
-                                    'rgba(129, 199, 132, 1)',
-                                    'rgba(100, 181, 246, 1)',
-                                    'rgba(244, 143, 177, 1)',
-                                    'rgba(77, 182, 172, 1)',
-                                    'rgba(171, 71, 188, 1)'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                title: {
-                                    display: true,
-                                    text: 'Productos Más Vendidos',
-                                    font: {
-                                        size: 16
+                        const ctx = document.getElementById('mas-vendidos').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'doughnut',  // Cambiado a doughnut para un look más moderno
+                            data: {
+                                labels: productos,
+                                datasets: [{
+                                    label: 'Cantidad Vendida',
+                                    data: cantidades,
+                                    backgroundColor: [
+                                        'rgba(255, 183, 77, 0.8)',
+                                        'rgba(129, 199, 132, 0.8)',
+                                        'rgba(100, 181, 246, 0.8)',
+                                        'rgba(244, 143, 177, 0.8)',
+                                        'rgba(77, 182, 172, 0.8)',
+                                        'rgba(171, 71, 188, 0.8)'
+                                    ],
+                                    borderColor: 'white',
+                                    borderWidth: 2,
+                                    hoverOffset: 15
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutout: '65%',
+                                plugins: {
+                                    legend: {
+                                        position: 'right',
+                                        labels: {
+                                            font: {
+                                                size: 12
+                                            },
+                                            padding: 15,
+                                            usePointStyle: true,
+                                            pointStyle: 'circle'
+                                        }
                                     },
-                                    padding: {
-                                        top: 10,
-                                        bottom: 20
+                                    tooltip: {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                        padding: 10,
+                                        callbacks: {
+                                            label: function(context) {
+                                                let label = context.label || '';
+                                                let value = context.raw || 0;
+                                                let total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                let percentage = Math.round((value / total) * 100);
+                                                return `${label}: ${value} (${percentage}%)`;
+                                            }
+                                        }
                                     }
-                                },
-                                legend: {
-                                    display: true
                                 }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        document.getElementById('no-data-productos').style.display = 'flex';
+                    }
                 })
                 .catch(error => {
-                    console.error('Error detallado:', error);
-                    // Opcional: Muestra un indicador visual en el gráfico
-                    const ctx = document.getElementById('mas-vendidos').getContext('2d');
-                    ctx.font = '14px Arial';
-                    ctx.fillText('Error al cargar datos', 10, 20);
+                    console.error('Error:', error);
+                    document.getElementById('no-data-productos').style.display = 'flex';
                 });
         }
 
-        // Función para inicializar los gráficos con el periodo (actual o anterior)
+        // Función para inicializar los gráficos con el periodo seleccionado
         function cargarGraficos(periodo = 'current') {
+            // Limpiar los canvas existentes para evitar superposiciones
+            document.getElementById('ventas').remove();
+            document.getElementById('no-ventas').remove();
+            document.getElementById('clientes-populares').remove();
+            document.getElementById('mas-vendidos').remove();
+            
+            // Crear nuevos canvas
+            const contenedoresGraficos = document.querySelectorAll('.chart-body');
+            
+            contenedoresGraficos[0].innerHTML = '<canvas id="ventas"></canvas><div class="no-data" id="no-data-ventas" style="display:none;"><i class="fas fa-exclamation-circle fa-3x"></i><p>No hay datos disponibles</p></div>';
+            contenedoresGraficos[1].innerHTML = '<canvas id="no-ventas"></canvas><div class="no-data" id="no-data-total-ventas" style="display:none;"><i class="fas fa-exclamation-circle fa-3x"></i><p>No hay datos disponibles</p></div>';
+            contenedoresGraficos[2].innerHTML = '<canvas id="clientes-populares"></canvas><div class="no-data" id="no-data-clientes" style="display:none;"><i class="fas fa-exclamation-circle fa-3x"></i><p>No hay datos disponibles</p></div>';
+            contenedoresGraficos[3].innerHTML = '<canvas id="mas-vendidos"></canvas><div class="no-data" id="no-data-productos" style="display:none;"><i class="fas fa-exclamation-circle fa-3x"></i><p>No hay datos disponibles</p></div>';
+            
+            // Cargar los datos en los nuevos gráficos
             cargarVentasPorDia(periodo);
             cargarTotalVentasPorDia(periodo);
             cargarClientesPopulares(periodo);
             cargarProductosMasVendidos(periodo);
+            
+            // Actualizar el texto del periodo en la UI
+            const periodoTexto = periodo === 'current' ? 'Mes Actual' : 'Mes Anterior';
+            document.querySelector('.dashboard-title').innerHTML = `Dashboard de Estadísticas Personal <span style="font-size: 1rem; color: var(--primary-color-i); font-weight: normal; display: block; margin-top: 5px;">${periodoTexto}</span>`;
         }
 
         // Función para recargar la página con el filtro seleccionado
         function recargar() {
             const periodo = document.getElementById('months').value;
-            window.location.href = `index.php?periodo=${periodo}`;
+            
+            // Mostrar indicador de carga
+            Swal.fire({
+                title: 'Cargando...',
+                html: 'Actualizando los datos del dashboard',
+                timer: 1000,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            }).then(() => {
+                window.location.href = `index.php?periodo=${periodo}`;
+            });
         }
 
-        // Llamar la función de inicialización (por defecto con el periodo actual)
+        // Llamar la función de inicialización al cargar la página
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const periodo = urlParams.get('periodo') || 'current';
             document.getElementById('months').value = periodo;
+            
+            // Pequeña animación de carga para los gráficos
+            const chartCards = document.querySelectorAll('.chart-card');
+            chartCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+            
             cargarGraficos(periodo);
         });
     </script>
@@ -717,14 +966,17 @@ require_once 'models/conexion.php';
     <script>
         const mensaje = document.getElementById('mensaje');
         const hora = new Date().getHours();
+        let saludo;
 
-        if (hora >= 6 && hora < 12) {
-            mensaje.textContent = "Buenos días <?php echo $_SESSION['nombre']; ?>.";
+        if (hora >= 5 && hora < 12) {
+            saludo = "<i class='fas fa-sun' style='color: #f39c12; margin-right: 10px;'></i>Buenos días";
         } else if (hora >= 12 && hora < 18) {
-            mensaje.textContent = "Buenas tardes <?php echo $_SESSION['nombre']; ?>.";
+            saludo = "<i class='fas fa-cloud-sun' style='color: #e67e22; margin-right: 10px;'></i>Buenas tardes";
         } else {
-            mensaje.textContent = "Buenas noches <?php echo $_SESSION['nombre']; ?>.";
+            saludo = "<i class='fas fa-moon' style='color: #3498db; margin-right: 10px;'></i>Buenas noches";
         }
+
+        mensaje.innerHTML = `${saludo} <span style="color: #2c3e50; font-weight: 600;"><?php echo $_SESSION['nombre']; ?></span>`;
     </script>
 
     <!-- Script para controlar el modal -->
@@ -820,6 +1072,16 @@ require_once 'models/conexion.php';
                     password: passwordInput.value
                 };
 
+                // Mostrar indicador de carga
+                const loadingSwal = Swal.fire({
+                    title: 'Actualizando...',
+                    html: 'Guardando los cambios en tu perfil',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 // Enviar datos mediante AJAX
                 fetch("controllers/gestion/update-profile.php", {
                     method: "POST",
@@ -833,6 +1095,9 @@ require_once 'models/conexion.php';
                     return response.text();
                 })
                 .then(text => {
+                    // Cerrar indicador de carga
+                    loadingSwal.close();
+                    
                     try {
                         // Intentar analizar el texto como JSON
                         let data = JSON.parse(text);
@@ -872,6 +1137,9 @@ require_once 'models/conexion.php';
                     }
                 })
                 .catch(error => {
+                    // Cerrar indicador de carga
+                    loadingSwal.close();
+                    
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -885,6 +1153,5 @@ require_once 'models/conexion.php';
         });
         });
     </script>
-    
 </body>
 </html>

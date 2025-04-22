@@ -629,7 +629,7 @@ $stmt_egresos->close();
 
     <script>
         function imprimirReporte(id) {
-            const invoiceUrl = `../../pdf/caja/cuadre.php?numCaja=${id}`;
+            const invoiceUrl = `../../pdf/cuadre/cuadre.php?numCaja=${id}`;
             window.open(invoiceUrl, '_blank');
         }
     </script>

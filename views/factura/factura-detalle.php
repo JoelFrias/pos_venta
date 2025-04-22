@@ -911,12 +911,17 @@ if ($result->num_rows > 0) {
 
                                     endif;
                                     ?>
-
+                                    
                                     <div class="action-buttons">
+
+                                        <?php if ($factura['estado'] != "Cancelada"): ?>
+
                                         <button class="btn-secondary" onclick="reimprimir()">
                                             <span class="printer-icon">🖨️</span>
                                             Reimprimir
                                         </button>
+
+                                        <?php endif ?>
 
                                         <?php if($factura['estado'] !== "Cancelada" && $_SESSION['idPuesto'] <= 2): ?>
                                             <button class="btn-secondary-cancel" id="cancel-btn">
