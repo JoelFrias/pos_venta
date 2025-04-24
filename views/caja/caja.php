@@ -431,198 +431,233 @@
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Libreria de alertas -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Librería de iconos -->
+    
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            width: 100%;
-            margin: 0 auto;
-            padding: 10px;
-            background-color: #f5f6fa;
-            font-size: 16px;
-        }
-        
-        .container {
-            width: 100%;
+        /* Estilos generales dentro de page-content */
+        .page-content .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        .container .mensaje {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            border-left: 5px solid #28a745;
-            word-wrap: break-word;
+
+        /* Header y título */
+        .page-content .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
         }
-        
-        .container .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-left: 5px solid #dc3545;
+
+        .page-content .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
         }
-        
-        .container .panel {
+
+        .page-content .empleado-info {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .page-content .empleado-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Paneles */
+        .page-content .panel {
             background-color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 25px;
         }
-        
-        .container h1 {
-            font-size: 1.8rem;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .container h2 {
-            font-size: 1.4rem;
-            color: #333;
+
+        .page-content .panel h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
-            margin-bottom: 15px;
         }
-        
-        .container label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+
+        /* Formularios */
+        .page-content form {
+            display: flex;
+            flex-direction: column;
         }
-        
-        .container input[type="number"], 
-        .container input[type="text"], 
-        .container select {
-            width: 100%;
+
+        .page-content label {
+            margin-bottom: 6px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .page-content input[type="number"],
+        .page-content input[type="text"],
+        .page-content select {
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 16px;
+            background-color: #f9f9f9;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
-        
-        .container button, 
-        .container input[type="submit"] {
-            background-color: #4CAF50;
+
+        .page-content input[type="number"]:focus,
+        .page-content input[type="text"]:focus,
+        .page-content select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .page-content button {
+            background-color: #2c3e50;
             color: white;
-            padding: 12px 15px;
             border: none;
+            padding: 12px;
             border-radius: 4px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            margin-bottom: 5px;
-        }
-        
-        .container button:hover, 
-        .container input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-        
-        .container .info-caja {
-            margin-top: 10px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background-color: #e7f3fe;
-            border-left: 5px solid #2196F3;
-            border-radius: 5px;
-        }
-        
-        .container .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            width: 100%;
-        }
-        
-        .container .resumen {
-            margin: 15px 0;
-            font-size: 1rem;
-        }
-        
-        .container .resumen p {
-            margin: 8px 0;
-        }
-        
-        .container .header {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 15px;
-        }
-        
-        .container .empleado-info {
+            transition: background-color 0.3s;
             margin-top: 5px;
-            font-size: 0.9rem;
-            color: #666;
         }
-        
-        .container hr {
-            margin: 15px 0;
-            border: 0;
-            border-top: 1px solid #eee;
+
+        .page-content button:hover {
+            background-color:rgb(57, 79, 102);
         }
-        
-        /* Media queries para hacer responsive */
-        @media screen and (min-width: 768px) {
-            body {
-                padding: 20px;
+
+        /* Grid para ingresos y egresos */
+        .page-content .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        /* Info de caja abierta */
+        .page-content .info-caja {
+            background-color: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #3498db;
+        }
+
+        .page-content .info-caja h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .page-content .info-caja p {
+            margin: 5px 0;
+            color: #444;
+        }
+
+        /* Resumen de caja */
+        .page-content .resumen {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9ecef;
+        }
+
+        .page-content .resumen h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .page-content .resumen-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 15px;
+            color: #495057;
+        }
+
+        .page-content .resumen-item:last-child {
+            border-bottom: none;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 16px;
+            background-color: #e9f7ef;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 0;
+        }
+
+        .page-content .resumen-item .etiqueta {
+            font-weight: 500;
+        }
+
+        .page-content .resumen-item .valor {
+            font-weight: 600;
+        }
+
+        .page-content .resumen-item.ingreso .valor {
+            color: #27ae60;
+        }
+
+        .page-content .resumen-item.egreso .valor {
+            color: #e74c3c;
+        }
+
+        .page-content .resumen-item.destacado {
+            background-color: #e9f7ef;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #d5f5e3;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-content .header {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
-            .container .header {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
+            .page-content .empleado-info {
+                margin-top: 15px;
+                width: 100%;
             }
             
-            .container .empleado-info {
-                text-align: right;
-            }
-            
-            .container .grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .container button, 
-            .container input[type="submit"] {
-                width: auto;
-                padding: 10px 20px;
-            }
-            
-            .container h1 {
-                font-size: 2rem;
-            }
-            
-            .container h2 {
-                font-size: 1.5rem;
-            }
-            
-            .container .panel {
-                padding: 20px;
-                margin-bottom: 20px;
+            .page-content .grid {
+                grid-template-columns: 1fr;
             }
         }
-        
-        /* Para pantallas más grandes */
-        @media screen and (min-width: 1024px) {
-            .container {
-                padding: 0;
+
+        @media (max-width: 480px) {
+            
+            .page-content .panel {
+                padding: 15px;
             }
             
-            .container .resumen {
-                font-size: 1.1rem;
+            .page-content .header h1 {
+                font-size: 20px;
             }
         }
     </style>
-    
+
 </head>
 <body>
 
@@ -659,9 +694,9 @@
                 <div class="header">
                     <h1>Sistema de Caja</h1>
                     <div class="empleado-info">
-                        <p><strong>ID Empleado:</strong> <?php echo $id_empleado; ?></p>
-                        <p><strong>Empleado:</strong> <?php echo $nombre_empleado; ?></p>
-                        <p><strong>Fecha:</strong> <?php echo date('j/n/Y h:i A'); ?></p>
+                        <p>ID Empleado: <?php echo $id_empleado; ?></p>
+                        <p>Empleado: <?php echo $nombre_empleado; ?></p>
+                        <p>Fecha: <?php echo date('j/n/Y h:i A'); ?></p>
                     </div>
                 </div>
                 
@@ -679,8 +714,8 @@
                     <!-- Información de caja abierta -->
                     <div class="info-caja">
                         <h2>Usted presenta una caja abierta</h2>
-                        <p><strong>Fecha de apertura:</strong> <?php echo date('j/n/Y h:i A', strtotime($datos_caja['fechaApertura'])); ?></p>
-                        <p><strong>Saldo inicial:</strong> $<?php echo number_format($datos_caja['saldoApertura'], 2); ?></p>
+                        <p>Fecha de apertura: <?php echo date('j/n/Y h:i A', strtotime($datos_caja['fechaApertura'])); ?></p>
+                        <p>Saldo inicial: $<?php echo number_format($datos_caja['saldoApertura'], 2); ?></p>
                     </div>
                     
                     <!-- Grid para ingresos y egresos -->
@@ -734,14 +769,29 @@
                     <div class="panel">
                         <h2>Resumen de Caja</h2>
                         <div class="resumen">
-                            <p><strong>Saldo inicial:</strong> $<?php echo number_format($datos_caja['saldoApertura'], 2); ?></p>
-                            <p><strong>Total ingresos (Efectivo):</strong> $<?php echo number_format($total_ingresos, 2); ?></p>
-                            <p><strong>Total egresos (Efectivo):   </strong> $<?php echo number_format($total_egresos, 2); ?></p>
-                            <p><strong>Saldo esperado:</strong> $<?php echo number_format($datos_caja['saldoApertura'] + $total_ingresos - $total_egresos, 2); ?></p>
+                            <h3>Movimientos de Caja #<?php echo $datos_caja['numCaja']; ?></h3>
+                            
+                            <div class="resumen-item">
+                                <span class="etiqueta">Saldo inicial:</span>
+                                <span class="valor">$<?php echo number_format($datos_caja['saldoApertura'], 2); ?></span>
+                            </div>
+                            
+                            <div class="resumen-item ingreso">
+                                <span class="etiqueta">Total ingresos (Efectivo):</span>
+                                <span class="valor">$<?php echo number_format($total_ingresos, 2); ?></span>
+                            </div>
+                            
+                            <div class="resumen-item egreso">
+                                <span class="etiqueta">Total egresos (Efectivo):</span>
+                                <span class="valor">$<?php echo number_format($total_egresos, 2); ?></span>
+                            </div>
+                            
+                            <div class="resumen-item destacado">
+                                <span class="etiqueta">Saldo esperado:</span>
+                                <span class="valor">$<?php echo number_format($datos_caja['saldoApertura'] + $total_ingresos - $total_egresos, 2); ?></span>
+                            </div>
                         </div>
-                        
-                        <hr>
-                        
+                    
                         <h2>Cerrar Caja</h2>
                         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <label for="saldo_final">Saldo Final (conteo físico):</label>
