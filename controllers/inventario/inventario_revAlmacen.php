@@ -144,10 +144,10 @@ try {
         $idProducto = $producto['id'];
         $cantidad = $producto['cantidad'];
     
-        // Verificar existencia en inventarioEmpleados
-        $stmt = $conn->prepare("SELECT cantidad FROM inventarioEmpleados WHERE idProducto = ? AND idEmpleado = ? FOR UPDATE");
+        // Verificar existencia en inventarioempleados
+        $stmt = $conn->prepare("SELECT cantidad FROM inventarioempleados WHERE idProducto = ? AND idEmpleado = ? FOR UPDATE");
         if (!$stmt) {
-            throw new Exception("Error preparando consulta de inventarioEmpleados: " . $conn->error);
+            throw new Exception("Error preparando consulta de inventarioempleados: " . $conn->error);
         }
     
         $stmt->bind_param("ii", $idProducto, $idEmpleado);
@@ -169,22 +169,22 @@ try {
     
         if ($nuevaCantidadEmpleado == 0) {
             // Eliminar el registro
-            $stmt = $conn->prepare("DELETE FROM inventarioEmpleados WHERE idProducto = ? AND idEmpleado = ?");
+            $stmt = $conn->prepare("DELETE FROM inventarioempleados WHERE idProducto = ? AND idEmpleado = ?");
             if (!$stmt) {
-                throw new Exception("Error preparando eliminación de inventarioEmpleados: " . $conn->error);
+                throw new Exception("Error preparando eliminación de inventarioempleados: " . $conn->error);
             }
             $stmt->bind_param("ii", $idProducto, $idEmpleado);
         } else {
             // Actualizar cantidad
-            $stmt = $conn->prepare("UPDATE inventarioEmpleados SET cantidad = ? WHERE idProducto = ? AND idEmpleado = ?");
+            $stmt = $conn->prepare("UPDATE inventarioempleados SET cantidad = ? WHERE idProducto = ? AND idEmpleado = ?");
             if (!$stmt) {
-                throw new Exception("Error preparando actualización de inventarioEmpleados: " . $conn->error);
+                throw new Exception("Error preparando actualización de inventarioempleados: " . $conn->error);
             }
             $stmt->bind_param("dii", $nuevaCantidadEmpleado, $idProducto, $idEmpleado);
         }
     
         if (!$stmt->execute()) {
-            throw new Exception("Error ejecutando operación en inventarioEmpleados: " . $stmt->error);
+            throw new Exception("Error ejecutando operación en inventarioempleados: " . $stmt->error);
         }
     
         // Sumar cantidad al inventario general

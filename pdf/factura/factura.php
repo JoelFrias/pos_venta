@@ -1,7 +1,7 @@
 <?php
 // Set proper header for PDF output
 header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="refactura_ysapelli.pdf"');
+header('Content-Disposition: inline; filename="factura_ysapelli.pdf"');
 
 require('../../libs/fpdf/fpdf.php');
 
@@ -95,7 +95,7 @@ try {
         
         // Get invoice items - Using prepared statement
         $sql_items = "SELECT
-                            p.descripcion AS descripcionp,
+                            CONCAT(p.id,' ',p.descripcion) AS descripcionp,
                             fc.importe AS importep,
                             fc.cantidad AS cantidadp,
                             fc.precioVenta
@@ -120,7 +120,7 @@ try {
         $pdf = new ReceiptPDF('P', 'mm', array(76.2, 297)); // 3 inches width (76.2mm)
         
         // Set PDF document properties (will appear in PDF reader's title bar)
-        $pdf->SetDocumentTitle("YSAPELLI ReFactura #" . $invoice['numf']);
+        $pdf->SetDocumentTitle("YSAPELLI Factura #" . $invoice['numf']);
         $pdf->SetAuthor('YSAPELLI');
         $pdf->SetCreator('YSAPELLI Sistema de Facturación');
         
@@ -130,7 +130,7 @@ try {
         
         // Store name and info
         $pdf->Cell(66, 6, '              ' . utf8_decode(htmlspecialchars($info['name'])), 0, 1, 'L');
-        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetFont('Arial', '', 7);
         $pdf->Cell(66, 4, utf8_decode(htmlspecialchars($info['text1'])), 0, 1, 'C');
         $pdf->Cell(66, 4, utf8_decode(htmlspecialchars($info['text2'])), 0, 1, 'C');
         
@@ -169,7 +169,7 @@ try {
             while($item = $result_items->fetch_assoc()) {
                 $pdf->Cell(40, 4, utf8_decode(htmlspecialchars($item['descripcionp'])), 0, 0);
                 $pdf->Ln(3);
-                $pdf->Cell(26, 4, $item['cantidadp'].' x '.number_format($item['precioVenta'], 2).' = '.number_format($item['importep'], 2), 0, 1, 'L');
+                $pdf->Cell(26, 4, $item['cantidadp'].' x '.number_format($item['precioVenta'], 2).' = '.number_format($item['importep'], 2), 0, 1, 'C');
                 
                 $subtotal += $item['importep'];
             }
@@ -221,7 +221,7 @@ try {
         
         // Footer text
         $pdf->Ln(5);
-        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetFont('Arial', '', 8);
         $pdf->MultiCell(66, 3, utf8_decode(htmlspecialchars($info['text3'])), 0, 'C');
         
         $pdf->Ln(5);

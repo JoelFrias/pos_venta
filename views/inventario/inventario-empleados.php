@@ -64,7 +64,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['seleccionar-empleado'
     }
 
     if ($_SESSION['idPuesto'] > 2){
-        $idEmpleado = intval($_SESSION['idPuesto']);
+        $idEmpleado = intval($_SESSION['idEmpleado']);
     }
     
     // Construir la consulta SQL base

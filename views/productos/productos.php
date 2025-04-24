@@ -63,7 +63,7 @@ if (!empty($search)) {
     $sql_base .= " AND p.descripcion LIKE ?";
     $params[] = "%$search%";
     $types .= "s";
-    $filtros['search'] = $search; // Almacenar el término original (sin htmlspecialchars)
+    $filtros['search'] = $search;
 }
 
 // Consulta para total de registros
@@ -151,6 +151,28 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
     <style>
+
+        .btn-print {
+            background-color: #3b82f6;
+            color: white;
+            min-width: fit-content;
+        }
+
+        .btn-print:hover {
+            background-color: #2563eb;
+        }
+
+        @media (max-width: 768px) {
+            .title-container {
+                flex-wrap: wrap;
+            }
+            
+            .btn-print {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.813rem;
+            }
+        }
+
         /* Estilos para la paginación */
         .pagination {
             display: flex;
@@ -229,14 +251,29 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                     <div class="title-container">
                         <h1>Lista de Productos</h1>
 
-                        <?php if ($_SESSION['idPuesto'] <= 2): ?> 
-                        <button class="btn btn-new" id="btnNew" onclick="validation()">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 5v14m-7-7h14"></path>
-                            </svg>
-                            <span>Nuevo</span>
-                        </button>
-                        <?php endif; ?>
+                        <div class="botones">
+
+                            <!-- Botón para imprimir reporte -->
+                            <a href="../../pdf/producto/registro.php"
+                                class="btn btn-print" 
+                                target="_blank">
+                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M6 9V2h12v7"></path>
+                                        <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"></path>
+                                        <path d="M6 14h12v8H6z"></path>
+                                    </svg>
+                                    <span>Imprimir</span>
+                                </a>
+
+                            <?php if ($_SESSION['idPuesto'] <= 2): ?> 
+                            <button class="btn btn-new" id="btnNew" onclick="validation()">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14m-7-7h14"></path>
+                                </svg>
+                                <span>Nuevo</span>
+                            </button>
+                            <?php endif; ?>
+                        </div>
 
                     </div>
                     

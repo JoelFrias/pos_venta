@@ -42,44 +42,44 @@ $inicio = ($pagina_actual - 1) * $registros_por_pagina;
 
 // Construir la consulta SQL con filtros de búsqueda
 $sql_base = "SELECT
-            c.id,
-            CONCAT(c.nombre, ' ', c.apellido) AS nombreCompleto,
-            c.empresa,
-            c.tipo_identificacion,
-            c.identificacion,
-            c.telefono,
-            c.notas,
-            cc.limite_credito,
-            cc.balance,
-            CONCAT(
-                '#',
-                cd.no,
-                ', ',
-                cd.calle,
-                ', ',
-                cd.sector,
-                ', ',
-                cd.ciudad,
-                ', (Referencia: ',
-                IFNULL(cd.referencia, 'Sin referencia'),
-                ')'
-            ) AS direccion,
-            c.activo
-        FROM
-            clientes AS c
-        LEFT JOIN clientes_cuenta AS cc
-        ON
-            c.id = cc.idCliente
-        LEFT JOIN clientes_direcciones AS cd
-        ON
-            c.id = cd.idCliente
-        WHERE
-            1=1
-        ";
+                c.id,
+                CONCAT(c.nombre, ' ', c.apellido) AS nombreCompleto,
+                c.empresa,
+                c.tipo_identificacion,
+                c.identificacion,
+                c.telefono,
+                c.notas,
+                cc.limite_credito,
+                cc.balance,
+                CONCAT(
+                    '#',
+                    cd.no,
+                    ', ',
+                    cd.calle,
+                    ', ',
+                    cd.sector,
+                    ', ',
+                    cd.ciudad,
+                    ', (Referencia: ',
+                    IFNULL(cd.referencia, 'Sin referencia'),
+                    ')'
+                ) AS direccion,
+                c.activo
+            FROM
+                clientes AS c
+            LEFT JOIN clientes_cuenta AS cc
+            ON
+                c.id = cc.idCliente
+            LEFT JOIN clientes_direcciones AS cd
+            ON
+                c.id = cd.idCliente
+            WHERE
+                1=1
+            ";
 
 // Agregar filtro de búsqueda si se proporciona un término de búsqueda
 if (!empty($search)) {
-    $sql_base .= " AND CONCAT(c.nombre, c.apellido, c.empresa) LIKE ?";
+    $sql_base .= " AND CONCAT(c.nombre,' ', c.apellido, c.empresa, c.identificacion, c.telefono) LIKE ?";
     $params[] = "%$search%";
     $types .= "s";
     $filtros['search'] = $search;
@@ -158,6 +158,28 @@ function construirQueryFiltros($filtros) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
     
     <style>
+
+        .btn-print {
+            background-color: #3b82f6;
+            color: white;
+            min-width: fit-content;
+        }
+
+        .btn-print:hover {
+            background-color: #2563eb;
+        }
+
+        @media (max-width: 768px) {
+            .title-container {
+                flex-wrap: wrap;
+            }
+            
+            .btn-print {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.813rem;
+            }
+        }
+
         /* Estilos para la paginación */
         .pagination {
             display: flex;
@@ -234,16 +256,32 @@ function construirQueryFiltros($filtros) {
                 <div class="header-section">
                     <div class="title-container">
                         <h1>Lista de Clientes</h1>
-                        <!-- Botón para agregar un nuevo cliente -->
-
-                        <?php if ($_SESSION['idPuesto'] <= 2): ?>
-                            <a href="clientes-nuevo.php" class="btn btn-new">
+                        
+                        <div class="botones">
+                            
+                            <!-- Botón para imprimir reporte -->
+                            <a href="../../pdf/cliente/registro.php"
+                            class="btn btn-print" 
+                            target="_blank">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 5v14m-7-7h14"></path>
+                                    <path d="M6 9V2h12v7"></path>
+                                    <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"></path>
+                                    <path d="M6 14h12v8H6z"></path>
                                 </svg>
-                                <span>Nuevo</span>
+                                <span>Imprimir</span>
                             </a>
-                        <?php endif; ?>
+
+                            <!-- Botón para agregar un nuevo cliente -->
+                            <?php if ($_SESSION['idPuesto'] <= 2): ?>
+                                <a href="clientes-nuevo.php" class="btn btn-new">
+                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 5v14m-7-7h14"></path>
+                                    </svg>
+                                    <span>Nuevo</span>
+                                </a>
+                            <?php endif; ?>
+
+                        </div>
                     </div>
 
                     <!-- Sección de búsqueda -->
@@ -262,7 +300,7 @@ function construirQueryFiltros($filtros) {
                                         id="search" 
                                         name="search" 
                                         value="<?php echo htmlspecialchars($search ?? ''); ?>" 
-                                        placeholder="Buscar por nombre o identificación..."
+                                        placeholder="Buscardor general..."
                                         autocomplete="off"
                                     >
                                 </div>
@@ -291,6 +329,7 @@ function construirQueryFiltros($filtros) {
                             <table class="client-table">
                                 <thead>
                                     <tr>
+                                        <th>Cuenta</th>
                                         <th>ID</th>
                                         <th>Nombre</th>
                                         <th>Empresa</th>
@@ -320,6 +359,13 @@ function construirQueryFiltros($filtros) {
                                     ?>
                                         
                                     <tr>
+                                        
+                                        <td>
+                                            <a href="cuenta-avance.php?idCliente=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
+                                                <i class="fa-regular fa-user"></i>
+                                                <span>Avance a Cuenta</span>
+                                            </a>
+                                        </td>
                                         <td><?php echo htmlspecialchars($row['id']); ?></td>
                                         <td><?php echo htmlspecialchars($row['nombreCompleto']); ?></td>
                                         <td><?php echo htmlspecialchars($row['empresa']); ?></td>
@@ -348,7 +394,7 @@ function construirQueryFiltros($filtros) {
                                                     <path d="M21 8c0 9.941-8.059 18-18 18"></path>
                                                     <path d="M3 16c0-9.941 8.059-18 18-18"></path>
                                                 </svg>
-                                                <span>Actualizar</span>
+                                                <span>Editar Datos</span>
                                             </a>
                                         </td>
                                         <?php endif; ?>
@@ -423,6 +469,12 @@ function construirQueryFiltros($filtros) {
                                 ?>
 
                                 <div class="mobile-actions">
+                                    <!-- Boton para avance a cuenta -->
+                                    <a href="cuenta-avance.php?idCliente=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
+                                        <i class="fa-regular fa-user"></i>
+                                        <span>Avance a Cuenta</span>
+                                    </a>
+                                    
                                     <!-- Botón para actualizar el cliente -->
                                     <a href="clientes-actualizar.php?id=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
                                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

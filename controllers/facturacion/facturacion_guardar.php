@@ -207,8 +207,6 @@ try {
         throw new Exception("Destino no encontrado: " . $destino, 2004);
     }
 
-    // Verificar que el monto pagado es menor o igual al limite de credito
-
     /**
      *      0. Iniciamos la transaccion
      */
@@ -261,7 +259,7 @@ try {
      */
 
 
-    $stmt = $conn->prepare("SELECT num FROM numFactura LIMIT 1 FOR UPDATE");
+    $stmt = $conn->prepare("SELECT num FROM numfactura LIMIT 1 FOR UPDATE");
     if (!$stmt) {
         throw new Exception("Error preparando consulta de número de factura: " . $conn->error);
     }
@@ -276,9 +274,9 @@ try {
     $numFactura = $_SESSION['idEmpleado'] . $fila['num'];
 
     $nuevoNumero = str_pad((int)$fila['num'] + 1, strlen($fila['num']), '0', STR_PAD_LEFT);
-    logDebug("Número de factura generado", ['numFactura' => $numFactura, 'nuevoNumero' => $nuevoNumero]);
+    logDebug("Número de factura generado", ['numfactura' => $numFactura, 'nuevoNumero' => $nuevoNumero]);
     
-    $stmtUpdate = $conn->prepare("UPDATE numFactura SET num = ?");
+    $stmtUpdate = $conn->prepare("UPDATE numfactura SET num = ?");
     if (!$stmtUpdate) {
         throw new Exception("Error preparando actualización de número de factura: " . $conn->error);
     }

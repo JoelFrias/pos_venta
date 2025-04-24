@@ -117,6 +117,194 @@
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+
+    <style>
+
+        /* Base table styles */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 100%;
+        }
+
+        .table-container th, 
+        .table-container td {
+            padding: 0.75rem;
+            vertical-align: top;
+            white-space: nowrap;
+        }
+
+        /* Improved Modal Styling */
+        .modal-history-payment {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .modal-content-history-payments {
+            position: relative;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 1200px;
+            max-height: 85vh;
+            overflow: auto;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        .close-modal-history-payments {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 100;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .close-modal-history-payments:hover {
+            background-color: #e0e0e0;
+        }
+
+        .payment-table {
+            width: 100%;
+            min-width: 800px; /* Ensure minimum width for readability */
+            margin-top: 20px;
+        }
+
+        /* Pagination styling */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 20px;
+            padding: 10px 0;
+        }
+
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .pagination a:hover {
+            background-color: #f5f5f5;
+        }
+
+        .pagination .current {
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #4CAF50;
+        }
+
+        /* For very small screens */
+        @media (max-width: 480px) {
+            .history-tables {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .history-table {
+                width: 100%;
+                margin-bottom: 1.5rem;
+            }
+
+            .table-container th,
+            .table-container td {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+            
+            /* Make "Ver más" button full width on mobile */
+            .btn.btn-secondary {
+                width: 100%;
+            }
+            
+            /* Modal adjustments for mobile */
+            .modal-content-history-payments {
+                padding: 15px;
+                width: 95%;
+                max-height: 400px;
+                margin: 10px auto;
+            }
+            
+            .close-modal-history-payments {
+                top: 5px;
+                right: 10px;
+            }
+            
+            /* Pagination adjustments */
+            .pagination {
+                padding: 5px 0;
+            }
+            
+            .pagination a, .pagination span {
+                padding: 5px 8px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* For tablets */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .history-tables {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .history-table {
+                width: 100%;
+                margin-bottom: 1.5rem;
+            }
+            
+            .modal-content-history-payments {
+                width: 90%;
+                max-height: 85vh;
+            }
+        }
+
+        /* For larger screens */
+        @media (min-width: 769px) {
+            .history-tables {
+                display: flex;
+                flex-direction: row;
+                gap: 20px;
+            }
+            
+            .history-table {
+                flex: 1;
+            }
+        }
+
+    </style>
+
 </head>
 <body>
 
@@ -244,7 +432,7 @@
                                     <select name="destino" id="destino">
                                         <option value="1" disabled selected>Seleccionar</option>
                                         <?php
-                                            $sql = "SELECT * FROM destinoCuentas WHERE id <> 1 AND enable = TRUE ORDER BY id ASC";
+                                            $sql = "SELECT * FROM destinocuentas WHERE id <> 1 AND enable = TRUE ORDER BY id ASC";
                                             $resultado = $conn->query($sql);
                                             if ($resultado->num_rows > 0) {
                                                 while ($fila = $resultado->fetch_assoc()) {

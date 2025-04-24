@@ -164,10 +164,10 @@ try {
             throw new Exception("Stock insuficiente en inventario.");
         }
         
-        // Verificar si el producto ya existe en inventarioEmpleados
-        $stmt = $conn->prepare("SELECT cantidad FROM inventarioEmpleados WHERE idProducto = ? AND idEmpleado = ?");
+        // Verificar si el producto ya existe en inventarioempleados
+        $stmt = $conn->prepare("SELECT cantidad FROM inventarioempleados WHERE idProducto = ? AND idEmpleado = ?");
         if (!$stmt) {
-            throw new Exception("Error preparando consulta de inventarioEmpleados: " . $conn->error);
+            throw new Exception("Error preparando consulta de inventarioempleados: " . $conn->error);
         }
 
         $stmt->bind_param("ii", $idProducto, $idEmpleado);
@@ -178,21 +178,21 @@ try {
             // Si ya existe, actualizar cantidad
             $row = $result->fetch_assoc();
             $nuevaCantidad = $row['cantidad'] + $cantidad;
-            $stmt = $conn->prepare("UPDATE inventarioEmpleados SET cantidad = ? WHERE idProducto = ? AND idEmpleado = ?");
+            $stmt = $conn->prepare("UPDATE inventarioempleados SET cantidad = ? WHERE idProducto = ? AND idEmpleado = ?");
             if (!$stmt) {
-                throw new Exception("Error preparando actualización de inventarioEmpleados: " . $conn->error);
+                throw new Exception("Error preparando actualización de inventarioempleados: " . $conn->error);
             }
             $stmt->bind_param("dii", $nuevaCantidad, $idProducto, $idEmpleado);
         } else {
             // Si no existe, insertar nuevo registro
-            $stmt = $conn->prepare("INSERT INTO inventarioEmpleados (idProducto, cantidad, idEmpleado) VALUES (?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO inventarioempleados (idProducto, cantidad, idEmpleado) VALUES (?, ?, ?)");
             if (!$stmt) {
-                throw new Exception("Error preparando inserción en inventarioEmpleados: " . $conn->error);
+                throw new Exception("Error preparando inserción en inventarioempleados: " . $conn->error);
             }
             $stmt->bind_param("idi", $idProducto, $cantidad, $idEmpleado);
         }
         if (!$stmt->execute()) {
-            throw new Exception("Error ejecutando operación en inventarioEmpleados: " . $stmt->error);
+            throw new Exception("Error ejecutando operación en inventarioempleados: " . $stmt->error);
         }
         
         // Restar cantidad en inventario
