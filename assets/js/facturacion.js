@@ -579,24 +579,19 @@ document.addEventListener("DOMContentLoaded", function() {
 // Calcular Devuelta
 document.getElementById('monto-pagado').addEventListener('input', calcularDevuelta);
 
-// Función para calcular la devuelta
 function calcularDevuelta() {
     const montoPagado = parseFloat(document.getElementById('monto-pagado').value) || 0;
-    const totalFactura = parseFloat(document.getElementById('totalAmount2').textContent.replace(',', '.')) || 0;
+    const totalFactura = parseFloat(document.getElementById('totalAmount2').textContent.replace(',', '').replace('RD$', '').trim()) || 0;
     
-    let devuelta = 0;
-    if (montoPagado > totalFactura) {
-        devuelta = montoPagado - totalFactura;
-    }
-    
-    // Formatear la devuelta con dos decimales
-    document.getElementById('devuelta-monto').textContent = devuelta.toFixed(2);
-    
-    // Cambiar el color según si la cantidad es suficiente
+    let devuelta = montoPagado - totalFactura;
+
     const devueltaElement = document.getElementById('div-devuelta');
-    if (montoPagado < totalFactura) {
-        devueltaElement.style.color = 'red';
-    } else {
+    
+    if (devuelta >= 0) {
+        document.getElementById('devuelta-monto').textContent = devuelta.toFixed(2);
         devueltaElement.style.color = 'green';
+    } else {
+        document.getElementById('devuelta-monto').textContent = '0.00';
+        devueltaElement.style.color = 'red';
     }
 }

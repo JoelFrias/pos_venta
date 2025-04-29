@@ -74,22 +74,23 @@ if (empty($registro)) {
 try {
     $sql = "SELECT
                 DATE_FORMAT(ch.fecha, '%d/%m/%Y %l:%i %p') AS fecha,
-                CONCAT(c.nombre,' ',c.apellido) AS cliente,
+                CONCAT(c.nombre, ' ', c.apellido) AS cliente,
                 ch.monto AS total_pagado,
                 ch.metodo AS metodo_pago,
-                SUM(f.balance) AS nuevo_balance,
-                CONCAT(e.nombre,' ',e.apellido) AS empleado
+                IFNULL(SUM(f.balance), 0) AS nuevo_balance,
+                CONCAT(e.nombre, ' ', e.apellido) AS empleado
             FROM
                 clientes_historialpagos ch
             JOIN clientes c ON
                 ch.idCliente = c.id
             JOIN empleados e ON
                 e.id = ch.idEmpleado
-            JOIN facturas f ON
-                f.idCliente = c.id
+            LEFT JOIN facturas f ON
+                f.idCliente = c.id AND f.estado = 'Pendiente'
             WHERE
-                f.estado = 'Pendiente'
-            AND	ch.registro = ?";
+                ch.registro = ?
+            GROUP BY
+                ch.registro";
 
     $stmt = $conn->prepare($sql);
     
