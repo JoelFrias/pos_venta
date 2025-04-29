@@ -1,7 +1,7 @@
 <?php
 // Set proper header for PDF output
 header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="refactura_ysapelli.pdf"');
+header('Content-Disposition: inline; filename="factura_ysapelli.pdf"');
 
 require('../../libs/fpdf/fpdf.php');
 
@@ -18,6 +18,42 @@ class ReceiptPDF extends FPDF {
     
     function Footer() {
         // Empty footer
+    }
+    
+    // Función para calcular altura del contenido
+    function GetContentHeight($items_count, $has_customer_info=true, $has_payment_info=true) {
+        // Altura de componentes fijos
+        $fixed_height = 0;
+        
+        // Cabecera (logo, info tienda)
+        $fixed_height += 20;
+        
+        // Info de cliente (si existe)
+        if ($has_customer_info) {
+            $fixed_height += 20;
+        }
+        
+        // Cabecera de productos
+        $fixed_height += 10;
+        
+        // Sección de totales
+        $fixed_height += 20;
+        
+        // Sección de pago
+        if ($has_payment_info) {
+            $fixed_height += 20;
+        }
+        
+        // Pie de página
+        $fixed_height += 20;
+        
+        // Altura por producto (cada producto ocupa ~7mm)
+        $items_height = $items_count * 7;
+        
+        // Margen de seguridad
+        $safety_margin = 10;
+        
+        return $fixed_height + $items_height + $safety_margin;
     }
 }
 
@@ -60,10 +96,10 @@ try {
     $sql = "SELECT
                 f.fecha AS fecha,
                 CONCAT(c.id, ' ', c.nombre, ' ', c.apellido) AS nombrec,
-                c.empresa AS empresac,
                 f.numFactura AS numf,
                 f.descuento AS descuentof,
                 CONCAT(e.nombre, ' ', e.apellido) AS nombree,
+                c.empresa AS empresac,
                 f.tipoFactura AS tipof,
                 fm.metodo AS metodof,
                 fm.monto AS montof,
@@ -116,13 +152,23 @@ try {
         $stmt_items->execute();
         $result_items = $stmt_items->get_result();
         
-        // Create PDF object
-        $pdf = new ReceiptPDF('P', 'mm', array(76.2, 297)); // 3 inches width (76.2mm)
+        // Instance of PDF to calculate height
+        $pdf_calculator = new ReceiptPDF();
         
-        // Set PDF document properties (will appear in PDF reader's title bar)
-        $pdf->SetDocumentTitle("YSAPELLI ReFactura #" . $invoice['numf']);
+        // Get exact content height based on data
+        $itemCount = $result_items->num_rows;
+        $contentHeight = $pdf_calculator->GetContentHeight($itemCount);
+        
+        // Create PDF with calculated height - sin espacio adicional
+        $pdf = new ReceiptPDF('P', 'mm', array(76.2, $contentHeight));
+        
+        // Set PDF document properties
+        $pdf->SetDocumentTitle("YSAPELLI Factura #" . $invoice['numf']);
         $pdf->SetAuthor('YSAPELLI');
         $pdf->SetCreator('YSAPELLI Sistema de Facturación');
+        
+        // Auto page break only if absolutely necessary
+        $pdf->SetAutoPageBreak(true, 5);
         
         $pdf->AddPage();
         $pdf->SetMargins(5, 10, 5);
@@ -170,6 +216,9 @@ try {
         $subtotal = 0;
         
         if ($result_items->num_rows > 0) {
+            // Reset pointer to beginning
+            $result_items->data_seek(0);
+            
             while($item = $result_items->fetch_assoc()) {
                 $pdf->Cell(40, 4, utf8_decode(htmlspecialchars($item['descripcionp'])), 0, 0);
                 $pdf->Ln(3);
@@ -178,57 +227,57 @@ try {
                 $subtotal += $item['importep'];
             }
         }
-        
+
         $pdf->Ln(1);
         $pdf->Line(5, $pdf->GetY(), 71.2, $pdf->GetY());
         $pdf->Ln(1);
         
-        // Totals and Payment Method
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(66, 4, 'TOTALES', 0, 1, 'C');
-        $pdf->SetFont('Arial', '', 8);
-
-        // Subtotal
-        $pdf->Cell(33, 4, 'Subtotal:', 0, 0, 'L');
-        $pdf->Cell(33, 4, number_format($subtotal, 2), 0, 1, 'R');
-
-        // Descuento
-        $pdf->Cell(33, 4, 'Descuento:', 0, 0, 'L');
-        $pdf->Cell(33, 4, number_format($invoice['descuentof'], 2), 0, 1, 'R');
-
-        // Total en negrita
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(33, 4, 'TOTAL:', 0, 0, 'L');
-        $pdf->Cell(33, 4, number_format(($subtotal - $invoice['descuentof']), 2), 0, 1, 'R');
-
-        // Separación
-        $pdf->Ln(2);
-        $pdf->Line(5, $pdf->GetY(), 71.2, $pdf->GetY());
-        $pdf->Ln(2);
-
-        // Método de pago
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(66, 4, utf8_decode('MÉTODO DE PAGO'), 0, 1, 'C');
-        $pdf->SetFont('Arial', '', 8);
-
-        // Método
-        $pdf->Cell(33, 4, utf8_decode('Método:'), 0, 0, 'L');
-        $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['metodof'])), 0, 1, 'R');
-
-        // Monto
-        $pdf->Cell(33, 4, 'Monto:', 0, 0, 'L');
-        $pdf->Cell(33, 4, number_format($invoice['montof'], 2), 0, 1, 'R');
-
-        // Pendiente
-        $pdf->Cell(33, 4, 'Pendiente:', 0, 0, 'L');
-        $pdf->Cell(33, 4, number_format($invoice['balancef'], 2), 0, 1, 'R');
+         // Totals and Payment Method
+         $pdf->SetFont('Arial', 'B', 8);
+         $pdf->Cell(66, 4, 'TOTALES', 0, 1, 'C');
+         $pdf->SetFont('Arial', '', 8);
+ 
+         // Subtotal
+         $pdf->Cell(33, 4, 'Subtotal:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format($subtotal, 2), 0, 1, 'R');
+ 
+         // Descuento
+         $pdf->Cell(33, 4, 'Descuento:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format($invoice['descuentof'], 2), 0, 1, 'R');
+ 
+         // Total en negrita
+         $pdf->SetFont('Arial', 'B', 8);
+         $pdf->Cell(33, 4, 'TOTAL:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format(($subtotal - $invoice['descuentof']), 2), 0, 1, 'R');
+ 
+         // Separación
+         $pdf->Ln(2);
+         $pdf->Line(5, $pdf->GetY(), 71.2, $pdf->GetY());
+         $pdf->Ln(2);
+ 
+         // Método de pago
+         $pdf->SetFont('Arial', 'B', 8);
+         $pdf->Cell(66, 4, utf8_decode('MÉTODO DE PAGO'), 0, 1, 'C');
+         $pdf->SetFont('Arial', '', 8);
+ 
+         // Método
+         $pdf->Cell(33, 4, utf8_decode('Método:'), 0, 0, 'L');
+         $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['metodof'])), 0, 1, 'R');
+ 
+         // Monto
+         $pdf->Cell(33, 4, 'Monto:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format($invoice['montof'], 2), 0, 1, 'R');
+ 
+         // Pendiente
+         $pdf->Cell(33, 4, 'Pendiente:', 0, 0, 'L');
+         $pdf->Cell(33, 4, number_format($invoice['balancef'], 2), 0, 1, 'R');
         
         // Footer text
-        $pdf->Ln(5);
+        $pdf->Ln(2);
         $pdf->SetFont('Arial', '', 8);
         $pdf->MultiCell(66, 3, utf8_decode(htmlspecialchars($info['text3'])), 0, 'C');
         
-        $pdf->Ln(5);
+        $pdf->Ln(3);
         $pdf->Cell(33, 4, utf8_decode('Le atendió:'), 0, 0);
         $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['nombree'])), 0, 1);
         

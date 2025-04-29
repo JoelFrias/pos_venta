@@ -335,7 +335,11 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while ($row = $result->fetch_assoc()):                           
+                                    <?php 
+
+                                    if ($total_registros > 0){
+
+                                    while ($row = $result->fetch_assoc()):                           
 
                                         // formatear existencia y reorden
                                         $row['existencia'] = number_format($row['existencia'], 0);
@@ -385,7 +389,15 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
 
                                         <?php endif; ?>
                                     </tr>
-                                    <?php endwhile; ?>
+                                    <?php endwhile; 
+                                    
+                                    } else {
+
+                                        echo '<td colspan="3">No se encontraron resultados</td>';
+
+                                    }
+                                    
+                                    ?>
                                 </tbody>
                             </table>
                         </div>
@@ -395,6 +407,9 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                
                 <div class="mobile-table">
                     <?php 
+
+                    if ($total_registros > 0){
+                    
                     $result_mobile->data_seek(0);
                     while ($row = $result_mobile->fetch_assoc()): 
 
@@ -471,7 +486,13 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                             </div>
                         </div>
                     </div>
-                    <?php endwhile; ?>
+                    <?php endwhile; 
+                    
+                    } else{
+                        echo '<p>No se encontraron resultados</p>';
+                    }
+
+                    ?>
                 </div>
 
                 <!-- Paginación -->

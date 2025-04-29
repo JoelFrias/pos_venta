@@ -439,7 +439,7 @@ try {
          $montoNeto = $montoPagado;
      }
 
-    $stmt = $conn->prepare("INSERT INTO facturas_metodoPago (numFactura, metodo, monto, numAutorizacion, referencia, idBanco, idDestino, noCaja) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO facturas_metodopago (numFactura, metodo, monto, numAutorizacion, referencia, idBanco, idDestino, noCaja) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Error preparando inserción de método de pago: " . $conn->error);
     }

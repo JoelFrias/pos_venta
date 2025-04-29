@@ -235,6 +235,11 @@ function caja($conn){
             transition: border-color 0.3s, box-shadow 0.3s;
         }
 
+        /* Modificación para ajustar el padding del campo de contraseña */
+        .form-group.password-field input {
+            padding-right: 45px; /* Espacio para el botón de ver/ocultar */
+        }
+
         .form-group input:focus {
             outline: none;
             border-color: var(--primary-color);
@@ -285,6 +290,34 @@ function caja($conn){
             color: transparent;
         }
 
+        /* Estilos para el botón de mostrar/ocultar contraseña */
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+            font-size: 16px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary-color);
+        }
+
+        /* Iconos SVG para el ojo */
+        .eye-icon, .eye-slash-icon {
+            width: 20px;
+            height: 20px;
+        }
+
         /* Media queries para responsividad */
         @media screen and (max-width: 480px) {
             .login-container {
@@ -318,6 +351,10 @@ function caja($conn){
                 padding: 10px;
                 font-size: 15px;
             }
+
+            .toggle-password {
+                right: 12px;
+            }
         }
     </style>
 </head>
@@ -342,9 +379,21 @@ function caja($conn){
                 <input type="text" name="username" id="username" autocomplete="off" placeholder=" " value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>" required>
                 <label for="username">Usuario</label>
             </div>
-            <div class="form-group">
+            <div class="form-group password-field">
                 <input type="password" name="password" id="password" placeholder=" " required>
                 <label for="password">Contraseña</label>
+                <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                    <!-- Icono de ojo (mostrar contraseña) -->
+                    <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <!-- Icono de ojo tachado (ocultar contraseña) - inicialmente oculto -->
+                    <svg class="eye-slash-icon" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
             </div>
             <input type="submit" value="Iniciar Sesión">
         </form>
@@ -356,6 +405,23 @@ function caja($conn){
             const errorMessage = document.getElementById('error-message');
             if (errorMessage) {
                 errorMessage.style.display = 'none'; // Oculta el mensaje
+            }
+        }
+        
+        // Función para mostrar/ocultar contraseña
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.querySelector('.eye-icon');
+            const eyeSlashIcon = document.querySelector('.eye-slash-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text'; // Cambiar a texto para mostrar
+                eyeIcon.style.display = 'none';
+                eyeSlashIcon.style.display = 'block';
+            } else {
+                passwordInput.type = 'password'; // Cambiar a password para ocultar
+                eyeIcon.style.display = 'block';
+                eyeSlashIcon.style.display = 'none';
             }
         }
         

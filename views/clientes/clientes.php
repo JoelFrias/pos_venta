@@ -350,7 +350,12 @@ function construirQueryFiltros($filtros) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while ($row = $result->fetch_assoc()): 
+
+                                    <?php 
+                                    
+                                    if ($total_registros > 0){
+
+                                    while ($row = $result->fetch_assoc()): 
                                         
                                         // pasar numeros a formato de moneda
                                         $row['limite_credito'] = number_format($row['limite_credito'], 2, '.', ',');
@@ -399,7 +404,15 @@ function construirQueryFiltros($filtros) {
                                         </td>
                                         <?php endif; ?>
                                     </tr>
-                                    <?php endwhile; ?>
+                                    <?php endwhile; 
+                                    
+                                    } else {
+
+                                        echo '<td colspan="3">No se encontraron resultados</td>';
+
+                                    }
+                                    
+                                    ?>
                                 </tbody>
                             </table>
                         </div>
@@ -409,7 +422,10 @@ function construirQueryFiltros($filtros) {
                 <!-- Tabla móvil -->
                 <div class="mobile-table">
                     
-                    <?php 
+                    <?php
+
+                        if ($total_registros > 0){
+
                         while ($row = $result_mobile->fetch_assoc()): 
 
                         // pasar numeros a formato de moneda
@@ -491,7 +507,13 @@ function construirQueryFiltros($filtros) {
                             </div>
                         </div>
                     </div>
-                    <?php endwhile; ?>
+                    <?php endwhile; 
+                    
+                    } else{
+                        echo '<p>No se encontraron resultados</p>';
+                    }
+
+                    ?>
                 </div>
                 
                 <!-- Paginación -->
