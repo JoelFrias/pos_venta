@@ -969,6 +969,9 @@ if ($result->num_rows > 0) {
                                 <label for="motivo-cancelacion" style="display: block; text-align: left; margin-bottom: 8px; font-weight: 500;">Motivo de cancelación:</label>
                                 <textarea id="motivo-cancelacion" class="swal2-textarea" placeholder="Ingrese el motivo de la cancelación"></textarea>
                             </div>
+                            <div class="alert alert-info" style="margin-top: 10px; font-size: 0.9rem; text-align: center;">
+                                <i class="fas fa-info-circle"></i> La cancelación está disponible hasta 2 horas <br> después de efectuada.
+                            </div>
                         `,
                         showCancelButton: true,
                         confirmButtonText: 'Sí, cancelar',
@@ -1031,7 +1034,18 @@ if ($result->num_rows > 0) {
                                         message: mensaje
                                     };
                                 } else {
-                                    throw new Error(data.message || 'Error al cancelar la factura');
+                                    // Error específico de tiempo excedido de cancelación
+                                    if (data.message && data.message.includes('No se puede cancelar la factura')) {
+                                        Swal.fire({
+                                            title: 'Tiempo excedido',
+                                            html: `<div style="text-align: left;">${data.message}</div>`,
+                                            icon: 'error',
+                                            confirmButtonText: 'Entendido'
+                                        });
+                                        return false;
+                                    } else {
+                                        throw new Error(data.message || 'Error al cancelar la factura');
+                                    }
                                 }
                             })
                             .catch(error => {
@@ -1067,12 +1081,14 @@ if ($result->num_rows > 0) {
                     });
                 });
             }
-        });
+        
 
-        function reimprimir(){
-            const invoiceUrl = `../../pdf/factura/refactura.php?factura=` + <?= $numFactura ?>;
-            window.open(invoiceUrl, '_blank');
-        }
+            function reimprimir(){
+                const invoiceUrl = `../../pdf/factura/refactura.php?factura=` + <?= $numFactura ?>;
+                window.open(invoiceUrl, '_blank');
+            }
+
+        });
 
     </script>
 </body>

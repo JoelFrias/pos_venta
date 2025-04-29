@@ -35,7 +35,8 @@ try {
                 f.estado AS estado,
                 f.total AS total,
                 f.idCliente AS idCliente,
-                f.idEmpleado AS idEmpleado
+                f.idEmpleado AS idEmpleado,
+                f.fecha AS fecha_factura
             FROM
                 facturas AS f
             WHERE
@@ -54,6 +55,58 @@ try {
     
     if ($factura['estado'] === 'Cancelada') {
         throw new Exception('Esta factura ya ha sido cancelada');
+    }
+    
+    // Debug info para verificar el formato de fecha que viene de la base de datos
+    error_log("Factura #$numFactura - Fecha original en BD: " . $factura['fecha_factura']);
+
+    // Verificar si han pasado más de dos horas desde la facturación
+    try {
+        // Establecer zona horaria para República Dominicana
+        $zonaHoraria = new DateTimeZone('America/Santo_Domingo');
+        
+        // Obtener la fecha de la factura y convertirla a timestamp
+        $fechaFacturaObj = new DateTime($factura['fecha_factura'], $zonaHoraria);
+        $fechaFacturaTimestamp = $fechaFacturaObj->getTimestamp();
+        $fechaFacturaFormateada = $fechaFacturaObj->format('d/m/Y h:i A');
+        
+        // Obtener fecha actual con la misma zona horaria
+        $fechaActualObj = new DateTime('now', $zonaHoraria);
+        $fechaActualTimestamp = $fechaActualObj->getTimestamp();
+        
+        // Calcular diferencia en segundos y luego en horas
+        $diferenciaSegundos = $fechaActualTimestamp - $fechaFacturaTimestamp;
+        $horasPasadas = $diferenciaSegundos / 3600;
+        $minutosPasados = $diferenciaSegundos / 60;
+        
+        // Calcular tiempo restante para cancelación
+        $minutosRestantes = 120 - $minutosPasados;  // 2 horas = 120 minutos
+        
+        // Permitir cancelación solo si no han pasado más de 2 horas
+        if ($horasPasadas > 2) {
+            $mensaje = sprintf(
+                'No se puede cancelar la factura. Han pasado %d horas y %d minutos desde su emisión. ' .
+                'La factura fue emitida el %s. El tiempo límite para cancelaciones es de 2 horas.',
+                floor($horasPasadas),
+                floor(($horasPasadas - floor($horasPasadas)) * 60),
+                $fechaFacturaFormateada
+            );
+            throw new Exception($mensaje);
+        }
+        
+        // Registrar información de depuración
+        error_log("Factura #$numFactura - Fecha factura: " . $fechaFacturaObj->format('Y-m-d H:i:s') . 
+                 " - Fecha actual: " . $fechaActualObj->format('Y-m-d H:i:s') . 
+                 " - Tiempo transcurrido: " . number_format($horasPasadas, 2) . " horas" . 
+                 " - Minutos restantes: " . number_format($minutosRestantes, 0));
+                 
+    } catch (Exception $e) {
+        if (strpos($e->getMessage(), 'No se puede cancelar la factura') === 0) {
+            throw $e;
+        } else {
+            // Si hay un error en el cálculo de fechas, permitir la cancelación y registrar el error
+            error_log("Error al calcular tiempo para factura #$numFactura: " . $e->getMessage());
+        }
     }
 
     $idEmpleadoi = $factura['idEmpleado'];
