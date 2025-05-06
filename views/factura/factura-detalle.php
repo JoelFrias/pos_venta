@@ -1081,14 +1081,16 @@ if ($result->num_rows > 0) {
                     });
                 });
             }
-        
 
-            function reimprimir(){
-                const invoiceUrl = `../../pdf/factura/refactura.php?factura=` + <?= $numFactura ?>;
-                window.open(invoiceUrl, '_blank');
-            }
+            
 
         });
+        
+
+        function reimprimir(){
+            const invoiceUrl = `../../pdf/factura/refactura.php?factura=` + <?= $numFactura ?>;
+            window.open(invoiceUrl, '_blank');
+        }
 
     </script>
 </body>

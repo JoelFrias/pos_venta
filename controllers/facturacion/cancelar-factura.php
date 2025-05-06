@@ -1,5 +1,5 @@
 <?php
-// cancelar_factura.php - Procesa la cancelación de factura
+// cancelar-factura.php - Procesa la cancelación de factura
 session_start();
 require_once('../../models/conexion.php');
 

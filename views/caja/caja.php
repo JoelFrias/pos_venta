@@ -9,7 +9,7 @@
     if (!isset($_SESSION['username'])) {
         session_unset();
         session_destroy();
-        header('Location: ../../views/auth/login.php.php');
+        header('Location: ../../views/auth/login.php');
         exit();
     }
 
@@ -717,6 +717,9 @@
                         <p>Fecha de apertura: <?php echo date('j/n/Y h:i A', strtotime($datos_caja['fechaApertura'])); ?></p>
                         <p>Saldo inicial: $<?php echo number_format($datos_caja['saldoApertura'], 2); ?></p>
                     </div>
+
+                    
+                    <?php if ($_SESSION['idPuesto'] <= 2) : ?>
                     
                     <!-- Grid para ingresos y egresos -->
                     <div class="grid">
@@ -764,6 +767,32 @@
                             </form>
                         </div>
                     </div>
+
+                    <?php endif; ?>
+
+                    <?php
+
+                    $sqlFacturas = "SELECT COUNT(*) AS totalFacturas FROM facturas_metodopago WHERE noCaja = ?";
+                    $stmt = $conn->prepare($sqlFacturas);
+                    $stmt->bind_param("s", $_SESSION['numCaja']);
+                    $stmt->execute();
+                    $resultFacturas = $stmt->get_result();
+                    $rowFacturas = $resultFacturas->fetch_assoc();
+                    $totalFacturas = $rowFacturas['totalFacturas'] ? $rowFacturas['totalFacturas'] : 0;
+                    $stmt->close();
+
+                    $sqlPagos = "SELECT COUNT(*) AS totalPagos FROM clientes_historialpagos WHERE numCaja = ?";
+                    $stmt = $conn->prepare($sqlPagos);
+                    $stmt->bind_param("s", $_SESSION['numCaja']);
+                    $stmt->execute();
+                    $resultPagos = $stmt->get_result();
+                    $rowPagos = $resultPagos->fetch_assoc();
+                    $totalPagos = $rowPagos['totalPagos'] ? $rowPagos['totalPagos'] : 0;
+                    $stmt->close();
+
+                    $totalTransacciones = $totalFacturas + $totalPagos;
+
+                    ?>
                     
                     <!-- Resumen de caja y cierre -->
                     <div class="panel">
@@ -772,23 +801,18 @@
                             <h3>Movimientos de Caja #<?php echo $datos_caja['numCaja']; ?></h3>
                             
                             <div class="resumen-item">
-                                <span class="etiqueta">Saldo inicial:</span>
-                                <span class="valor">$<?php echo number_format($datos_caja['saldoApertura'], 2); ?></span>
+                                <span class="etiqueta">Numero de Facturas Vendidas:</span>
+                                <span class="valor"><?php echo number_format($totalFacturas) ?></span>
                             </div>
                             
-                            <div class="resumen-item ingreso">
-                                <span class="etiqueta">Total ingresos (Efectivo):</span>
-                                <span class="valor">$<?php echo number_format($total_ingresos, 2); ?></span>
+                            <div class="resumen-item">
+                                <span class="etiqueta">Numero de Pagos de Clientes:</span>
+                                <span class="valor"><?php echo number_format($totalPagos) ?></span>
                             </div>
-                            
-                            <div class="resumen-item egreso">
-                                <span class="etiqueta">Total egresos (Efectivo):</span>
-                                <span class="valor">$<?php echo number_format($total_egresos, 2); ?></span>
-                            </div>
-                            
-                            <div class="resumen-item destacado">
-                                <span class="etiqueta">Saldo esperado:</span>
-                                <span class="valor">$<?php echo number_format($datos_caja['saldoApertura'] + $total_ingresos - $total_egresos, 2); ?></span>
+
+                            <div class="resumen-item">
+                                <span class="etiqueta">Total de Transacciones:</span>
+                                <span class="valor"><?php echo $totalTransacciones ?></span>
                             </div>
                         </div>
                     

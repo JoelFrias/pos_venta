@@ -696,12 +696,7 @@
             text-align: center;
             transition: all 0.3s ease;
         }
-
-        .mobile-menu-toggle:focus {
-            background-color: rgb(55, 63, 71);
-            color: white;
-        }
-
+        
         /* Ocultar botones en móvil y preparar animación */
         @media (max-width: 768px) {
             #buttons {
@@ -937,7 +932,6 @@
                 page-break-inside: avoid;
             }
         }
-        </style>
     </style>
 </head>
 <body>
