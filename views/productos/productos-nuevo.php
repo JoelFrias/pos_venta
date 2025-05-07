@@ -117,6 +117,294 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+
+    <!-- Estilos para el modal -->
+    <style>
+        /* Modal Base */
+        .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+        animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+        }
+
+        .modal-content {
+        background-color: #fff;
+        margin: 5% auto;
+        width: 90%;
+        max-width: 800px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Modal Header */
+        .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #e0e0e0;
+        background-color: #f8f9fa;
+        border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        color: #333;
+        }
+
+        .close {
+        font-size: 28px;
+        font-weight: bold;
+        color: #666;
+        cursor: pointer;
+        transition: color 0.2s;
+        }
+
+        .close:hover {
+        color: #000;
+        }
+
+        /* Modal Body */
+        .modal-body {
+        padding: 20px;
+        }
+
+        /* Add Form */
+        .add-form {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e0e0e0;
+        }
+
+        .add-form h3 {
+        margin-top: 0;
+        font-size: 1.1rem;
+        color: #444;
+        }
+
+        .input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        }
+
+        .input-group input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        }
+
+        .btn-add {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        }
+
+        .btn-add:hover {
+        background-color: #45a049;
+        }
+
+        /* Table Container */
+        .table-container {
+        margin-top: 10px;
+        }
+
+        .table-container h3 {
+        margin-top: 0;
+        font-size: 1.1rem;
+        color: #444;
+        }
+
+        .search-input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        }
+
+        .table-wrapper {
+        max-height: 300px;
+        overflow-y: auto;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+        }
+
+        /* Table Styles */
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        }
+
+        thead {
+        background-color: #f8f9fa;
+        position: sticky;
+        top: 0;
+        }
+
+        th, td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+        font-weight: 600;
+        color: #333;
+        }
+
+        tbody tr:hover {
+        background-color: #f5f5f5;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+        display: flex;
+        gap: 5px;
+        }
+
+        .btn-edit, .btn-delete {
+        padding: 6px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background-color 0.2s;
+        }
+
+        .btn-edit {
+        background-color: #2196F3;
+        color: white;
+        }
+
+        .btn-edit:hover {
+        background-color: #0b7dda;
+        }
+
+        .btn-delete {
+        background-color: #f44336;
+        color: white;
+        }
+
+        .btn-delete:hover {
+        background-color: #d32f2f;
+        }
+
+        .btn-save {
+        background-color: #4CAF50;
+        color: white;
+        }
+
+        .btn-save:hover {
+        background-color: #45a049;
+        }
+
+        .btn-cancel {
+        background-color: #9e9e9e;
+        color: white;
+        }
+
+        .btn-cancel:hover {
+        background-color: #757575;
+        }
+
+        /* Edit Mode */
+        .edit-mode input {
+        width: 100%;
+        padding: 6px;
+        border: 1px solid #2196F3;
+        border-radius: 4px;
+        }
+
+        /* Error Message */
+        .error-message {
+        color: #f44336;
+        font-size: 14px;
+        margin-top: 5px;
+        min-height: 20px;
+        }
+
+        /* Loading Indicator */
+        .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        }
+
+        /* Empty State */
+        .empty-state {
+        text-align: center;
+        padding: 30px;
+        color: #666;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+        }
+
+        /* boton volver */
+        .btn-volver {
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        color: #333;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-volver:hover {
+        background-color: #e0e0e0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-volver:active {
+        background-color: #d5d5d5;
+        }
+    </style>
 </head>
 <body>
 
@@ -146,37 +434,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="page-content">
         <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
-
-            <!-- Modal para registrar categorías -->
-            <div id="myModal" class="MODAL2">
-                <div class="modal-contenedor">
-                    <span onclick="document.getElementById('myModal').style.display='none'" class="close">&times;</span>
-                    <h4>Registrar Categoría</h4>
-                    <form action="modal-categoria.php" method="POST">
-                        <input type="text" name="descripcion" placeholder="Tipo de Producto" class="input-fila" required>
-                        <button id="submitBtn" type="submit" class="btn-subir">Registrar</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Script para manejar el modal -->
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    const modal = document.getElementById("myModal");
-                    const input = modal.querySelector("input[name='descripcion']");
-                    const btnAbrir = document.querySelector(".btn-abrir");
-
-                    btnAbrir.addEventListener("click", function () {
-                        modal.style.display = "flex"; // Muestra el modal
-                        setTimeout(() => input.focus(), 100); // Agrega un pequeño retraso para asegurar el enfoque
-                    });
-
-                    // Cierra el modal cuando se hace clic en la "x"
-                    modal.querySelector(".close").addEventListener("click", function () {
-                        modal.style.display = "none";
-                    });
-                });
-            </script>
 
             <!-- Contenedor del formulario de registro de productos -->
             <div class="form-container">
@@ -211,7 +468,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         ?>
                                     </select>
                                     <!-- Botón para abrir el modal -->
-                                    <button id="openModalBtn" onclick="document.getElementById('myModal').style.display='flex'" class="btn-abrir">Tipo Producto</button>
+                                    <button id="openModalBtn" onclick="" class="btn-abrir">Tipo Producto</button>
                                 </div>
                             </div>    
                             <div class="form-group">
@@ -242,11 +499,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </fieldset>
 
                     <button type="submit" class="btn-submit1">Registrar Producto</button>
+                    <button class="btn-volver" onclick="history.back()">← Volver atrás</button>
                 </form>
             </div>
         
         <!-- TODO EL CONTENIDO DE ESTA PAGINA ENCIMA DE ESTA LINEA -->
         </div>
+    </div>
+
+    <!-- Modal para Tipos de Producto -->
+    <div id="tipoProductoModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h2>Gestión de Tipos de Producto</h2>
+        <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+        <!-- Formulario para agregar nuevo tipo -->
+        <div class="add-form">
+            <h3>Agregar Nuevo Tipo</h3>
+            <div class="input-group">
+            <input type="text" id="nuevoTipoNombre" placeholder="Nombre del tipo de producto" required>
+            <button id="btnAgregarTipo" class="btn-add">Agregar</button>
+            </div>
+            <div id="mensajeError" class="error-message"></div>
+        </div>
+        
+        <!-- Tabla de tipos existentes -->
+        <div class="table-container">
+            <h3>Tipos de Producto Existentes</h3>
+            <input type="text" id="searchTipo" placeholder="Buscar tipo..." class="search-input">
+            <div class="table-wrapper">
+            <table id="tiposProductoTable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody id="tiposProductoBody">
+                <!-- Los datos se cargarán dinámicamente -->
+                </tbody>
+            </table>
+            </div>
+        </div>
+        </div>
+    </div>
     </div>
 
     <!-- Mostrar mensajes de éxito o error -->

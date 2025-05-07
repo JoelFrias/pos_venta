@@ -673,35 +673,56 @@ if ($result->num_rows > 0) {
         }
 
         .note-cancelation {
-                background-color: #fef2f2;
-                border-left: 4px solid #dc2626;
-                padding: 1rem;
-                margin-top: 1rem;
-                border-radius: 0.5rem;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-                max-width: 90%;
-                box-sizing: border-box;
-            }
+            background-color: #fef2f2;
+            border-left: 4px solid #dc2626;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            max-width: 90%;
+            box-sizing: border-box;
+        }
 
-            .note-cancelation label {
-                display: block;
-                font-weight: 600;
-                color: #991b1b;
-                margin-top: 0.5rem;
-            }
+        .note-cancelation label {
+            display: block;
+            font-weight: 600;
+            color: #991b1b;
+            margin-top: 0.5rem;
+        }
 
-            .note-cancelation span {
-                display: block;
-                margin-left: 0.5rem;
-                color: #444;
-            }
+        .note-cancelation span {
+            display: block;
+            margin-left: 0.5rem;
+            color: #444;
+        }
 
-            @media (max-width: 600px) {
-                .note-cancelation {
-                    font-size: 0.9rem;
-                    padding: 0.75rem;
-                }
+        @media (max-width: 600px) {
+            .note-cancelation {
+                font-size: 0.9rem;
+                padding: 0.75rem;
             }
+        }
+
+        /* boton volver */
+        .btn-volver {
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        color: #333;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-volver:hover {
+        background-color: #e0e0e0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-volver:active {
+        background-color: #d5d5d5;
+        }
             
     </style>
 
@@ -874,45 +895,51 @@ if ($result->num_rows > 0) {
                                         </div>
                                     </div>
 
-                                    <?php
-                                    if ($factura['estado'] == "Cancelada" && $_SESSION['idPuesto'] <= 2):
+                                    <div class="details-cancelation">
 
-                                        $sqlfc = "SELECT
-                                                    fc.motivo AS motivofc,
-                                                    DATE_FORMAT(fc.fecha, '%d/%m/%Y %l:%i %p') AS fechafc,
-                                                    CONCAT(e.nombre, ' ', e.apellido) AS empleadofc
-                                                FROM
-                                                    facturas_cancelaciones AS fc
-                                                JOIN empleados AS e
-                                                    ON e.id = fc.idEmpleado
-                                                WHERE
-                                                    fc.numFactura = ?";
+                                        <?php
+                                        if ($factura['estado'] == "Cancelada" && $_SESSION['idPuesto'] <= 2):
 
-                                        $stmtfc = $conn->prepare($sqlfc);
-                                        $stmtfc->bind_param("s", $factura['numFactura']);
-                                        $stmtfc->execute();
-                                        $resultfc = $stmtfc->get_result();
+                                            $sqlfc = "SELECT
+                                                        fc.motivo AS motivofc,
+                                                        DATE_FORMAT(fc.fecha, '%d/%m/%Y %l:%i %p') AS fechafc,
+                                                        CONCAT(e.nombre, ' ', e.apellido) AS empleadofc
+                                                    FROM
+                                                        facturas_cancelaciones AS fc
+                                                    JOIN empleados AS e
+                                                        ON e.id = fc.idEmpleado
+                                                    WHERE
+                                                        fc.numFactura = ?";
 
-                                        if ($resultfc->num_rows > 0):
-                                            $datosfc = $resultfc->fetch_assoc();
-                                    ?>
-                                            <div class="note-cancelation">
-                                                <label for="motivo-cancelation"><i class="fa-solid fa-circle-info"></i> Motivo de Cancelación:</label>
-                                                <span id="motivo-cancelation"><?php echo $datosfc['motivofc']; ?></span>
+                                            $stmtfc = $conn->prepare($sqlfc);
+                                            $stmtfc->bind_param("s", $factura['numFactura']);
+                                            $stmtfc->execute();
+                                            $resultfc = $stmtfc->get_result();
 
-                                                <label for="fechafc">Fecha de Cancelación:</label>
-                                                <span id="fechafc"><?php echo $datosfc['fechafc']; ?></span>
+                                            if ($resultfc->num_rows > 0):
+                                                $datosfc = $resultfc->fetch_assoc();
+                                        ?>
+                                                <div class="note-cancelation">
+                                                    <label for="motivo-cancelation"><i class="fa-solid fa-circle-info"></i> Motivo de Cancelación:</label>
+                                                    <span id="motivo-cancelation"><?php echo $datosfc['motivofc']; ?></span>
 
-                                                <label for="empleadofc">Empleado:</label>
-                                                <span id="empleadofc"><?php echo $datosfc['empleadofc']; ?></span>
-                                            </div>
-                                    <?php
+                                                    <label for="fechafc">Fecha de Cancelación:</label>
+                                                    <span id="fechafc"><?php echo $datosfc['fechafc']; ?></span>
+
+                                                    <label for="empleadofc">Empleado:</label>
+                                                    <span id="empleadofc"><?php echo $datosfc['empleadofc']; ?></span>
+                                                </div>
+                                        <?php
+                                            endif;
+
                                         endif;
+                                        ?>
 
-                                    endif;
-                                    ?>
+                                    </div>
                                     
                                     <div class="action-buttons">
+                                        
+                                        <button class="btn-volver" onclick="history.back()">← Volver atrás</button>
 
                                         <?php if ($factura['estado'] != "Cancelada"): ?>
 
@@ -1081,8 +1108,6 @@ if ($result->num_rows > 0) {
                     });
                 });
             }
-
-            
 
         });
         

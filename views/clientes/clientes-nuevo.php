@@ -127,6 +127,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Importación de iconos -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+    <style>
+        .btn-volver {
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        color: #333;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-volver:hover {
+        background-color: #e0e0e0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-volver:active {
+        background-color: #d5d5d5;
+        }
+    </style>
 </head>
 <body>
 
@@ -221,6 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </fieldset>
 
                     <!-- Botón para enviar el formulario -->
+                    <button class="btn-volver" onclick="history.back()">← Volver atrás</button>
                     <button type="submit" class="btn-submit">Registrar Cliente</button>
                 </form>
             </div>
