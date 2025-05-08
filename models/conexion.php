@@ -2,17 +2,21 @@
 /**
  * Archivo de conexión a la base de datos MySQL
  * Preparado para entorno de producción
+ * Con configuración de zona horaria para Santo Domingo (UTC-4)
  */
 
 // Evitar mostrar errores en producción
 error_reporting(0);
 ini_set('display_errors', 0);
 
+// Establecer zona horaria para PHP
+date_default_timezone_set('America/Santo_Domingo');
+
 // Datos de conexión
-$servername = "127.0.0.1";
-$username = "root";
-$password = "Joelbless23";
-$dbname = "pos_venta";
+$servername = "localhost";
+$username = "u479159589_root";
+$password = "wq37GGR2@";
+$dbname = "u479159589_pos_venta";
 
 // Manejo de errores personalizado
 function gestionarErrorConexion($mensaje) {
@@ -124,6 +128,9 @@ try {
     
     // Configurar el modo estricto de SQL
     $conn->query("SET SESSION sql_mode = 'STRICT_ALL_TABLES'");
+    
+    // Establecer zona horaria para la conexión MySQL (Santo Domingo = UTC-4)
+    $conn->query("SET time_zone = '-04:00'");
     
 } catch (Exception $e) {
     gestionarErrorConexion($e->getMessage());

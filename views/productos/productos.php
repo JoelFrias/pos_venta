@@ -58,11 +58,11 @@ $sql_base = "SELECT
 $params = [];
 $types = "";
 
-// Añadir condición de búsqueda
 if (!empty($search)) {
-    $sql_base .= " AND p.descripcion LIKE ?";
+    $sql_base .= " AND (p.descripcion LIKE ? OR pt.descripcion LIKE ?)";
     $params[] = "%$search%";
-    $types .= "s";
+    $params[] = "%$search%";
+    $types .= "ss";
     $filtros['search'] = $search;
 }
 
