@@ -26,7 +26,7 @@ $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "
 
     <?php
     $jsUrl = $baseUrl . '/assets/js/menu.js';
-    $indexUrl = $baseUrl . '/index.php';
+    $indexUrl = $baseUrl . '/';
     $clientesUrl = $baseUrl . '/views/clientes/clientes.php';
     $productosUrl = $baseUrl . '/views/productos/productos.php';
     $facturaUrl = $baseUrl . '/views/factura/factura-registro.php';

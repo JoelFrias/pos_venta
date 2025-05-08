@@ -1,0 +1,49 @@
+# Activar motor de reescritura
+RewriteEngine On
+
+# ------------------------------
+# 1. Redirección a HTTPS
+# ------------------------------
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# ------------------------------
+# 2. Redireccionar URLs con .php a versión sin extensión
+# ------------------------------
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.php[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L,NE]
+
+# ------------------------------
+# 3. Ocultar extensión .php en URLs (internamente procesa el archivo .php)
+# ------------------------------
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# ------------------------------
+# 4. Bloquear acceso por IP específica
+# ------------------------------
+<Limit GET POST>
+Order Allow,Deny
+Deny from 145.223.77.155
+Allow from all
+</Limit>
+
+# ------------------------------
+# 5. Redirección de errores personalizados
+# ------------------------------
+ErrorDocument 404 /views/errors/404.html
+ErrorDocument 403 /views/errors/403.html
+
+# ------------------------------
+# 6. Prevenir navegación directa por directorios
+# ------------------------------
+Options -Indexes
+
+# ------------------------------
+# 7. Prevenir acceso directo a los archivos .htaccess
+# ------------------------------
+<Files .htaccess>
+Order Allow,Deny
+Deny from all
+</Files>

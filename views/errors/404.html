@@ -2,9 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Página no encontrada | Error 404</title>
-    <link rel="shortcut icon" href="../../assets/img/logo-blanco.png" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página No Encontrada</title>
     <style>
         * {
             margin: 0;
@@ -15,113 +14,116 @@
         
         body {
             background-color: #f8f9fa;
+            color: #333;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
+            min-height: 100vh;
+            padding: 20px;
         }
         
         .container {
-            text-align: center;
-            padding: 2rem;
             background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            width: 90%;
-            z-index: 2;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            padding: 40px 30px;
+        }
+        
+        .icon {
+            margin-bottom: 24px;
+        }
+        
+        .icon svg {
+            width: 80px;
+            height: 80px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        p {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
         }
         
         .error-code {
-            font-size: 120px;
-            font-weight: bold;
-            color: #3498db;
-            line-height: 1;
-            margin-bottom: 1rem;
-        }
-        
-        .message {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 1.5rem;
-        }
-        
-        .description {
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 16px;
-        }
-        
-        .home-button {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 8px 16px;
             display: inline-block;
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 24px;
+        }
+        
+        .button {
             background-color: #3498db;
             color: white;
-            padding: 12px 30px;
-            border-radius: 30px;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 24px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
             text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            display: inline-block;
         }
         
-        .home-button:hover {
+        .button:hover {
             background-color: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
         }
         
-        .bg-elements {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            p {
+                font-size: 15px;
+            }
+            
+            .icon svg {
+                width: 60px;
+                height: 60px;
+            }
         }
         
-        .circle {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.2;
-        }
-        
-        .circle-1 {
-            width: 300px;
-            height: 300px;
-            background-color: #3498db;
-            top: -100px;
-            left: -100px;
-        }
-        
-        .circle-2 {
-            width: 200px;
-            height: 200px;
-            background-color: #e74c3c;
-            bottom: -50px;
-            right: -50px;
-        }
-        
-        .circle-3 {
-            width: 150px;
-            height: 150px;
-            background-color: #f1c40f;
-            bottom: 100px;
-            left: 20%;
+        .footer {
+            margin-top: 40px;
+            font-size: 13px;
+            color: #999;
         }
     </style>
 </head>
 <body>
-    <div class="bg-elements">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-    </div>
-    
     <div class="container">
-        <div class="error-code">404</div>
-        <h1 class="message">¡Página no encontrada!</h1>
-        <p class="description">Lo sentimos, la página que estás buscando no existe o ha sido movida. Por favor, regresa a la página principal para continuar navegando.</p>
-        <a href="../../" class="home-button">Volver al inicio</a>
+        <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        </div>
+        <h1>Página No Encontrada</h1>
+        <p>Lo sentimos, pero la página que estás buscando no existe o ha sido movida. Puede que hayas ingresado una dirección incorrecta o que el enlace esté roto.</p>
+        <div class="error-code">Código de error: 404</div>
+        <a href="../../" class="button">Volver al Inicio</a>
+        <div class="footer">
+            Si crees que esto es un error, por favor contacta con el administrador del sistema.
+        </div>
     </div>
 </body>
 </html>

@@ -679,7 +679,6 @@ if ($result->num_rows > 0) {
             margin-top: 1rem;
             border-radius: 0.5rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            max-width: 90%;
             box-sizing: border-box;
         }
 
@@ -705,23 +704,23 @@ if ($result->num_rows > 0) {
 
         /* boton volver */
         .btn-volver {
-        background-color: #f5f5f5;
-        border: 1px solid #ccc;
-        color: #333;
-        padding: 10px 20px;
-        font-size: 16px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.2s, box-shadow 0.2s;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            color: #333;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
         }
 
         .btn-volver:hover {
-        background-color: #e0e0e0;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            background-color: #e0e0e0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
 
         .btn-volver:active {
-        background-color: #d5d5d5;
+            background-color: #d5d5d5;
         }
             
     </style>
@@ -894,74 +893,73 @@ if ($result->num_rows > 0) {
                                             <span><?php echo $facturaInfo['total']; ?></span>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div class="details-cancelation">
+                                <div class="details-cancelation">
 
-                                        <?php
-                                        if ($factura['estado'] == "Cancelada" && $_SESSION['idPuesto'] <= 2):
+                                    <?php
+                                    if ($factura['estado'] == "Cancelada" && $_SESSION['idPuesto'] <= 2):
 
-                                            $sqlfc = "SELECT
-                                                        fc.motivo AS motivofc,
-                                                        DATE_FORMAT(fc.fecha, '%d/%m/%Y %l:%i %p') AS fechafc,
-                                                        CONCAT(e.nombre, ' ', e.apellido) AS empleadofc
-                                                    FROM
-                                                        facturas_cancelaciones AS fc
-                                                    JOIN empleados AS e
-                                                        ON e.id = fc.idEmpleado
-                                                    WHERE
-                                                        fc.numFactura = ?";
+                                        $sqlfc = "SELECT
+                                                    fc.motivo AS motivofc,
+                                                    DATE_FORMAT(fc.fecha, '%d/%m/%Y %l:%i %p') AS fechafc,
+                                                    CONCAT(e.nombre, ' ', e.apellido) AS empleadofc
+                                                FROM
+                                                    facturas_cancelaciones AS fc
+                                                JOIN empleados AS e
+                                                    ON e.id = fc.idEmpleado
+                                                WHERE
+                                                    fc.numFactura = ?";
 
-                                            $stmtfc = $conn->prepare($sqlfc);
-                                            $stmtfc->bind_param("s", $factura['numFactura']);
-                                            $stmtfc->execute();
-                                            $resultfc = $stmtfc->get_result();
+                                        $stmtfc = $conn->prepare($sqlfc);
+                                        $stmtfc->bind_param("s", $factura['numFactura']);
+                                        $stmtfc->execute();
+                                        $resultfc = $stmtfc->get_result();
 
-                                            if ($resultfc->num_rows > 0):
-                                                $datosfc = $resultfc->fetch_assoc();
-                                        ?>
-                                                <div class="note-cancelation">
-                                                    <label for="motivo-cancelation"><i class="fa-solid fa-circle-info"></i> Motivo de Cancelación:</label>
-                                                    <span id="motivo-cancelation"><?php echo $datosfc['motivofc']; ?></span>
+                                        if ($resultfc->num_rows > 0):
+                                            $datosfc = $resultfc->fetch_assoc();
+                                    ?>
+                                            <div class="note-cancelation">
+                                                <label for="motivo-cancelation"><i class="fa-solid fa-circle-info"></i> Motivo de Cancelación:</label>
+                                                <span id="motivo-cancelation"><?php echo $datosfc['motivofc']; ?></span>
 
-                                                    <label for="fechafc">Fecha de Cancelación:</label>
-                                                    <span id="fechafc"><?php echo $datosfc['fechafc']; ?></span>
+                                                <label for="fechafc">Fecha de Cancelación:</label>
+                                                <span id="fechafc"><?php echo $datosfc['fechafc']; ?></span>
 
-                                                    <label for="empleadofc">Empleado:</label>
-                                                    <span id="empleadofc"><?php echo $datosfc['empleadofc']; ?></span>
-                                                </div>
-                                        <?php
-                                            endif;
-
+                                                <label for="empleadofc">Empleado:</label>
+                                                <span id="empleadofc"><?php echo $datosfc['empleadofc']; ?></span>
+                                            </div>
+                                    <?php
                                         endif;
-                                        ?>
 
-                                    </div>
-                                    
-                                    <div class="action-buttons">
-                                        
-                                        <button class="btn-volver" onclick="history.back()">← Volver atrás</button>
+                                    endif;
+                                    ?>
 
-                                        <?php if ($factura['estado'] != "Cancelada"): ?>
+                                </div>
+                                
+                                <div class="action-buttons">
 
-                                        <button class="btn-secondary" onclick="reimprimir()">
-                                            <span class="printer-icon">🖨️</span>
-                                            Reimprimir
+                                    <?php if ($factura['estado'] != "Cancelada"): ?>
+
+                                    <button class="btn-secondary" onclick="reimprimir()">
+                                        <span class="printer-icon">🖨️</span>
+                                        Reimprimir
+                                    </button>
+
+                                    <?php endif ?>
+
+                                    <?php if($factura['estado'] !== "Cancelada" && $_SESSION['idPuesto'] <= 2): ?>
+                                        <button class="btn-secondary-cancel" id="cancel-btn">
+                                            <spa class="printer-icon"><i class="fa-solid fa-ban">  </i></span>
+                                            Cancelar Factura
                                         </button>
+                                    <?php endif ?>
 
-                                        <?php endif ?>
-
-                                        <?php if($factura['estado'] !== "Cancelada" && $_SESSION['idPuesto'] <= 2): ?>
-                                            <button class="btn-secondary-cancel" id="cancel-btn">
-                                                <spa class="printer-icon"><i class="fa-solid fa-ban">  </i></span>
-                                                Cancelar Factura
-                                            </button>
-                                        <?php endif ?>
-
-                                        <button class="btn-primary" onclick="navigateTo('../../views/clientes/cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
-                                        
-                                    </div>
+                                    <button class="btn-primary" onclick="navigateTo('../../views/clientes/cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
+                                    
                                 </div>
                             </div>
+                            <button class="btn-volver" onclick="history.back()">← Volver atrás</button>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
