@@ -349,27 +349,33 @@ $noDisponibles = $conn->query("SELECT COUNT(*) as total FROM inventario JOIN pro
                     <?php
                     if ($result_mobile->num_rows > 0) {
                         while ($row = $result_mobile->fetch_assoc()) {
+
+                            $hola = '';
+                            if($_SESSION['idPuesto'] <= 2){
+                                $hola = '<div class="mobile-card-item">
+                                        <span class="mobile-card-label">Precio Compra:</span>
+                                        <span class="mobile-card-value">' . htmlspecialchars($row["Costo"], ENT_QUOTES, 'UTF-8') . '</span>
+                                    </div>';
+                            }
+
                             echo '<div class="mobile-card" data-product="' . htmlspecialchars(strtoupper($row["producto"]), ENT_QUOTES, 'UTF-8') . '">
                                 <div class="mobile-card-header">
                                     <div class="mobile-card-title-section">
-                                        <h3 class="mobile-card-title">' . htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8') . '</h3>
+                                        <h3 class="mobile-card-title">' .htmlspecialchars($row["id"], ENT_QUOTES, 'UTF-8') .' '. htmlspecialchars($row["producto"], ENT_QUOTES, 'UTF-8') . '</h3>
                                         <p class="mobile-card-subtitle">' . htmlspecialchars($row["tipo_producto"], ENT_QUOTES, 'UTF-8') . '</p>
                                     </div>
                                     <span class="status ' . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($row["disponiblidad_inventario"], ENT_QUOTES, 'UTF-8') . '</span>
                                 </div>
                                 <div class="mobile-card-content">
                                     <div class="mobile-card-item">
-                                        <span class="mobile-card-label">ID:</span>
-                                        <span class="mobile-card-value">' . htmlspecialchars($row["id"], ENT_QUOTES, 'UTF-8') . '</span>
-                                    </div>
-                                    <div class="mobile-card-item">
                                         <span class="mobile-card-label">Existencia:</span>
                                         <span class="mobile-card-value">' . htmlspecialchars($row["existencia"], ENT_QUOTES, 'UTF-8') . '</span>
                                     </div>
                                     <div class="mobile-card-item">
-                                        <span class="mobile-card-label">Precio Compra:</span>
-                                        <span class="mobile-card-value">' . htmlspecialchars($row["Costo"], ENT_QUOTES, 'UTF-8') . '</span>
-                                    </div>
+                                        <span class="mobile-card-label">Almacen:</span>
+                                        <span class="mobile-card-value">' . htmlspecialchars($row["existencia_inventario"], ENT_QUOTES, 'UTF-8') . '</span>
+                                    </div> 
+                                    '. $hola . '
                                     <div class="mobile-card-item">
                                         <span class="mobile-card-label">Precio Venta:</span>
                                         <span class="mobile-card-value">' . htmlspecialchars($row["PreciosVentas"], ENT_QUOTES, 'UTF-8') . '</span>

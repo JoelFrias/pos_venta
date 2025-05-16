@@ -454,10 +454,19 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                                     <div class="mobile-label">Existencia:</div>
                                     <div class="mobile-value"><?php echo htmlspecialchars($row['existencia']); ?></div>
                                 </div>
+
+                                <?php 
+                                    // Verificar si el usuario tiene permisos de administrador
+                                    if ($_SESSION['idPuesto'] <= 2):
+                                ?>
+
                                 <div class="mobile-info-item">
                                     <div class="mobile-label">Precio Compra:</div>
                                     <div class="mobile-value"><?php echo htmlspecialchars("RD$ " . number_format($row['precioCompra'], 2)); ?></div>
                                 </div>
+                                
+                                <?php endif; ?>
+
                                 <div class="mobile-info-item">
                                     <div class="mobile-label">Precio Venta 1:</div>
                                     <div class="mobile-value"><?php echo htmlspecialchars("RD$ " . number_format($row['precioVenta1'], 2)); ?></div>
