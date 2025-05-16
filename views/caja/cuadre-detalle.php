@@ -310,7 +310,7 @@ $totalTarjetaPagos = 0;
         /* Resumen info */
         .info-resumen {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
             margin-bottom: 1.5rem;
         }
@@ -465,6 +465,10 @@ $totalTarjetaPagos = 0;
                     <div class="info-item">
                         <div class="info-label">Saldo Final</div>
                         <div class="info-value <?php echo ($row_caja['saldoFinal'] >= 0) ? '' : 'negative'; ?> ">$<?= number_format($row_caja['saldoFinal']) ?></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Diferencia</div>
+                        <div class="info-value <?php echo ($row_caja['diferencia'] >= 0) ? 'positive' : 'negative'; ?> ">$<?= number_format($row_caja['diferencia']) ?></div>
                     </div>
                 </div>
 

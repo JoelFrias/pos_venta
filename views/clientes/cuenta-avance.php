@@ -303,6 +303,23 @@
             }
         }
 
+        .btn-cancel {
+            background-color: #e74c3c; /* Rojo elegante */
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .btn-cancel:hover {
+            background-color: #c0392b; /* Un poco más oscuro al hacer hover */
+        }
+
+
     </style>
 
 </head>
@@ -529,6 +546,7 @@
                                 $totalPaginas = ceil($totalRegistros / $registrosPorPagina);
 
                                 $sql = "SELECT
+                                            chp.registro AS id,
                                             DATE_FORMAT(chp.fecha, '%d/%m/%Y %l:%i %p') AS fechachp,
                                             chp.metodo AS metodochp,
                                             chp.monto AS montochp,
@@ -563,6 +581,9 @@
                             <table class="payment-table">
                                 <thead>
                                     <tr>
+                                        <?php if ($_SESSION['idPuesto'] <= 2): ?>
+                                            <th>Acción</th>
+                                        <?php endif; ?>
                                         <th>Fecha</th>
                                         <th>Método</th>
                                         <th>Monto</th>
@@ -576,6 +597,9 @@
                                 <tbody>
                                     <?php while($row = $result->fetch_assoc()): ?>
                                         <tr>
+                                            <?php if ($_SESSION['idPuesto'] <= 2): ?>
+                                                <td><button onclick="cancelpayment(<?= $row['id'] ?>)" class="btn-cancel">Cancelar Pago</button></td>
+                                            <?php endif; ?>
                                             <td><?php echo htmlspecialchars($row['fechachp']); ?></td>
                                             <td><?php echo htmlspecialchars($row['metodochp']); ?></td>
                                             <td><?php echo htmlspecialchars($row['montochp']); ?></td>

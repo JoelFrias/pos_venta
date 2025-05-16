@@ -1051,7 +1051,7 @@ if ($result->num_rows > 0) {
                                     if (data.caja_activa) {
                                         mensaje += ' Se ha registrado un egreso por el pago inicial de la factura.';
                                     } else {
-                                        mensaje += ' No se registró egreso porque la caja ya está cerrada.';
+                                        mensaje += '';
                                     }
                                     
                                     return {
