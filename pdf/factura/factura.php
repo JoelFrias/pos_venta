@@ -218,7 +218,7 @@ try {
             while($item = $result_items->fetch_assoc()) {
                 $pdf->Cell(40, 4, utf8_decode(htmlspecialchars($item['descripcionp'])), 0, 0);
                 $pdf->Ln(3);
-                $pdf->Cell(26, 4, $item['cantidadp'].' x '.number_format($item['precioVenta'], 2).' = '.number_format($item['importep'], 2), 0, 1, 'C');
+                $pdf->Cell(26, 4, $item['cantidadp'].' x '.number_format($item['precioVenta'], 2).' = '.number_format($item['importep'], 2), 0, 1, 'L');
                 
                 $subtotal += $item['importep'];
             }

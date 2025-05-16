@@ -80,13 +80,13 @@ try {
         $minutosPasados = $diferenciaSegundos / 60;
         
         // Calcular tiempo restante para cancelación
-        $minutosRestantes = 120 - $minutosPasados;  // 2 horas = 120 minutos
+        $minutosRestantes = 4320 - $minutosPasados;  // 3 dias = 4320 minutos
         
-        // Permitir cancelación solo si no han pasado más de 2 horas
-        if ($horasPasadas > 2) {
+        // Permitir cancelación solo si no han pasado más de 72 horas (3 Dias)
+        if ($horasPasadas > 72) {
             $mensaje = sprintf(
                 'No se puede cancelar la factura. Han pasado %d horas y %d minutos desde su emisión. ' .
-                'La factura fue emitida el %s. El tiempo límite para cancelaciones es de 2 horas.',
+                'La factura fue emitida el %s. El tiempo límite para cancelaciones es de 3 dias.',
                 floor($horasPasadas),
                 floor(($horasPasadas - floor($horasPasadas)) * 60),
                 $fechaFacturaFormateada
@@ -162,21 +162,33 @@ try {
         throw new Exception('Error al actualizar el estado de la factura');
     }
     
-    // Si la caja sigue activa y el metodo fue efectivo, registrar un egreso
-    if ($cajaActiva && $cajaFactura['metodo'] == 'efectivo') {
-        $monto = $cajaFactura['monto'];
-        $concepto = "Devolución por cancelación de factura #" . $numFactura;
+    /**  Si la caja sigue activa y el metodo fue efectivo, registrar un egreso
+    * if ($cajaActiva && $cajaFactura['metodo'] == 'efectivo') {
+    *    $monto = $cajaFactura['monto'];
+    *    $concepto = "Devolución por cancelación de factura #" . $numFactura;
         
-        $sql = "INSERT INTO cajaegresos (metodo, monto, idEmpleado, numCaja, razon, fecha) 
-                VALUES ('efectivo', ?, ?, ?, ?, NOW())";
+    *    $sql = "INSERT INTO cajaegresos (metodo, monto, idEmpleado, numCaja, razon, fecha) 
+    *            VALUES ('efectivo', ?, ?, ?, ?, NOW())";
         
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("diss", $monto, $idEmpleado, $cajaFactura['noCaja'], $concepto);
+    *    $stmt = $conn->prepare($sql);
+    *    $stmt->bind_param("diss", $monto, $idEmpleado, $cajaFactura['noCaja'], $concepto);
         
-        if (!$stmt->execute()) {
-            throw new Exception('Error al registrar el egreso en caja');
-        }
+    *    if (!$stmt->execute()) {
+    *        throw new Exception('Error al registrar el egreso en caja');
+    *    }
+    *}
+
+    */
+
+    // Borrar el ingreso de la factura en la tabla ingresos
+    $sql = "DELETE FROM cajaingresos WHERE razon = ?";
+    $stmt = $conn->prepare($sql);
+    $parametro = "Venta por factura #" . $numFactura;
+    $stmt->bind_param("s", $parametro);
+    if (!$stmt->execute()) {
+        throw new Exception('Error al eliminar el ingreso de la factura');
     }
+    $stmt->close();
 
     // Actualizar balance del cliente
 

@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     registrarAuditoriaUsuarios($conn, $usuario_id, $accion, $detalle, $ip);
 
                     // Redirigir a la página de inicio
-                    header("Location: ../../index.php");
+                    header("Location: ../../");
                     exit();
                 } else {
                     $error = "Credenciales incorrectas.";

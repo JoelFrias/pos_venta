@@ -47,595 +47,673 @@ if (isset($_GET['numCaja'])) {
     }
 }
 
-// 2. Función segura para consultas preparadas
-function executeSecureQuery($conn, $query, $params, $types = '') {
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        die("Error en preparación de consulta: " . $conn->error);
-    }
-    
-    if (!empty($params)) {
-        if (empty($types)) {
-            $types = str_repeat('s', count($params));
-        }
-        $stmt->bind_param($types, ...$params);
-    }
-    
-    if (!$stmt->execute()) {
-        die("Error en ejecución de consulta: " . $stmt->error);
-    }
-    
-    return $stmt;
+// Obtener información de la caja
+$sql_caja = "SELECT
+                ce.numCaja AS numCaja,
+                e.id AS idEmpleado,
+                CONCAT(e.nombre,' ',e.apellido) AS nombreEmpleado,
+                DATE_FORMAT(ce.fechaApertura, '%d/%m/%Y %l:%i %p') AS fechaApertura,
+                DATE_FORMAT(ce.fechaCierre, '%d/%m/%Y %l:%i %p') AS fechaCierre,
+                ce.saldoInicial AS saldoInicial,
+                ce.saldoFinal AS saldoFinal,
+                ce.diferencia AS diferencia
+            FROM
+                cajascerradas ce
+            JOIN empleados e
+            ON
+                e.id = ce.idEmpleado
+            WHERE
+                ce.numCaja = ?;";
+$stmt = $conn->prepare($sql_caja);
+$stmt->bind_param("s", $numCaja);
+$stmt->execute();
+$result_caja = $stmt->get_result();
+if ($result_caja->num_rows > 0) {
+    $row_caja = $result_caja->fetch_assoc();
+} else {
+    die("No se encontró información para la caja especificada.");
 }
 
-// 3. Consulta segura para datos de caja
-$query_caja = "SELECT cc.*, CONCAT(e.nombre, ' ', e.apellido) AS empleado
-               FROM cajascerradas cc
-               JOIN empleados e ON cc.idEmpleado = e.id
-               WHERE cc.numCaja = ?";
-$stmt_caja = executeSecureQuery($conn, $query_caja, [$numCaja], 's');
-$result_caja = $stmt_caja->get_result();
-$caja = $result_caja->fetch_assoc();
-$stmt_caja->close();
+// Obtener total de ingresos y egresos
+$sql_ingresos = "WITH
+                    fm AS (
+                        SELECT metodo, monto FROM facturas_metodopago JOIN facturas ON facturas.numFactura = facturas_metodopago.numFactura WHERE facturas_metodopago.noCaja = ? AND facturas.estado != 'Cancelada'
+                    ),
+                    ch AS (
+                        SELECT metodo, monto FROM clientes_historialpagos WHERE numCaja = ?
+                    )
+                    SELECT
+                        COALESCE((SELECT SUM(monto) FROM fm WHERE metodo = 'efectivo'), 0) AS Fefectivo,
+                        COALESCE((SELECT SUM(monto) FROM fm WHERE metodo = 'transferencia'), 0) AS Ftransferencia,
+                        COALESCE((SELECT SUM(monto) FROM fm WHERE metodo = 'tarjeta'), 0) AS Ftarjeta,
 
-// 4. Consultas seguras para ingresos/egresos
-$query_ingresos = "SELECT monto, metodo, razon, fecha 
-                   FROM cajaingresos 
-                   WHERE numCaja = ? 
-                   ORDER BY fecha DESC";
-$stmt_ingresos = executeSecureQuery($conn, $query_ingresos, [$numCaja], 's');
-$result_ingresos = $stmt_ingresos->get_result();
+                        COALESCE((SELECT SUM(monto) FROM ch WHERE metodo = 'efectivo'), 0) AS CPefectivo,
+                        COALESCE((SELECT SUM(monto) FROM ch WHERE metodo = 'transferencia'), 0) AS CPtransferencia,
+                        COALESCE((SELECT SUM(monto) FROM ch WHERE metodo = 'tarjeta'), 0) AS CPtarjeta;";
+$stmt = $conn->prepare($sql_ingresos);
+$stmt->bind_param("ss", $numCaja, $numCaja);
+$stmt->execute();
+$result_ingresos = $stmt->get_result();
+$row = $result_ingresos->fetch_assoc();
 
-$query_egresos = "SELECT monto, metodo, razon, fecha  
-                  FROM cajaegresos 
-                  WHERE numCaja = ? 
-                  ORDER BY fecha DESC";
-$stmt_egresos = executeSecureQuery($conn, $query_egresos, [$numCaja], 's');
-$result_egresos = $stmt_egresos->get_result();
+// Obtener total de ingresos
+$ItotalE = $row['Fefectivo'] + $row['CPefectivo'];
+$ItotalT = $row['Ftransferencia'] + $row['CPtransferencia'];
+$ItotalC = $row['Ftarjeta'] + $row['CPtarjeta'];
 
-$query_efectivo = " SELECT IFNULL(SUM(monto), 0) AS total_efectivo
-                    FROM cajaingresos
-                    WHERE metodo = 'efectivo' AND numCaja = ? ";
-$stmt_efectivo = executeSecureQuery($conn, $query_efectivo, [$numCaja], 's');
-$result_efectivo = $stmt_efectivo->get_result();
+$sql_FacturasContado = "SELECT
+                            f.numFactura AS noFac,
+                            DATE_FORMAT(f.fecha, '%d/%m/%Y %l:%i %p') AS fecha,
+                            CONCAT(c.nombre,' ',c.apellido) AS nombrec,
+                            fm.metodo,
+                            fm.monto
+                        FROM
+                            facturas f
+                        JOIN clientes c
+                        ON 
+                            c.id = f.idCliente
+                        JOIN facturas_metodopago fm
+                        ON
+                            fm.numFactura = f.numFactura AND fm.noCaja = ?
+                        WHERE
+                            f.tipoFactura = 'contado'
+                        AND f.estado != 'Cancelada';";
+$stmt = $conn->prepare($sql_FacturasContado);
+$stmt->bind_param("s", $numCaja);
+$stmt->execute();
+$result_FacturasContado = $stmt->get_result();
 
-$query_transferencia = " SELECT IFNULL(SUM(monto), 0) AS total_transferencia
-                    FROM cajaingresos
-                    WHERE metodo = 'transferencia' AND numCaja = ? ";
-$stmt_transferencia = executeSecureQuery($conn, $query_transferencia, [$numCaja], 's');
-$result_transferencia = $stmt_transferencia->get_result();
+// Obtener total de facturas a contado
+$sql_FacturasCredito = "SELECT
+                            f.numFactura AS noFac,
+                            DATE_FORMAT(f.fecha, '%d/%m/%Y %l:%i %p') AS fecha,
+                            CONCAT(c.nombre,' ',c.apellido) AS nombrec,
+                            fm.metodo,
+                            fm.monto
+                        FROM
+                            facturas f
+                        JOIN clientes c
+                        ON 
+                            c.id = f.idCliente
+                        JOIN facturas_metodopago fm
+                        ON
+                            fm.numFactura = f.numFactura AND fm.noCaja = ?
+                        WHERE
+                            f.tipoFactura = 'credito'
+                        AND f.estado != 'Cancelada';";
+$stmt = $conn->prepare($sql_FacturasCredito);
+$stmt->bind_param("s", $numCaja);
+$stmt->execute();
+$result_FacturasCredito = $stmt->get_result();
 
-$query_tarjeta = " SELECT IFNULL(SUM(monto), 0) AS total_tarjeta
-                    FROM cajaingresos
-                    WHERE metodo = 'tarjeta' AND numCaja = ? ";
-$stmt_tarjeta = executeSecureQuery($conn, $query_tarjeta, [$numCaja], 's');
-$result_tarjeta = $stmt_tarjeta->get_result();
+// Variables para totales de facturas a contado
+$totalEfectivo = 0;
+$totalTransferencia = 0;
+$totalTarjeta = 0;
 
-// 5. Función segura para formatear fechas
-function formatDate($dateString) {
-    if (empty($dateString)) {
-        return 'No registrada';
-    }
-    
-    // Eliminar cualquier posible tag HTML o JavaScript
-    $dateString = htmlspecialchars(strip_tags($dateString));
-    
-    // Verificar si es una fecha inválida de MySQL
-    if (strpos($dateString, '0000-00-00') !== false) {
-        return 'No registrada';
-    }
-    
-    try {
-        $date = new DateTime($dateString);
-        $now = new DateTime();
-        
-        // Verificar si la fecha es futura (posible error)
-        if ($date > $now) {
-            return 'Fecha inválida';
-        }
-        
-        return $date->format('n/j/Y g:i A'); // Cambiado a formato 4/14/2025 1:09 AM
-    } catch (Exception $e) {
-        return 'Formato inválido';
-    }
-}
+// Variables para totales de facturas a credito
+$totalEfectivoCredito = 0;
+$totalTransferenciaCredito = 0;
+$totalTarjetaCredito = 0;
 
-// Calcular totales
-$total_ingresos = 0;
-$total_egresos = 0;
-$ingresos_data = [];
-$egresos_data = [];
+// Obtener pagos de clientes
+$sql_pagos = "SELECT
+                ch.registro AS id, 
+                DATE_FORMAT(ch.fecha, '%d/%m/%Y %l:%i %p') AS fecha,
+                CONCAT(c.nombre,' ',c.apellido) AS nombre,
+                ch.metodo AS metodo,
+                ch.monto AS monto
+            FROM
+                clientes_historialpagos ch
+            JOIN clientes c
+            ON
+                c.id = ch.idCliente
+            WHERE
+                ch.numCaja = ?;";
+$stmt = $conn->prepare($sql_pagos);
+$stmt->bind_param("s", $numCaja);
+$stmt->execute();
+$result_pagos = $stmt->get_result();
 
-while($row = $result_ingresos->fetch_assoc()) {
-    $total_ingresos += $row['monto'];
-    $ingresos_data[] = $row;
-}
+// Variables para totales de pagos
+$totalEfectivoPagos = 0;
+$totalTransferenciaPagos = 0;
+$totalTarjetaPagos = 0;
 
-while($row = $result_egresos->fetch_assoc()) {
-    $total_egresos += $row['monto'];
-    $egresos_data[] = $row;
-}
-
-// Calcular diferencia
-$saldo_inicial = $caja['saldoInicial'] ?? 0;
-$saldo_final = $caja['saldoFinal'] ?? 0;
-$diferencia = $caja['diferencia'] ?? 0;
-
-// Cerrar los statements restantes
-$stmt_ingresos->close();
-$stmt_egresos->close();
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Caja #<?= htmlspecialchars($numCaja) ?></title>
+    <title>Cuadre de Caja #<?= $row_caja['numCaja'] ?></title>
     <link rel="icon" type="image/png" href="../../assets/img/logo-blanco.png">
-    <link rel="stylesheet" href="../../assets/css/menu.css"> <!-- CSS menu -->
-    <link href="../../assets/css/cuadre-detalle.css" rel="stylesheet"> <!-- css de bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"> <!-- Librería de iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Librería de iconos -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería para alertas -->
+    <link rel="stylesheet" href="../../assets/css/menu.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color-hola: #0d6efd;
-            --secondary-color-hola: #6c757d;
-            --success-color-hola: #28a745;
-            --danger-color-hola: #dc3545;
-            --dark-color-hola: #2c3e50;
-            --light-color-hola: #f8f9fa;
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --border: #eaeaea;
+            --background: #f5f6fa;
+            --text: #2d3436;
+            --gray: #636e72;
+            --light-gray: #f1f2f6;
+            --shadow: 0 2px 4px rgba(0,0,0,0.05);
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #f8f9fa;
-            padding-bottom: 2rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        
-        .page-content .report-header {
-            background: var(--dark-color-hola);
-            color: white;
-            border-radius: 8px 8px 0 0;
-            padding: 1.25rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .contenedor {
+            padding: 0 1.5rem;
+            max-width: 1280px;
+            margin: 0 auto;
         }
-        
-        .page-content .card {
-            border-radius: 8px;
-            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+
+        /* Header */
+        .cabecera {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cabecera h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary);
+            color: white;
             border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Card layout */
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: var(--card-shadow);
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 1.5rem;
         }
-        
-        .page-content .card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+        .card-header {
+            padding: 1.25rem;
+            background-color: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .page-content .summary-card {
-            border-left: 5px solid var(--primary-color-hola);
-        }
-        
-        .page-content .finance-card {
-            border-left: 5px solid var(--success-color-hola);
-        }
-        
-        .page-content .card-header {
+
+        .card-header h2 {
+            font-size: 1.25rem;
             font-weight: 600;
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid rgba(0,0,0,0.08);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
-        .page-content .table-responsive {
-            margin-bottom: 0;
+
+        .card-body {
+            padding: 1.25rem;
         }
-        
-        .page-content .table {
-            margin-bottom: 0;
+
+        /* Resumen info */
+        .info-resumen {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
-        
-        .page-content .table th {
-            background-color: rgba(0,0,0,0.03);
-            position: sticky;
-            top: 0;
+
+        .info-item {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
             font-weight: 600;
-            border-bottom: 2px solid rgba(0,0,0,0.05);
+            color: var(--primary);
         }
-        
-        .page-content .table td, .table th {
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        /* Tablas */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        table thead th {
+            background-color: var(--light-gray);
+            color: var(--primary);
+            font-weight: 600;
             padding: 0.75rem 1rem;
-            vertical-align: middle;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
         }
-        
-        .page-content .table tr:last-child td {
+
+        table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tbody tr:last-child td {
             border-bottom: none;
         }
-        
-        .page-content .positive {
-            color: var(--success-color-hola);
+
+        .table-footer {
+            background-color: var(--light-gray);
+            padding: 0.75rem 1rem;
             font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border);
         }
-        
-        .page-content .negative {
-            color: var(--danger-color-hola);
-            font-weight: 600;
-        }
-        
-        .page-content .logo {
-            max-height: 50px;
-        }
-        
-        .page-content .diferencia-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            padding: 0.5rem;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        
-        .page-content .info-value {
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-        
-        .page-content .no-data {
-            color: var(--secondary-color-hola);
-            font-style: italic;
-            padding: 1.5rem 0;
-        }
-        
-        .page-content .btn {
-            padding: 0.5rem 1.25rem;
-            border-radius: 5px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        
-        .page-content .btn-primary {
-            background-color: var(--primary-color-hola);
-            border-color: var(--primary-color-hola);
-        }
-        
-        .page-content .btn-primary:hover {
-            background-color: #0b5ed7;
-            border-color: #0a58ca;
-            transform: translateY(-2px);
-        }
-        
-        .page-content .btn-secondary {
-            background-color: var(--secondary-color-hola);
-            border-color: var(--secondary-color-hola);
-        }
-        
-        .page-content .btn-secondary:hover {
-            background-color: #5c636a;
-            border-color: #565e64;
-            transform: translateY(-2px);
-        }
-        
-        .page-content .actions-container {
-            margin-top: 2rem;
-        }
-        
-        .page-content .alert {
-            border-radius: 8px;
-            border: none;
-            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
-        }
-        
-        .page-content .info-label {
-            color: var(--secondary-color-hola);
-            margin-bottom: 0.25rem;
-            font-weight: 500;
-        }
-        
-        .page-content .info-section {
-            margin-bottom: 1rem;
-        }
-        
-        /* Estilos específicos para impresión */
-        @media print {
-            body {
-                padding: 0;
-                margin: 0;
-            }
-            
-            .page-content .container {
-                max-width: 100%;
-                width: 100%;
-                padding: 0;
-                margin: 0;
-            }
-            
-            .page-content .card {
-                box-shadow: none;
-                border: 1px solid #ddd;
-            }
-            
-            .page-content .report-header {
-                background: #343a40 !important;
-                color: white !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            
-            .page-content .actions-container, 
-            .page-content .btn {
-                display: none !important;
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .info-resumen {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
-        
-        /* Responsive mejorado */
-        @media (max-width: 767px) {
-            .page-content .card-header h5 {
-                font-size: 1rem;
-            }
-            
-            .page-content .table td, .page-content .table th {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.9rem;
-            }
-            
-            .page-content .diferencia-value {
-                font-size: 1.1rem;
-            }
-            
-            .page-content .info-value {
-                font-size: 1rem;
-            }
-            
-            .page-content .report-header h2 {
-                font-size: 1.5rem;
-            }
-            
-            .page-content .report-header h4 {
-                font-size: 1.2rem;
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
             }
         }
-        
-        /* Estilos para pantallas muy pequeñas */
-        @media (max-width: 575px) {
-            .page-content .card-body {
-                padding: 1rem;
+
+        @media (max-width: 576px) {
+            .info-resumen {
+                grid-template-columns: 1fr;
             }
-            
-            .page-content .report-header {
+
+            .cabecera {
                 flex-direction: column;
-                text-align: center;
+                align-items: flex-start;
+                gap: 1rem;
             }
-            
-            .page-content .report-header div.text-end {
-                text-align: center !important;
-                margin-top: 1rem;
-            }
-            
-            .page-content .table-responsive {
-                max-height: 300px;
-                overflow-y: auto;
+
+            .acciones {
+                width: 100%;
+                justify-content: flex-end;
             }
         }
     </style>
-
 </head>
 <body>
-        
-<div class="navegator-nav">
-
-    <!-- Menu-->
-    <?php include '../../views/layouts/menu.php'; ?>
+    <div class="navegator-nav">
+        <!-- Menu -->
+        <?php include '../../views/layouts/menu.php'; ?>
 
         <div class="page-content">
-        <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
-
-            <div class="container py-4">
-                <div class="card">
-                    <div class="card-header report-header d-flex justify-content-between align-items-center">
-                        <div>
-                            <h2 class="mb-0"><i class="bi bi-cash-stack me-2"></i> Detalles de Cuadre</h2>
-                            <small class="text-light">Fecha Actual: <?= date('d/m/Y H:i:s') ?></small>
-                        </div>
-                        <div class="text-end">
-                            <h4 class="mb-0">Caja: <?= htmlspecialchars($numCaja) ?></h4>
-                            <?php if($caja): ?>
-                                <small class="text-light">Empleado: <?= htmlspecialchars($caja['empleado']) ?></small>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="card-body p-3 p-md-4">
-                        <?php if($caja): ?>
-                        <div class="row mb-4 g-3">
-                            <div class="col-12 col-md-6">
-                                <div class="card h-100 summary-card">
-                                    <div class="card-header bg-white">
-                                        <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i> Información de Caja</h5>
-                                    </div>
-                                    <div class="card-body p-3 p-md-4">
-                                        <div class="row g-3">
-                                            <div class="col-12 col-sm-6">
-                                                <div class="info-section">
-                                                    <p class="info-label mb-1"><i class="bi bi-calendar3 me-1"></i> Fecha Apertura:</p>
-                                                    <p class="info-value mb-0"><?= formatDate($caja['fechaApertura']) ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6">
-                                                <div class="info-section">
-                                                    <p class="info-label mb-1"><i class="bi bi-calendar-check me-1"></i> Fecha Cierre:</p>
-                                                    <p class="info-value mb-0"><?= formatDate($caja['fechaCierre']) ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row g-3">
-                                            <div class="col-12 col-sm-6">
-                                                <div class="info-section">
-                                                    <p class="info-label mb-1"><i class="bi bi-box-arrow-in-right me-1"></i> Saldo Inicial:</p>
-                                                    <p class="info-value mb-0">$<?= number_format($caja['saldoInicial'], 2) ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row g-3">
-                                            <div class="col-12 col-sm-6">
-                                                <div class="info-section">
-                                                    <p class="info-label mb-1"><i class="bi bi-box-arrow-right me-1"></i> Saldo Final:</p>
-                                                    <p class="info-value mb-0">$<?= number_format($caja['saldoFinal'], 2) ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <div class="card h-100 finance-card">
-                                    <div class="card-header bg-white">
-                                        <h5 class="mb-0"><i class="bi bi-calculator me-2"></i> Resumen Financiero</h5>
-                                    </div>
-                                    <div class="card-body p-3 p-md-4">
-                                        <div class="row g-3">
-                                            <div class="col-12 col-sm-6">
-                                                <div class="info-section">
-                                                    <p class="info-label mb-1"><i class="bi bi-graph-up-arrow me-1"></i> Total Ingresos:</p>
-                                                    <p class="info-value positive mb-0">+ $<?= number_format($total_ingresos, 2) ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6">
-                                                <div class="info-section">
-                                                    <p class="info-label mb-1"><i class="bi bi-graph-down-arrow me-1"></i> Total Egresos:</p>
-                                                    <p class="info-value negative mb-0">- $<?= number_format($total_egresos, 2) ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-3">
-                                            <div class="col-12">
-                                                <div class="bg-light p-3 rounded text-center">
-                                                    <p class="info-label mb-1"><i class="bi bi-currency-exchange me-1"></i> Diferencia:</p>
-                                                    <p class="diferencia-value mb-0 <?= ($diferencia >= 0) ? 'positive bg-success bg-opacity-10' : 'negative bg-danger bg-opacity-10' ?>">
-                                                        <?= ($diferencia >= 0) ? '+' : '-' ?> $<?= number_format(abs($diferencia), 2) ?>
-                                                        <small class="d-block mt-1">(<?= ($diferencia >= 0) ? 'A favor' : 'En contra' ?>)</small>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-12 col-lg-6">
-                                <div class="card">
-                                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0"><i class="bi bi-arrow-down-circle me-2"></i> Ingresos</h5>
-                                        <span class="badge bg-success"><?= count($ingresos_data) ?> registros</span>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive" style="max-height: 400px;">
-                                            <table class="table table-hover mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Monto</th>
-                                                        <th>Método</th>
-                                                        <th>Descripción</th>
-                                                        <th>Fecha</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php if(count($ingresos_data) > 0): ?>
-                                                        <?php foreach($ingresos_data as $ingreso): ?>
-                                                        <tr>
-                                                            <td class="positive">+ $<?= number_format($ingreso['monto'], 2) ?></td>
-                                                            <td><?= htmlspecialchars($ingreso['metodo'] ?? 'No especificado') ?></td>
-                                                            <td><?= htmlspecialchars($ingreso['razon'] ?? 'Sin descripción') ?></td>
-                                                            <td><?= formatDate($ingreso['fecha']) ?></td>
-                                                        </tr>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="4" class="text-center no-data">No hay registros de ingresos</td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-lg-6">
-                                <div class="card">
-                                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0"><i class="bi bi-arrow-up-circle me-2"></i> Egresos</h5>
-                                        <span class="badge bg-danger"><?= count($egresos_data) ?> registros</span>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive" style="max-height: 400px;">
-                                            <table class="table table-hover mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Monto</th>
-                                                        <th>Método</th>
-                                                        <th>Descripción</th>
-                                                        <th>Fecha</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php if(count($egresos_data) > 0): ?>
-                                                        <?php foreach($egresos_data as $egreso): ?>
-                                                        <tr>
-                                                            <td class="negative">- $<?= number_format($egreso['monto'], 2) ?></td>
-                                                            <td><?= htmlspecialchars($egreso['metodo'] ?? 'No especificado') ?></td>
-                                                            <td><?= htmlspecialchars($egreso['razon'] ?? 'Sin descripción') ?></td>
-                                                            <td><?= formatDate($egreso['fecha']) ?></td>
-                                                        </tr>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="4" class="text-center no-data">No hay registros de egresos</td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="actions-container mt-4 text-center">
-                            <button class="btn btn-primary me-2 mb-2 mb-md-0" onclick="imprimirReporte('<?= $numCaja ?>')"><i class="bi bi-printer me-2"></i> Imprimir Reporte</button>
-                            <a href="javascript:history.back()" class="btn btn-secondary mb-2 mb-md-0"><i class="bi bi-arrow-left me-2"></i> Volver</a>
-                        </div>
-                        <?php else: ?>
-                        <div class="alert alert-danger">
-                            <h4 class="alert-heading"><i class="bi bi-exclamation-triangle me-2"></i> Caja no encontrada</h4>
-                            <p>No se encontró información para la caja <?= htmlspecialchars($numCaja) ?></p>
-                            <hr>
-                            <p class="mb-0">Verifica el número de caja e intenta nuevamente.</p>
-                        </div>
-                        <div class="text-center">
-                            <a href="javascript:history.back()" class="btn btn-primary"><i class="bi bi-arrow-left me-2"></i> Volver</a>
-                        </div>
-                        <?php endif; ?>
+            <div class="contenedor">
+                <!-- Cabecera -->
+                <div class="cabecera">
+                    <h1><i class="fas fa-cash-register"></i> Detalle de Cuadre de Caja</h1>
+                    <div class="acciones">
+                        <button class="btn btn-outline" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </button>
+                        <button class="btn" onclick="imprimirReporte()">
+                            <i class="fas fa-print"></i> Imprimir
+                        </button>
                     </div>
                 </div>
-            </div>
 
-        <!-- TODO EL CONTENIDO DE LA PAGINA ENCIMA DE ESTO -->
+                <!-- Información General -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-info-circle"></i> Información General</h2>
+                        <span class="badge-cuadre">Caja #<?= $row_caja['numCaja'] ?></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-general">
+                            <div class="info-row">
+                                <div><strong>ID Empleado: </strong><?= $row_caja['idEmpleado'] ?></div>
+                                <div><strong>Empleado: </strong><?= $row_caja['nombreEmpleado'] ?></div>
+                                <div><strong>Fecha Apertura: </strong><?= $row_caja['fechaApertura'] ?></div>
+                                <div><strong>Fecha Cierre: </strong><?= $row_caja['fechaCierre'] ?></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Saldos -->
+                <div class="info-resumen">
+                    <div class="info-item">
+                        <div class="info-label">Saldo Inicial</div>
+                        <div class="info-value <?php echo ($row_caja['saldoInicial'] >= 0) ? '' : 'negative'; ?> ">$<?= number_format($row_caja['saldoInicial']) ?></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Saldo Final</div>
+                        <div class="info-value <?php echo ($row_caja['saldoFinal'] >= 0) ? '' : 'negative'; ?> ">$<?= number_format($row_caja['saldoFinal']) ?></div>
+                    </div>
+                </div>
+
+                <!-- Secciones de detalle -->
+                <div class="grid-container">
+
+                    <!-- Resumen de Ingresos -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-chart-line"></i> Resumen de Ingresos</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Descripción</th>
+                                            <th>Efectivo</th>
+                                            <th>Transferencia</th>
+                                            <th>Tarjeta</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Facturas</strong></td>
+                                            <td>$<?= number_format($row['Fefectivo']) ?></td>
+                                            <td>$<?= number_format($row['Ftransferencia']) ?></td>
+                                            <td>$<?= number_format($row['Ftarjeta']) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Pagos de Clientes</strong></td>
+                                            <td>$<?= number_format($row['CPefectivo']) ?></td>
+                                            <td>$<?= number_format($row['CPtransferencia']) ?></td>
+                                            <td>$<?= number_format($row['CPtarjeta']) ?></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="table-footer">
+                                    <div>Total</div>
+                                    <div>$<?= number_format($ItotalE) ?></div>
+                                    <div>$<?= number_format($ItotalT) ?></div>
+                                    <div>$<?= number_format($ItotalC) ?></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Facturas a Contado -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-receipt"></i> Facturas a Contado</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>No.</th>
+                                            <th>Fecha</th>
+                                            <th>Cliente</th>
+                                            <th>Método</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        $totalEfectivo = 0;
+                                        $totalTransferencia = 0;
+                                        $totalTarjeta = 0;
+                                        
+                                        if ($result_FacturasContado->num_rows > 0) {
+                                            while ($row = $result_FacturasContado->fetch_assoc()) {
+                                                echo "<tr>
+                                                    <td>{$row['noFac']}</td>
+                                                    <td>{$row['fecha']}</td>
+                                                    <td>{$row['nombrec']}</td>
+                                                    <td>{$row['metodo']}</td>
+                                                    <td>$" . number_format($row['monto']) . "</td>
+                                                </tr>";
+
+                                                if($row['metodo'] == 'efectivo') {
+                                                    $totalEfectivo += $row['monto'];
+                                                } elseif($row['metodo'] == 'transferencia') {
+                                                    $totalTransferencia += $row['monto'];
+                                                } elseif($row['metodo'] == 'tarjeta') {
+                                                    $totalTarjeta += $row['monto'];
+                                                }
+                                            }
+                                        } else {
+                                            echo "<tr><td colspan='5'>No hay facturas a contado</td></tr>";
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="table-footer">
+                                <div>Total Efectivo:</div>
+                                <div>$<?= number_format($totalEfectivo) ?></div>
+                            </div>
+                            <div class="table-footer">
+                                <div>Total Transferencia:</div>
+                                <div>$<?= number_format($totalTransferencia) ?></div>
+                            </div>
+                            <div class="table-footer">
+                                <div>Total Tarjeta:</div>
+                                <div>$<?= number_format($totalTarjeta) ?></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Facturas a Crédito -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-credit-card"></i> Facturas a Crédito</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>No.</th>
+                                            <th>Fecha</th>
+                                            <th>Cliente</th>
+                                            <th>Método</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        $totalEfectivoCredito = 0;
+                                        $totalTransferenciaCredito = 0;
+                                        $totalTarjetaCredito = 0;
+                                        
+                                        if ($result_FacturasCredito->num_rows > 0) {
+                                            while ($row = $result_FacturasCredito->fetch_assoc()) {
+                                                echo "<tr>
+                                                    <td>{$row['noFac']}</td>
+                                                    <td>{$row['fecha']}</td>
+                                                    <td>{$row['nombrec']}</td>
+                                                    <td>{$row['metodo']}</td>
+                                                    <td>$" . number_format($row['monto']) . "</td>
+                                                </tr>";
+
+                                                if($row['metodo'] == 'efectivo') {
+                                                    $totalEfectivoCredito += $row['monto'];
+                                                } elseif ($row['metodo'] == 'transferencia') {
+                                                    $totalTransferenciaCredito += $row['monto'];
+                                                } elseif ($row['metodo'] == 'tarjeta') {
+                                                    $totalTarjetaCredito += $row['monto'];
+                                                }
+                                            }
+                                        } else {
+                                            echo "<tr><td colspan='5'>No hay facturas a crédito</td></tr>";
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="table-footer">
+                                <div>Total Efectivo:</div>
+                                <div>$<?= number_format($totalEfectivoCredito) ?></div>
+                            </div>
+                            <div class="table-footer">
+                                <div>Total Transferencia:</div>
+                                <div>$<?= number_format($totalTransferenciaCredito) ?></div>
+                            </div>
+                            <div class="table-footer">
+                                <div>Total Tarjeta:</div>
+                                <div>$<?= number_format($totalTarjetaCredito) ?></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagos de Clientes -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-hand-holding-usd"></i> Pagos de Clientes</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>No.</th>
+                                            <th>Fecha</th>
+                                            <th>Cliente</th>
+                                            <th>Método</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        $totalEfectivoPagos = 0;
+                                        $totalTransferenciaPagos = 0;
+                                        $totalTarjetaPagos = 0;
+                                        
+                                        if ($result_pagos->num_rows > 0) {
+                                            while ($row = $result_pagos->fetch_assoc()) {
+                                                echo "<tr>
+                                                    <td>{$row['id']}</td>
+                                                    <td>{$row['fecha']}</td>
+                                                    <td>{$row['nombre']}</td>
+                                                    <td>{$row['metodo']}</td>
+                                                    <td>$" . number_format($row['monto']) . "</td>
+                                                </tr>";
+
+                                                if($row['metodo'] == 'efectivo') {
+                                                    $totalEfectivoPagos += $row['monto'];
+                                                } elseif ($row['metodo'] == 'transferencia') {
+                                                    $totalTransferenciaPagos += $row['monto'];
+                                                } elseif ($row['metodo'] == 'tarjeta') {
+                                                    $totalTarjetaPagos += $row['monto'];
+                                                }
+                                            }
+                                        } else {
+                                            echo "<tr><td colspan='5'>No hay pagos de clientes</td></tr>";
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="table-footer">
+                                <div>Total Efectivo:</div>
+                                <div>$<?= number_format($totalEfectivoPagos) ?></div>
+                            </div>
+                            <div class="table-footer">
+                                <div>Total Transferencia:</div>
+                                <div>$<?= number_format($totalTransferenciaPagos) ?></div>
+                            </div>
+                            <div class="table-footer">
+                                <div>Total Tarjeta:</div>
+                                <div>$<?= number_format($totalTarjetaPagos) ?></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function imprimirReporte(id) {
-            const invoiceUrl = `../../pdf/cuadre/cuadre.php?numCaja=${id}`;
-            window.open(invoiceUrl, '_blank');
+        function imprimirReporte() {
+            const numCaja = '<?php echo $numCaja; ?>';
+            const reportUrl = `../../pdf/cuadre/cuadre.php?numCaja=${numCaja}`;
+            window.open(reportUrl, '_blank');
         }
     </script>
-
 </body>
 </html>
-<?php
-$conn->close();
-?>

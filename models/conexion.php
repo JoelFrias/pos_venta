@@ -14,9 +14,9 @@ date_default_timezone_set('America/Santo_Domingo');
 
 // Datos de conexión
 $servername = "localhost";
-$username = "u479159589_root";
-$password = "wq37GGR2@";
-$dbname = "u479159589_pos_venta";
+$username = "root";
+$password = "Joelbless23";
+$dbname = "pos_venta";
 
 // Manejo de errores personalizado
 function gestionarErrorConexion($mensaje) {

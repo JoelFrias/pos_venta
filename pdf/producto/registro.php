@@ -56,6 +56,11 @@ class PDF extends FPDF {
     }
 }
 
+// Verificar y validar la existencia de la variable de sesión
+session_start();
+$idPuesto = isset($_SESSION['idPuesto']) ? intval($_SESSION['idPuesto']) : 0;
+$ocultarPrecioCompra = ($idPuesto > 2);
+
 // Crear documento PDF
 $pdf = new PDF('P', 'mm', 'Letter');
 $pdf->AliasNbPages(); // Para mostrar el total de páginas
@@ -97,6 +102,9 @@ if ($result->num_rows > 0) {
         $precioVenta1 = number_format($row['precioVenta1'], 2);
         $precioVenta2 = number_format($row['precioVenta2'], 2);
         $existencia = number_format($row['existencia'], 0);
+
+        // Modificar la visualización del precio de compra según el idPuesto
+        $mostrarPrecioCompra = $ocultarPrecioCompra ? '****' : '$' . $precioCompra;
         
         // Imprimir línea de datos principal
         $pdf->SetFont('Arial', '', 8);
@@ -105,7 +113,7 @@ if ($result->num_rows > 0) {
         $pdf->Cell(70, 6, utf8_decode($row['descripcion']), 1, 0, 'L');
         $pdf->Cell(20, 6, utf8_decode($row['reorden']), 1, 0, 'C');
         $pdf->Cell(15, 6, $existencia, 1, 0, 'C');
-        $pdf->Cell(25, 6, '$' . $precioCompra, 1, 0, 'R');
+        $pdf->Cell(25, 6, $mostrarPrecioCompra, 1, 0, 'R');
         $pdf->Cell(25, 6, '$' . $precioVenta1, 1, 0, 'R');
         $pdf->Cell(25, 6, '$' . $precioVenta2, 1, 0, 'R');
         $pdf->Cell(8, 6, ($row['activo'] == 1) ? 'A' : 'I', 1, 1, 'C');
@@ -159,10 +167,16 @@ if ($result->num_rows > 0) {
     $pdf->SetFont('Arial', '', 10);
     $pdf->Cell(0, 8, number_format($stats['totalExistencia'], 0), 0, 1);
     
+    // Mostrar el valor total del inventario con asteriscos si el empleado no tiene permiso
     $pdf->SetFont('Arial', 'B', 10);
     $pdf->Cell(100, 8, 'Valor Total del Inventario (Precio de Compra):', 0, 0);
     $pdf->SetFont('Arial', '', 10);
-    $pdf->Cell(0, 8, '$' . number_format($stats['valorInventario'], 2), 0, 1);
+    
+    if ($ocultarPrecioCompra) {
+        $pdf->Cell(0, 8, '****', 0, 1);
+    } else {
+        $pdf->Cell(0, 8, '$' . number_format($stats['valorInventario'], 2), 0, 1);
+    }
     
     $pdf->SetFont('Arial', 'B', 10);
     $pdf->Cell(100, 8, 'Productos por Debajo del Nivel de Reorden:', 0, 0);

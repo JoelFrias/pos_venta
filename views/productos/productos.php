@@ -321,7 +321,12 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                                         <th>Descripción</th>
                                         <th>Tipo</th>
                                         <th>Existencia</th>
-                                        <th>Precio Compra</th>
+                                        <?php 
+                                            // Verificar si el usuario tiene permisos de administrador
+                                            if ($_SESSION['idPuesto'] <= 2) {
+                                                echo '<th>Precio Compra</th>';
+                                            }
+                                        ?>
                                         <th>Precio Venta 1</th>
                                         <th>Precio Venta 2</th>
                                         <th>Reorden</th>
@@ -351,7 +356,16 @@ while ($row_tipo = $result_tipos->fetch_assoc()) {
                                         <td><?php echo htmlspecialchars($row['descripcion']); ?></td>
                                         <td><?php echo htmlspecialchars($row['tipo']); ?></td>
                                         <td><?php echo htmlspecialchars($row['existencia']); ?></td>
+
+                                        <?php 
+                                            // Verificar si el usuario tiene permisos de administrador
+                                            if ($_SESSION['idPuesto'] <= 2):
+                                        ?>
+
                                         <td><?php echo htmlspecialchars("RD$ " . number_format($row['precioCompra'], 2)); ?></td>
+
+                                        <?php endif; ?>
+                                        
                                         <td><?php echo htmlspecialchars("RD$ " . number_format($row['precioVenta1'], 2));?></td>
                                         <td><?php echo htmlspecialchars("RD$ " . number_format($row['precioVenta2'], 2)); ?></td>
                                         <td><?php echo htmlspecialchars($row['reorden']); ?></td>

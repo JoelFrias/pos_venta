@@ -249,7 +249,7 @@ try {
     $result = $stmt->get_result()->fetch_assoc();
     logDebug("Balance adeudado: ", $result);
     
-    if ($result['balance'] < $total && $tipoFactura === 'credito') {
+    if ($result['balance'] < ($total - $montoPagado) && $tipoFactura === 'credito') {
         throw new Exception("Cliente ID $idCliente excede el limite de credito disponible");
     }
 

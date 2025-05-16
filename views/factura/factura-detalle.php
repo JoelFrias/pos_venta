@@ -895,6 +895,28 @@ if ($result->num_rows > 0) {
                                     </div>
                                 </div>
 
+                                <div class="action-buttons">
+
+                                    <?php if ($factura['estado'] != "Cancelada"): ?>
+
+                                    <button class="btn-secondary" onclick="reimprimir()">
+                                        <span class="printer-icon">🖨️</span>
+                                        Reimprimir
+                                    </button>
+
+                                    <?php endif ?>
+
+                                    <?php if($factura['estado'] !== "Cancelada" && $_SESSION['idPuesto'] <= 2): ?>
+                                        <button class="btn-secondary-cancel" id="cancel-btn">
+                                            <spa class="printer-icon"><i class="fa-solid fa-ban">  </i></span>
+                                            Cancelar Factura
+                                        </button>
+                                    <?php endif ?>
+
+                                    <button class="btn-primary" onclick="navigateTo('../../views/clientes/cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
+                                    
+                                </div>
+
                                 <div class="details-cancelation">
 
                                     <?php
@@ -936,28 +958,6 @@ if ($result->num_rows > 0) {
                                     ?>
 
                                 </div>
-                                
-                                <div class="action-buttons">
-
-                                    <?php if ($factura['estado'] != "Cancelada"): ?>
-
-                                    <button class="btn-secondary" onclick="reimprimir()">
-                                        <span class="printer-icon">🖨️</span>
-                                        Reimprimir
-                                    </button>
-
-                                    <?php endif ?>
-
-                                    <?php if($factura['estado'] !== "Cancelada" && $_SESSION['idPuesto'] <= 2): ?>
-                                        <button class="btn-secondary-cancel" id="cancel-btn">
-                                            <spa class="printer-icon"><i class="fa-solid fa-ban">  </i></span>
-                                            Cancelar Factura
-                                        </button>
-                                    <?php endif ?>
-
-                                    <button class="btn-primary" onclick="navigateTo('../../views/clientes/cuenta-avance.php?idCliente=<?php echo $facturaInfo['idCliente']; ?>')"><i class="fa-solid fa-money-check-dollar"></i> Avance a cuenta del cliente</button>
-                                    
-                                </div>
                             </div>
                             <button class="btn-volver" onclick="history.back()">← Volver atrás</button>
                         <?php endforeach; ?>
@@ -995,7 +995,7 @@ if ($result->num_rows > 0) {
                                 <textarea id="motivo-cancelacion" class="swal2-textarea" placeholder="Ingrese el motivo de la cancelación"></textarea>
                             </div>
                             <div class="alert alert-info" style="margin-top: 10px; font-size: 0.9rem; text-align: center;">
-                                <i class="fas fa-info-circle"></i> La cancelación está disponible hasta 2 horas <br> después de efectuada.
+                                <i class="fas fa-info-circle"></i> La cancelación está disponible hasta 3 dias <br> después de efectuada.
                             </div>
                         `,
                         showCancelButton: true,

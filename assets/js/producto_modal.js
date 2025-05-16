@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <td>
           <div class="action-buttons">
             <button class="btn-edit"><i class="fas fa-edit"></i> Editar</button>
-            <button class="btn-delete"><i class="fas fa-trash"></i> Eliminar</button>
+            <!-- <button class="btn-delete"><i class="fas fa-trash"></i> Eliminar</button> -->
           </div>
         </td>
       `;
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const btnDelete = row.querySelector('.btn-delete');
       
       btnEdit.addEventListener('click', () => activarModoEdicion(row, tipo.descripcion));
-      btnDelete.addEventListener('click', () => eliminarTipoProducto(tipo.id));
+      // btnDelete.addEventListener('click', () => eliminarTipoProducto(tipo.id));
       
       tiposTable.appendChild(row);
     });
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
           row.querySelector('td:nth-child(3)').innerHTML = `
             <div class="action-buttons">
               <button class="btn-edit"><i class="fas fa-edit"></i> Editar</button>
-              <button class="btn-delete"><i class="fas fa-trash"></i> Eliminar</button>
+              <!-- <button class="btn-delete"><i class="fas fa-trash"></i> Eliminar</button> -->
             </div>
           `;
           
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const btnDelete = row.querySelector('.btn-delete');
           
           btnEdit.addEventListener('click', () => activarModoEdicion(row, nuevoNombre));
-          btnDelete.addEventListener('click', () => eliminarTipoProducto(tipoId));
+          // btnDelete.addEventListener('click', () => eliminarTipoProducto(tipoId));
           
           // Actualizar el select de la página principal
           fetch('../../controllers/productos/producto_tipo.php?action=getAll')
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
     celdaAcciones.innerHTML = `
       <div class="action-buttons">
         <button class="btn-edit"><i class="fas fa-edit"></i> Editar</button>
-        <button class="btn-delete"><i class="fas fa-trash"></i> Eliminar</button>
+        <!-- <button class="btn-delete"><i class="fas fa-trash"></i> Eliminar</button> -->
       </div>
     `;
     
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnDelete = row.querySelector('.btn-delete');
     
     btnEdit.addEventListener('click', () => activarModoEdicion(row, descripcion));
-    btnDelete.addEventListener('click', () => eliminarTipoProducto(tipoId));
+    // btnDelete.addEventListener('click', () => eliminarTipoProducto(tipoId));
   }
   
   // Agregar nuevo tipo de producto
