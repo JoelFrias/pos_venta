@@ -92,6 +92,7 @@ try {
     $formaPago = $conn->real_escape_string($data['formaPago']);
     $total = (float)$data['total'];
     $productos = $data['productos'];
+    $descuento = isset($data['descuento']) ? (float) $data['descuento'] : 0;
     $montoPagado = (float)$data['montoPagado'];
     $numeroAutorizacion = $data['numeroAutorizacion'] ?? 'N/A';
     $numeroTarjeta = $data['numeroTarjeta'] ?? 'N/A';
@@ -152,10 +153,16 @@ try {
             throw new Exception("Cantidad, precio o venta inválidos para el producto ID: " . $producto['id']);
         }
     }
+
+    // verificar que el descuento es un número positivo y valido
+    if ($descuento < 0) {
+        throw new Exception("El descuento (" . $descuento . ") no es valido");
+    }
     
     // Verificar que el monto pagado es mayor o igual al total
-    if ($montoPagado < $total && $tipoFactura === 'contado') {
-        throw new Exception("El monto pagado es menor que el total: " . $montoPagado . " < " . $total);
+    $montoValido = $montoPagado + $descuento;
+    if ($montoValido < $total && $tipoFactura === 'contado') {
+        throw new Exception("El monto pagado es menor que el total: " . $montoValido . " < " . $total);
     }
 
     // Verificar que el número de autorización tenga un formato válido
@@ -293,7 +300,7 @@ try {
     
 
     if ($tipoFactura == "credito") {
-        $balance = $total - $montoPagado;
+        $balance = $total - ($montoPagado + $descuento);
         if ($balance < 0) {
             $balance = 0;
         }
@@ -301,15 +308,17 @@ try {
         $balance = 0;
     }
 
+    $totalAjuste = $total - $descuento;
+
     $estado = ($balance > 0) ? 'Pendiente' : 'Pagada';
 
     $query = "INSERT INTO facturas (numFactura, tipoFactura, fecha, importe, descuento, total, total_ajuste, balance, idCliente, idEmpleado, estado) 
-              VALUES (?, ?, NOW(), ?, 0, ?, ?, ?, ?, ?, ?)";
+              VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($query);
     if (!$stmt) {
         throw new Exception("Error preparando inserción de factura: " . $conn->error);
     }
-    $stmt->bind_param('ssddddiis', $numFactura, $tipoFactura, $total, $total, $total, $balance, $idCliente, $_SESSION['idEmpleado'], $estado);
+    $stmt->bind_param('ssdddddiis', $numFactura, $tipoFactura, $total, $descuento ,$total, $totalAjuste, $balance, $idCliente, $_SESSION['idEmpleado'], $estado);
     if (!$stmt->execute()) {
         throw new Exception("Error insertando factura: " . $stmt->error);
     }
@@ -431,13 +440,21 @@ try {
      *      9. Registrar método de pago
      */
 
-     $devuelta = $montoPagado - $total;
+    // Calcular el total después de descuento
+    $totalConDescuento = $total - $descuento;
 
-     if ($devuelta > 0) {
-         $montoNeto = $total;
-     } else {
-         $montoNeto = $montoPagado;
-     }
+    // Determinar el monto neto basado en el pago y el descuento
+    if ($montoPagado >= $totalConDescuento) {
+        // Si pagó completo o más, el monto neto es el total con descuento
+        $montoNeto = $totalConDescuento;
+    } else {
+        // Si es crédito o pago parcial, el monto neto es lo que pagó
+        $montoNeto = $montoPagado;
+    }
+
+    // Calcular la devolución correctamente
+    $devuelta = $montoPagado - $totalConDescuento;
+    $devuelta = ($devuelta > 0) ? $devuelta : 0;
 
     $stmt = $conn->prepare("INSERT INTO facturas_metodopago (numFactura, metodo, monto, numAutorizacion, referencia, idBanco, idDestino, noCaja) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {

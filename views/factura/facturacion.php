@@ -182,77 +182,98 @@ if ($result->num_rows > 0) {
             <!-- Modal para procesar la factura -->
             <div id="modal-procesar-factura" class="modal">
                 <div class="modal-content">
-                <span class="close-btn-factura">&times;</span>
-                <h2>Procesar Factura</h2>
-                <label for="tipo-factura">Tipo de factura:</label>
-                <select id="tipo-factura">
-                    <option value="contado">Contado</option>
-                    <option value="credito">Crédito</option>
-                </select>
-                <label for="forma-pago">Forma de Pago:</label>
-                <select id="forma-pago">
-                    <option value="efectivo">Efectivo</option>
-                    <option value="tarjeta">Tarjeta</option>
-                    <option value="transferencia">Transferencia</option>
-                </select>
-                <div id="div-numero-tarjeta" style="display: none;">
-                    <label for="numero-tarjeta">Número de Tarjeta:</label>
-                    <input type="text" name="numero-tarjeta" id="numero-tarjeta" placeholder="Ingrese los últimos 4 dígitos de la tarjeta" maxlength="4">
-                </div>
-                <div id="div-numero-autorizacion" style="display: none;">
-                    <label for="numero-autorizacion">Número de autorización:</label>
-                    <input type="text" name="numero-autorizacion" id="numero-autorizacion" placeholder="Ingrese los 4 últimos dígitos de autorización" maxlength="4">
-                </div>
-                <div id="div-banco" style="display: none;">
-                    <label for="banco">Seleccione el banco:</label>
-                    <select name="banco" id="banco">
-                        <option value="1" disabled selected>Seleccionar</option>
-                        <?php
-                            $sql = "SELECT * FROM bancos WHERE id <> 1 AND enable = TRUE ORDER BY id ASC";
-                            $resultado = $conn->query($sql);
-                            if ($resultado->num_rows > 0) {
-                                while ($fila = $resultado->fetch_assoc()) {
-                                echo "<option value='" . $fila['id'] . "'>" . $fila['nombreBanco'] . "</option>";
-                                }
-                            } else {
-                                echo "<option value='' disabled>No hay opciones</option>";
-                            }
-                        ?>
-                    </select>
-                </div>
-                <div id="div-destino" style="display: none;">
-                    <label for="destino-cuenta">Seleccione el destino:</label>
-                    <select name="destino-cuenta" id="destino-cuenta">
-                        <option value="1" disabled selected>Seleccionar</option>
-                        <?php
-                            $sql = "SELECT * FROM destinocuentas WHERE id <> 1 AND enable = TRUE ORDER BY id ASC";
-                            $resultado = $conn->query($sql);
-                            if ($resultado->num_rows > 0) {
-                                while ($fila = $resultado->fetch_assoc()) {
-                                echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
-                                }
-                            } else {
-                                echo "<option value='' disabled>No hay opciones</option>";
-                            }
-                        ?>
-                    </select>
-                </div>
-                <div id="div-monto">
-                    <label for="monto-pagado">Monto Pagado:</label>
-                    <input type="number" name="monto-pagado" id="monto-pagado" placeholder="Ingrese la cantidad pagada" step="0.01" min="0">
-                </div>
-                <div id="div-devuelta" style="margin-top: 10px; font-weight: bold;">
-                    <span>Devuelta: RD$ <span id="devuelta-monto">0.00</span></span>
-                </div>
-                <div>
-                    <div class="order-total">
-                        <div class="total-label">Total:</div>
-                        <div class="total-amount">RD$ <span id="totalAmount2">0.00</span></div>
+                    <span class="close-btn-factura">&times;</span>
+                    <h2>Procesar Factura</h2>
+
+                    <div class="body">
+
+                        <label for="tipo-factura">Tipo de factura:</label>
+                        <select id="tipo-factura">
+                            <option value="contado">Contado</option>
+                            <option value="credito">Crédito</option>
+                        </select>
+
+                        <label for="forma-pago">Forma de Pago:</label>
+                        <select id="forma-pago">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                        </select>
+
+                        <div id="div-numero-tarjeta" style="display: none;">
+                            <label for="numero-tarjeta">Número de Tarjeta:</label>
+                            <input type="text" name="numero-tarjeta" id="numero-tarjeta" placeholder="Ingrese los últimos 4 dígitos de la tarjeta" maxlength="4">
+                        </div>
+
+                        <div id="div-numero-autorizacion" style="display: none;">
+                            <label for="numero-autorizacion">Número de autorización:</label>
+                            <input type="text" name="numero-autorizacion" id="numero-autorizacion" placeholder="Ingrese los 4 últimos dígitos de autorización" maxlength="4">
+                        </div>
+
+                        <div id="div-banco" style="display: none;">
+                            <label for="banco">Seleccione el banco:</label>
+                            <select name="banco" id="banco">
+                                <option value="1" disabled selected>Seleccionar</option>
+                                <?php
+                                    $sql = "SELECT * FROM bancos WHERE id <> 1 AND enable = TRUE ORDER BY id ASC";
+                                    $resultado = $conn->query($sql);
+                                    if ($resultado->num_rows > 0) {
+                                        while ($fila = $resultado->fetch_assoc()) {
+                                        echo "<option value='" . $fila['id'] . "'>" . $fila['nombreBanco'] . "</option>";
+                                        }
+                                    } else {
+                                        echo "<option value='' disabled>No hay opciones</option>";
+                                    }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div id="div-destino" style="display: none;">
+                            <label for="destino-cuenta">Seleccione el destino:</label>
+                            <select name="destino-cuenta" id="destino-cuenta">
+                                <option value="1" disabled selected>Seleccionar</option>
+                                <?php
+                                    $sql = "SELECT * FROM destinocuentas WHERE id <> 1 AND enable = TRUE ORDER BY id ASC";
+                                    $resultado = $conn->query($sql);
+                                    if ($resultado->num_rows > 0) {
+                                        while ($fila = $resultado->fetch_assoc()) {
+                                        echo "<option value='" . $fila['id'] . "'>" . $fila['descripcion'] . "</option>";
+                                        }
+                                    } else {
+                                        echo "<option value='' disabled>No hay opciones</option>";
+                                    }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div id="div-descuento">
+                            <label for="input-descuento">Descuento:</label>
+                            <input type="number" id="input-descuento" name="input-descuento" step="0.01" min="0" placeholder="Ingrese el descuento (Si aplica)">
+                        </div>
+
+                        <div id="div-monto">
+                            <label for="monto-pagado">Monto Pagado:</label>
+                            <input type="number" name="monto-pagado" id="monto-pagado" placeholder="Ingrese la cantidad pagada" step="0.01" min="0">
+                        </div>
+
+                        <div id="div-devuelta" style="margin-top: 10px; font-weight: bold;">
+                            <span>Devuelta: RD$ <span id="devuelta-monto">0.00</span></span>
+                        </div>
+
+                        <div>
+                            <div class="order-total">
+                                <div class="total-label">Total a Pagar:</div>
+                                <div class="total-amount">RD$ <span id="totalAmount2">0.00</span></div>
+                            </div>
+                        </div>
+
+                        <div id="botones-facturas">
+                            <button id="guardar-factura" class="footer-button" onclick="guardarFactura(false)">Guardar Factura</button>
+                            <button id="guardar-imprimir-factura" class="footer-button" onclick="guardarFactura(true)">Guardar e Imprimir</button>
+                        </div>
+                        
                     </div>
-                </div>
-                <div id="botones-facturas">
-                    <button id="guardar-factura" class="footer-button" onclick="guardarFactura(false)">Guardar Factura</button>
-                    <button id="guardar-imprimir-factura" class="footer-button" onclick="guardarFactura(true)">Guardar e Imprimir</button>
+
                 </div>
             </div>
         

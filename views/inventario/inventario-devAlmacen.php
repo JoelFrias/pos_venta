@@ -343,7 +343,7 @@ $resultEmpleados = $stmtEmp->get_result();
             const quantityInput = document.getElementById(`quantity-${productId}`);
             const quantity = parseInt(quantityInput.value);
 
-            if (quantity <= 0) {
+            if (quantity <= 0 || isNaN(quantity)) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Valor inválido',

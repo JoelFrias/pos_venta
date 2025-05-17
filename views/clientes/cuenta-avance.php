@@ -141,185 +141,194 @@
             white-space: nowrap;
         }
 
-        /* Improved Modal Styling */
-        .modal-history-payment {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            overflow: hidden;
-        }
+        /* Estilos para el Modal de Historial de Pagos */
 
-        .modal-content-history-payments {
-            position: relative;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 1200px;
-            max-height: 85vh;
-            overflow: auto;
-            padding: 20px;
-            margin: 0 auto;
-        }
+/* Fondo del modal */
+.modal-history-payment {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s;
+}
 
-        .close-modal-history-payments {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 100;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f5f5f5;
-            border-radius: 50%;
-            transition: background-color 0.2s ease;
-        }
+/* Contenido del modal */
+.modal-content-history-payments {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 85%;
+    max-width: 1200px;
+    position: relative;
+    animation: slideDown 0.4s;
+    overflow: hidden;
+}
 
-        .close-modal-history-payments:hover {
-            background-color: #e0e0e0;
-        }
+/* Botón de cerrar */
+.close-modal-history-payments {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s;
+}
 
-        .payment-table {
-            width: 100%;
-            min-width: 800px; /* Ensure minimum width for readability */
-            margin-top: 20px;
-        }
+.close-modal-history-payments:hover {
+    color: #333;
+}
 
-        /* Pagination styling */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 20px;
-            padding: 10px 0;
-        }
+/* Estilos para la tabla de pagos */
+.payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 
-        .pagination a, .pagination span {
-            padding: 8px 12px;
-            text-decoration: none;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
+.payment-table thead {
+    background-color: #f8f9fa;
+}
 
-        .pagination a:hover {
-            background-color: #f5f5f5;
-        }
+.payment-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e3e6f0;
+}
 
-        .pagination .current {
-            background-color: #4CAF50;
-            color: white;
-            border: 1px solid #4CAF50;
-        }
+.payment-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e3e6f0;
+    color: #555;
+}
 
-        /* For very small screens */
-        @media (max-width: 480px) {
-            .history-tables {
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .history-table {
-                width: 100%;
-                margin-bottom: 1.5rem;
-            }
+.payment-table tbody tr:hover {
+    background-color: #f8f9fb;
+}
 
-            .table-container th,
-            .table-container td {
-                padding: 0.5rem;
-                font-size: 0.85rem;
-            }
-            
-            /* Make "Ver más" button full width on mobile */
-            .btn.btn-secondary {
-                width: 100%;
-            }
-            
-            /* Modal adjustments for mobile */
-            .modal-content-history-payments {
-                padding: 15px;
-                width: 95%;
-                max-height: 400px;
-                margin: 10px auto;
-            }
-            
-            .close-modal-history-payments {
-                top: 5px;
-                right: 10px;
-            }
-            
-            /* Pagination adjustments */
-            .pagination {
-                padding: 5px 0;
-            }
-            
-            .pagination a, .pagination span {
-                padding: 5px 8px;
-                font-size: 0.9rem;
-            }
-        }
+/* Botón de cancelar pago */
+.btn-cancel {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
 
-        /* For tablets */
-        @media (min-width: 481px) and (max-width: 768px) {
-            .history-tables {
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .history-table {
-                width: 100%;
-                margin-bottom: 1.5rem;
-            }
-            
-            .modal-content-history-payments {
-                width: 90%;
-                max-height: 85vh;
-            }
-        }
+.btn-cancel:hover {
+    background-color: #c82333;
+}
 
-        /* For larger screens */
-        @media (min-width: 769px) {
-            .history-tables {
-                display: flex;
-                flex-direction: row;
-                gap: 20px;
-            }
-            
-            .history-table {
-                flex: 1;
-            }
-        }
+/* Estilos para la paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+    gap: 8px;
+}
 
-        .btn-cancel {
-            background-color: #e74c3c; /* Rojo elegante */
-            color: #ffffff;
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+.pagination a, .pagination span {
+    display: inline-block;
+    padding: 8px 14px;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
 
-        .btn-cancel:hover {
-            background-color: #c0392b; /* Un poco más oscuro al hacer hover */
-        }
+.pagination a {
+    background-color: #f8f9fa;
+    color: #007bff;
+    border: 1px solid #dee2e6;
+}
 
+.pagination a:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
 
+.pagination span.current {
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #007bff;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Responsive design */
+@media screen and (max-width: 992px) {
+    .modal-content-history-payments {
+        width: 95%;
+        margin: 5% auto;
+        padding: 15px;
+    }
+    
+    .payment-table th, .payment-table td {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .modal-content-history-payments {
+        padding: 12px;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+        overflow-y: auto;
+    }
+    
+    .modal-history-payment {
+        padding: 0;
+    }
+    
+    .payment-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        margin-top: 10px;
+    }
+    
+    .btn-cancel {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .pagination a, .pagination span {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+    
+    .close-modal-history-payments {
+        top: 10px;
+        right: 15px;
+    }
+}
+        
     </style>
 
 </head>
@@ -587,11 +596,11 @@
                                         <th>Fecha</th>
                                         <th>Método</th>
                                         <th>Monto</th>
+                                        <th>Empleado</th>
                                         <th>Autorización</th>
                                         <th>Referencia</th>
                                         <th>Banco</th>
                                         <th>Destino</th>
-                                        <th>Empleado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -603,11 +612,11 @@
                                             <td><?php echo htmlspecialchars($row['fechachp']); ?></td>
                                             <td><?php echo htmlspecialchars($row['metodochp']); ?></td>
                                             <td><?php echo htmlspecialchars($row['montochp']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['nombree']); ?></td>
                                             <td><?php echo htmlspecialchars($row['autorizacionchp']); ?></td>
                                             <td><?php echo htmlspecialchars($row['tarjetachp']); ?></td>
                                             <td><?php echo htmlspecialchars($row['bancochp']); ?></td>
                                             <td><?php echo htmlspecialchars($row['destinochp']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['nombree']); ?></td>
                                         </tr>
                                     <?php endwhile; ?>
                                 </tbody>
@@ -963,6 +972,97 @@
 
             }
         });
+
+
+        /**
+         * Script para manejar la cancelación de pagos de clientes
+         */
+
+        /**
+         * Función para cancelar un pago
+         * @param {number} idPago - ID del registro de pago a cancelar
+         */
+        function cancelpayment(idPago) {
+            // Usar SweetAlert para la confirmación
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: '¿Desea cancelar este pago? Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, cancelar pago',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar indicador de carga si existe
+                    const loadingElement = document.getElementById('loading');
+                    if (loadingElement) {
+                        loadingElement.style.display = 'block';
+                    }
+                    
+                    // Realizar la petición al servidor
+                    fetch('../../controllers/clientes/cancelar-pagos.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            registro_pago: idPago
+                            // No es necesario enviar el empleado_id ya que se obtiene de la sesión en el backend
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error en la respuesta del servidor');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Ocultar indicador de carga
+                        if (loadingElement) {
+                            loadingElement.style.display = 'none';
+                        }
+                        
+                        if (data.success) {
+                            // Mostrar mensaje de éxito
+                            Swal.fire({
+                                title: 'Éxito',
+                                text: data.message,
+                                icon: 'success',
+                                confirmButtonText: 'Aceptar'
+                            }).then(() => {
+                                // Recargar la página después de hacer clic en Aceptar
+                                location.reload();
+                            });
+                        } else {
+                            // Mostrar mensaje de error
+                            Swal.fire({
+                                title: 'Error',
+                                text: data.message,
+                                icon: 'error',
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        // Ocultar indicador de carga
+                        if (loadingElement) {
+                            loadingElement.style.display = 'none';
+                        }
+                        
+                        // Mostrar mensaje de error
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Error de conexión con el servidor',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        }
     </script>
     
 </body>

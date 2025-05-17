@@ -35,6 +35,11 @@ require_once '../../models/conexion.php';
 $numFactura = isset($_GET['numFactura']) && !empty($_GET['numFactura']) ? intval($_GET['numFactura']) : null;
 $estado = isset($_GET['estado']) ? $_GET['estado'] : 'todas'; // Estado por defecto: todas
 
+if ($numFactura === null) {
+    header('Location: ../../views/factura/factura-registro.php?error=missing_numFactura');
+    exit();
+}
+
 // Construir la consulta SQL según los filtros
 $sql = "SELECT 
             f.numFactura, 
@@ -91,18 +96,19 @@ if ($result->num_rows > 0) {
 
     // Pasar numeros de factura a moneda
     foreach ($facturas as &$factura) {
-        $factura['importe'] = "RD$ " . number_format($factura['importe'], 2, '.', '');
-        $factura['descuento'] = "RD$ " . number_format($factura['descuento'], 2, '.', '');
-        $factura['total_ajuste'] = "RD$ " . number_format($factura['total_ajuste'], 2, '.', '');
-        $factura['total'] = "RD$ " . number_format($factura['total'], 2, '.', '');
-        $factura['balance'] = "RD$ " . number_format($factura['balance'], 2, '.', '');
-        $factura['montofm'] = "RD$ " . number_format($factura['montofm'], 2, '.', '');
+        $factura['importe'] = "RD$ " . number_format($factura['importe']);
+        $factura['descuento'] = "RD$ " . number_format($factura['descuento']);
+        $factura['total_ajuste'] = "RD$ " . number_format($factura['total_ajuste']);
+        $factura['total'] = "RD$ " . number_format($factura['total']);
+        $factura['balance'] = "RD$ " . number_format($factura['balance']);
+        $factura['montofm'] = "RD$ " . number_format($factura['montofm']);
     }
 
 
 
 } else {
-    $mensaje = "No se encontraró la factura con los criterios de búsqueda.";
+    header('Location: ../../views/factura/factura-registro.php?error=missing_numFactura');
+    exit();
 }
 
 ?>
@@ -816,9 +822,9 @@ if ($result->num_rows > 0) {
                                     while ($detalle = $resultDetalles->fetch_assoc()) {
 
                                         // Formatear los números a moneda
-                                        $detalle['importeProducto'] = "RD$ " . number_format($detalle['importeProducto'], 2, '.', '');
-                                        $detalle['precioVenta'] = "RD$ " . number_format($detalle['precioVenta'], 2, '.', '');
-                                        $detalle['cantidad'] = number_format($detalle['cantidad'], 0, '.', ''); // Formatear cantidad a número entero
+                                        $detalle['importeProducto'] = "RD$ " . number_format($detalle['importeProducto']);
+                                        $detalle['precioVenta'] = "RD$ " . number_format($detalle['precioVenta']);
+                                        $detalle['cantidad'] = number_format($detalle['cantidad'], 0, '.', '');
 
                                         echo "<div class='product-card'>
                                                 <div class='product-header'>
@@ -878,14 +884,14 @@ if ($result->num_rows > 0) {
                                         </div>
                                         <div class="total-row">
                                             <span>ITBIS Total</span>
-                                            <span>RD$ 0.00</span> <!--no se cobra itebis-->
+                                            <span>RD$ 0</span> <!--no se cobra itbis-->
                                         </div>
                                         <div class="total-row">
                                             <span>Descuento</span>
                                             <span class="discount"><?php echo $facturaInfo['descuento']; ?></span>
                                         </div>
                                         <div class="total-row">
-                                            <span>Total Ajuste</span>
+                                            <span>Total a Pagar:</span>
                                             <span><?php echo $facturaInfo['total_ajuste']; ?></span>
                                         </div>
                                         <div class="total-row final-total">

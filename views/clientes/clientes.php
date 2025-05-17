@@ -479,17 +479,20 @@ function construirQueryFiltros($filtros) {
                                     <div class="mobile-value"><?php echo htmlspecialchars($row['direccion']); ?></div>
                                 </div>
 
-                                <?php 
-                                    // Verificar si el usuario tiene permisos de administrador
-                                    if ($_SESSION['idPuesto'] <= 2):
-                                ?>
+                                
 
                                 <div class="mobile-actions">
+                                    
                                     <!-- Boton para avance a cuenta -->
                                     <a href="cuenta-avance.php?idCliente=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
                                         <i class="fa-regular fa-user"></i>
                                         <span>Avance a Cuenta</span>
                                     </a>
+
+                                    <?php 
+                                        // Verificar si el usuario tiene permisos de administrador
+                                        if ($_SESSION['idPuesto'] <= 2):
+                                    ?>
                                     
                                     <!-- Botón para actualizar el cliente -->
                                     <a href="clientes-actualizar.php?id=<?php echo urlencode($row['id']); ?>" class="btn btn-update">
@@ -500,9 +503,10 @@ function construirQueryFiltros($filtros) {
                                         </svg>
                                         <span>Editar</span>
                                     </a>
-                                </div>
 
-                                <?php endif ?>
+                                    <?php endif ?>
+
+                                </div>
 
                             </div>
                         </div>

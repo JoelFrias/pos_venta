@@ -209,24 +209,31 @@ function addToCart(productId, productName, venta, precio, existencia) {
     // Calcular el subtotal del producto
     const subtotal = selectedPrice * quantity;
 
-    /**
- // Verificar si el producto ya está en el carrito
-    const existingProduct = productos.find(producto => producto.id === productId);
+    /*
+    // Verificar si el producto ya está en el carrito
+    const existingProduct = productos.find(producto => 
+        producto.id === productId && producto.venta === selectedPrice
+    );
+
     if (existingProduct) {
-        // Si el producto ya existe, actualizar la cantidad y subtotal
-        existingProduct.cantidad += parseInt(quantity);
-        existingProduct.subtotal += subtotal;
+        // Si el producto ya existe, actualizar la cantidad y el subtotal
+        const cantidadInt = parseInt(quantity);
+        existingProduct.cantidad += cantidadInt;
+        existingProduct.subtotal += precio * cantidadInt;
     } else {
         // Si el producto no existe, agregarlo al carrito
+        const cantidadInt = parseInt(quantity);
         productos.push({
             id: productId,
             venta: selectedPrice,
-            cantidad: parseInt(quantity),
+            cantidad: cantidadInt,
             precio: precio,
-            subtotal: subtotal
+            subtotal: precio * cantidadInt
         });
     }
+
     */
+
 
     productos.push({
         id: productId,
@@ -331,6 +338,7 @@ function guardarFactura(print) {
     let numeroAutorizacion = document.getElementById("numero-autorizacion").value.trim();
     let banco = document.getElementById("banco").value.trim();
     let destino = document.getElementById("destino-cuenta").value.trim();
+    let descuento = document.getElementById("input-descuento").value.trim();
     let montoPagado = document.getElementById("monto-pagado").value.trim();
     let total = document.getElementById("totalAmount").textContent.replace(/,/g, "");
 
@@ -338,6 +346,7 @@ function guardarFactura(print) {
     idCliente = idCliente ? parseInt(idCliente) : null;
     banco = banco ? parseInt(banco) : null;
     destino = destino ? parseInt(destino) : null;
+    descuento = descuento ? parseInt(descuento) : null;
     montoPagado = montoPagado ? parseFloat(montoPagado) : null;
     total = total ? parseFloat(total) : null;
 
@@ -426,11 +435,12 @@ function guardarFactura(print) {
     }
     
     // Validar que el monto pagado sea mayor o igual al total
-    if (montoPagado < total && tipoFactura == "contado") {
+    montoValido = montoPagado + descuento;
+    if (montoValido < total && tipoFactura == "contado") {
         Swal.fire({
             icon: 'warning',
             title: 'Validación',
-            text: 'El monto pagado no puede ser menor que el total de la factura.',
+            text: 'El monto pagado no puede ser menor que el total a pagar.',
             showConfirmButton: true,
             confirmButtonText: 'Aceptar'
         });
@@ -445,6 +455,7 @@ function guardarFactura(print) {
         numeroAutorizacion: numeroAutorizacion || null, 
         banco: banco || null,
         destino: destino || null,
+        descuento,
         montoPagado,
         total,
         productos
@@ -576,14 +587,20 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
-// Calcular Devuelta
+// Calcular Devuelta - Ejecutar cuando cambia el monto pagado o el descuento
 document.getElementById('monto-pagado').addEventListener('input', calcularDevuelta);
+document.getElementById('input-descuento').addEventListener('input', calcularDevuelta);
 
 function calcularDevuelta() {
     const montoPagado = parseFloat(document.getElementById('monto-pagado').value) || 0;
-    const totalFactura = parseFloat(document.getElementById('totalAmount2').textContent.replace(',', '').replace('RD$', '').trim()) || 0;
+    const totalFacturaBruto = parseFloat(document.getElementById('totalAmount').textContent.replace(',', '').replace('RD$', '').trim()) || 0;
+    const descuento = parseFloat(document.getElementById('input-descuento').value) || 0;
     
-    let devuelta = montoPagado - totalFactura;
+    // Aplicar el descuento al total de la factura
+    const totalFacturaConDescuento = totalFacturaBruto - descuento;
+    
+    // Calcular la devuelta basado en el total con descuento
+    let devuelta = montoPagado - totalFacturaConDescuento;
 
     const devueltaElement = document.getElementById('div-devuelta');
     
@@ -594,4 +611,10 @@ function calcularDevuelta() {
         document.getElementById('devuelta-monto').textContent = '0.00';
         devueltaElement.style.color = 'red';
     }
+
+    if(descuento > 0){
+        calTotal = totalFacturaBruto - descuento;
+        document.getElementById('totalAmount2').textContent = `${calTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
 }
