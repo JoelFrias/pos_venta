@@ -143,191 +143,191 @@
 
         /* Estilos para el Modal de Historial de Pagos */
 
-/* Fondo del modal */
-.modal-history-payment {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-    animation: fadeIn 0.3s;
-}
+        /* Fondo del modal */
+        .modal-history-payment {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
 
-/* Contenido del modal */
-.modal-content-history-payments {
-    background-color: #fff;
-    margin: 5% auto;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 85%;
-    max-width: 1200px;
-    position: relative;
-    animation: slideDown 0.4s;
-    overflow: hidden;
-}
+        /* Contenido del modal */
+        .modal-content-history-payments {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 85%;
+            max-width: 1200px;
+            position: relative;
+            animation: slideDown 0.4s;
+            overflow: hidden;
+        }
 
-/* Botón de cerrar */
-.close-modal-history-payments {
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    font-size: 24px;
-    font-weight: bold;
-    color: #888;
-    cursor: pointer;
-    transition: color 0.2s;
-}
+        /* Botón de cerrar */
+        .close-modal-history-payments {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
 
-.close-modal-history-payments:hover {
-    color: #333;
-}
+        .close-modal-history-payments:hover {
+            color: #333;
+        }
 
-/* Estilos para la tabla de pagos */
-.payment-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
+        /* Estilos para la tabla de pagos */
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
 
-.payment-table thead {
-    background-color: #f8f9fa;
-}
+        .payment-table thead {
+            background-color: #f8f9fa;
+        }
 
-.payment-table th {
-    padding: 12px 15px;
-    text-align: left;
-    font-weight: 600;
-    color: #333;
-    border-bottom: 2px solid #e3e6f0;
-}
+        .payment-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e3e6f0;
+        }
 
-.payment-table td {
-    padding: 10px 15px;
-    border-bottom: 1px solid #e3e6f0;
-    color: #555;
-}
+        .payment-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e3e6f0;
+            color: #555;
+        }
 
-.payment-table tbody tr:hover {
-    background-color: #f8f9fb;
-}
+        .payment-table tbody tr:hover {
+            background-color: #f8f9fb;
+        }
 
-/* Botón de cancelar pago */
-.btn-cancel {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: background-color 0.2s;
-}
+        /* Botón de cancelar pago */
+        .btn-cancel {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.2s;
+        }
 
-.btn-cancel:hover {
-    background-color: #c82333;
-}
+        .btn-cancel:hover {
+            background-color: #c82333;
+        }
 
-/* Estilos para la paginación */
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 25px;
-    gap: 8px;
-}
+        /* Estilos para la paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            gap: 8px;
+        }
 
-.pagination a, .pagination span {
-    display: inline-block;
-    padding: 8px 14px;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
+        .pagination a, .pagination span {
+            display: inline-block;
+            padding: 8px 14px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
 
-.pagination a {
-    background-color: #f8f9fa;
-    color: #007bff;
-    border: 1px solid #dee2e6;
-}
+        .pagination a {
+            background-color: #f8f9fa;
+            color: #007bff;
+            border: 1px solid #dee2e6;
+        }
 
-.pagination a:hover {
-    background-color: #e9ecef;
-    border-color: #ced4da;
-}
+        .pagination a:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+        }
 
-.pagination span.current {
-    background-color: #007bff;
-    color: white;
-    border: 1px solid #007bff;
-}
+        .pagination span.current {
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+        }
 
-/* Animaciones */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-@keyframes slideDown {
-    from { transform: translateY(-30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
+        @keyframes slideDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
-/* Responsive design */
-@media screen and (max-width: 992px) {
-    .modal-content-history-payments {
-        width: 95%;
-        margin: 5% auto;
-        padding: 15px;
-    }
-    
-    .payment-table th, .payment-table td {
-        padding: 8px 10px;
-        font-size: 14px;
-    }
-}
+        /* Responsive design */
+        @media screen and (max-width: 992px) {
+            .modal-content-history-payments {
+                width: 95%;
+                margin: 5% auto;
+                padding: 15px;
+            }
+            
+            .payment-table th, .payment-table td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+        }
 
-@media screen and (max-width: 768px) {
-    .modal-content-history-payments {
-        padding: 12px;
-        margin: 0;
-        width: 100%;
-        height: 100%;
-        max-height: 100vh;
-        border-radius: 0;
-        overflow-y: auto;
-    }
-    
-    .modal-history-payment {
-        padding: 0;
-    }
-    
-    .payment-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-        margin-top: 10px;
-    }
-    
-    .btn-cancel {
-        padding: 5px 10px;
-        font-size: 12px;
-    }
-    
-    .pagination a, .pagination span {
-        padding: 6px 10px;
-        font-size: 14px;
-    }
-    
-    .close-modal-history-payments {
-        top: 10px;
-        right: 15px;
-    }
-}
+        @media screen and (max-width: 768px) {
+            .modal-content-history-payments {
+                padding: 12px;
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+                overflow-y: auto;
+            }
+            
+            .modal-history-payment {
+                padding: 0;
+            }
+            
+            .payment-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                margin-top: 10px;
+            }
+            
+            .btn-cancel {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+            
+            .pagination a, .pagination span {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+            
+            .close-modal-history-payments {
+                top: 10px;
+                right: 15px;
+            }
+        }
         
     </style>
 
@@ -342,16 +342,9 @@
         <div class="page-content">
         <!-- TODO EL CONTENIDO DE LA PAGINA DEBE DE ESTAR DEBAJO DE ESTA LINEA -->
 
+        
+
             <div class="contenedor">
-                <!-- Your existing header and client data sections remain unchanged -->
-                <div class="header">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
-                        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
-                        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
-                    </svg>
-                    <h2>Avance de Cuenta</h2>
-                </div>
                 
                 <div class="flex-container">
                     <!-- Client Data Section -->

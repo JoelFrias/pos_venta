@@ -277,10 +277,6 @@ try {
         $pdf->SetFont('Arial', '', 8);
         $pdf->MultiCell(66, 3, utf8_decode(htmlspecialchars($info['text3'])), 0, 'C');
         
-        $pdf->Ln(3);
-        $pdf->Cell(33, 4, utf8_decode('Le atendió:'), 0, 0);
-        $pdf->Cell(33, 4, utf8_decode(htmlspecialchars($invoice['nombree'])), 0, 1);
-        
         // Close statement
         $stmt_items->close();
         
